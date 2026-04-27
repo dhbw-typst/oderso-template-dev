@@ -1,0 +1,457 @@
+%YAML 1.2
+---
+# http://www.sublimetext.com/docs/syntax.html
+name: CDS
+file_extensions:
+  - cds
+scope: source.cds
+contexts:
+  main:
+    - match: \b(aspect|(abstract\s+)?entity)\b
+      captures:
+        1: keyword.strong.cds
+      push:
+        - match: '(?<=})(;)?|(;)'
+          captures:
+            1: punctuation.terminator.statement.cds
+            2: punctuation.terminator.statement.cds
+          pop: true
+        - match: ':'
+          captures:
+            0: keyword.operator.cds
+          push:
+            - match: '(?={|;)'
+              pop: true
+            - include: identifiers
+            - match: ','
+              scope: punctuation.separator.object.cds
+        - include: bracedElementDef
+        - include: keywords
+        - include: identifiers
+    - match: '(?i)\b(extend)\s+((context|service|aspect|entity|projection|type)\s+)?(\S+)(\s+(with)(\s+(actions|definitions|columns|elements|enum))?|(?=\s*{))'
+      captures:
+        1: keyword.strong.cds
+        3: keyword.cds
+        4: identifier.cds
+        6: keyword.cds
+        8: keyword.cds
+      push:
+        - match: '(?<=})(;)?|(;)'
+          captures:
+            1: punctuation.terminator.statement.cds
+            2: punctuation.terminator.statement.cds
+          pop: true
+        - include: bracedElementDef
+        - include: keywords
+        - include: identifiers
+        - match: ','
+          scope: punctuation.separator.object.cds
+    - match: '(?<!\.)\b(annotate)\b\s*[\w.]+\b\s*\b(with)?\b'
+      captures:
+        1: keyword.strong.control.import.cds
+        2: keyword.strong.control.import.cds
+    - match: (?<!\.)\b(import|using)(?!\s*:)\b
+      captures:
+        1: keyword.strong.control.import.cds
+      push:
+        - meta_scope: meta.import.cds
+        - match: (;)|\n
+          captures:
+            1: punctuation.terminator.statement.cds
+          pop: true
+        - match: '{'
+          captures:
+            0: punctuation.definition.modules.begin.cds
+          push:
+            - match: '}'
+              captures:
+                0: punctuation.definition.modules.end.cds
+              pop: true
+            - match: '(?:\b(default)\b|\b([$_a-zA-Z][$_a-zA-Z0-9]*)\b)\s*(\bas\b)\s*(?:(\bdefault\b|\*)|\b([$_a-zA-Z][$_a-zA-Z0-9]*)\b)'
+              captures:
+                1: variable.language.default.cds
+                2: variable.other.module.cds
+                3: keyword.strong.cds
+                4: invalid.illegal.cds
+                5: variable.other.module-alias.cds
+            - match: ','
+              scope: punctuation.separator.object.cds
+            - include: comments
+            - match: '\b([$_a-zA-Z][$_a-zA-Z0-9]*)\b'
+              scope: variable.other.module.cds
+        - match: '(?:(\*)|(?=\D)(\b[\$\.\w]+\b))\s*(\bas\b)\s*(?=\D)(\b[\$\.\w]+\b)'
+          captures:
+            1: variable.language.import-all.cds
+            2: variable.other.module.cds
+            3: keyword.strong.control.cds
+            4: variable.other.module-alias.cds
+        - match: \*
+          scope: variable.language.import-all.cds
+        - match: \b(default)\b
+          scope: variable.language.default.cds
+        - include: strings
+        - include: comments
+        - match: (?i)\b(from)\b
+          scope: keyword.strong.control.cds
+        - match: '\b([$_a-zA-Z][$_a-zA-Z0-9]*)\b(?=.*\bfrom\b)'
+          scope: variable.other.module.cds
+        - match: ','
+          scope: punctuation.separator.object.cds
+    - match: '\b(export)\b\s*\b(default)\b(?:\s*)\b((?!\bclass\b|\blet\b|\bvar\b|\bconst\b)[$_a-zA-Z][$_a-zA-Z0-9]*)?\b'
+      scope: meta.export.cds
+      captures:
+        1: keyword.control.cds
+        2: variable.language.default.cds
+        3: variable.other.module.cds
+    - match: (?<!\.)\b(export)(?!\s*:)\b
+      captures:
+        1: keyword.control.export.cds
+      push:
+        - meta_scope: meta.export.cds
+        - match: (?=;|\bclass\b|\blet\b|\bvar\b|\bconst\b|$)
+          pop: true
+        - include: numbers
+        - match: '{(?=.*\bfrom\b)'
+          captures:
+            0: punctuation.definition.modules.begin.cds
+          push:
+            - match: '}'
+              captures:
+                0: punctuation.definition.modules.end.cds
+              pop: true
+            - match: '(?:\b(default)\b|\b([$_a-zA-Z][$_a-zA-Z0-9]*)\b)\s*(\bas\b)\s*(?:\b(default)\b|(\*)|\b([$_a-zA-Z][$_a-zA-Z0-9]*)\b)'
+              captures:
+                1: variable.language.default.cds
+                2: variable.other.module.cds
+                3: keyword.control.cds
+                4: variable.language.default.cds
+                5: invalid.illegal.cds
+                6: variable.other.module-alias.cds
+            - match: ','
+              scope: meta.delimiter.object.comma.cds
+            - match: '\b([$_a-zA-Z][$_a-zA-Z0-9]*)\b'
+              scope: variable.other.module.cds
+        - match: '(?![\p{L}$_]){'
+          captures:
+            0: punctuation.definition.modules.begin.cds
+          push:
+            - match: '}'
+              captures:
+                0: punctuation.definition.modules.end.cds
+              pop: true
+            - match: '(?:\b(default)\b|\b([$_a-zA-Z][$_a-zA-Z0-9]*)\b)\s*(\bas\b)\s*(?:\b(default)\b|(\*)|\b([$_a-zA-Z][$_a-zA-Z0-9]*)\b)'
+              captures:
+                1: invalid.illegal.cds
+                2: variable.other.module.cds
+                3: keyword.control.cds
+                4: variable.language.default.cds
+                5: invalid.illegal.cds
+                6: variable.other.module-alias.cds
+            - match: ','
+              scope: meta.delimiter.object.comma.cds
+            - match: '\b([$_a-zA-Z][$_a-zA-Z0-9]*)\b'
+              scope: variable.other.module.cds
+        - match: \*(?=.*\bfrom\b)
+          scope: variable.language.import-all.cds
+        - match: \b(default)\b
+          scope: variable.language.default.cds
+        - include: strings
+        - include: comments
+        - match: (?i)\b(from)\b
+          scope: keyword.control.cds
+        - match: '\b([$_a-zA-Z][$_a-zA-Z0-9]*)\b'
+          scope: variable.other.module.cds
+        - match: ','
+          scope: meta.delimiter.object.comma.cds
+        - include: operators
+    - match: '\b(?:(static)\s+)?(?!(?:break|case|catch|continue|do|else|finally|for|if|export|import|using|package|return|switch|throw|try|while|with)[\s\(])([$_a-zA-Z][$_a-zA-Z0-9]*)\s*(\()(?=(?:[^\(\)]*)?\)\s*{)'
+      captures:
+        1: storage.modifier.static.cds
+        2: entity.name.function.cds
+        3: punctuation.definition.parameters.begin.cds
+      push:
+        - meta_scope: meta.method.cds
+        - match: \)
+          captures:
+            0: punctuation.definition.parameters.begin.cds
+          pop: true
+        - include: function-params
+    - match: '\b(class)(?:\s+([$_a-zA-Z][$_a-zA-Z0-9]*))?(?:\s+(extends)\s+([$_a-zA-Z][$_a-zA-Z0-9]*))?\s*($|(?={))'
+      scope: meta.class.cds
+      captures:
+        1: storage.type.class.cds
+        2: entity.name.type.class.cds
+        3: storage.modifier.cds
+        4: entity.other.inherited-class.cds
+    - match: '=>'
+      scope: storage.type.arrow.cds
+    - match: (?<!\.|\$)\b(let|var)\b(?!\$)
+      scope: storage.type.var.cds
+    - match: (?<!\.|\$)\b(get|set|const)\b(?!\$)
+      scope: storage.modifier.cds
+    - match: (?<!\.)\b(yield)(?!\s*:)\b(?:\s*(\*))?
+      scope: meta.control.yield.cds
+      captures:
+        1: keyword.control.cds
+        2: storage.modifier.cds
+    - match: \b(false|Infinity|NaN|null|true|undefined)\b
+      scope: constant.language.cds
+    - match: (?<!\.)\b(super|this)(?!\s*:)\b
+      scope: variable.language.cds
+    - match: \;
+      scope: punctuation.terminator.statement.cds
+    - match: '(\[)(\])'
+      captures:
+        1: punctuation.section.scope.begin.cds
+        2: punctuation.section.scope.end.cds
+    - match: '{'
+      captures:
+        0: punctuation.section.scope.begin.cds
+      push:
+        - match: '}'
+          captures:
+            0: punctuation.section.scope.end.cds
+          pop: true
+        - include: main
+    - match: \(
+      captures:
+        0: punctuation.section.scope.begin.cds
+      push:
+        - match: \)
+          captures:
+            0: punctuation.section.scope.end.cds
+          pop: true
+        - include: main
+    - match: '\[|\]'
+      scope: meta.brace.square.cds
+    - match: '(?<=new )([$_a-zA-Z][$_a-zA-Z0-9]*)(?!\w)'
+      scope: support.class.cds
+    - match: '(?<= instanceof )([$_a-zA-Z][$_a-zA-Z0-9]*)(?!\w)'
+      scope: support.class.cds
+    - match: '(?<!\w)([$_a-zA-Z][$_a-zA-Z0-9]*)(?=\.prototype\b)'
+      scope: support.class.cds
+    - match: (?i)(?<=\.)(prototype)\b
+      scope: keyword.other.cds
+    - match: '(?<!\w)([$_a-zA-Z][$_a-zA-Z0-9]*)(?=\()'
+      scope: meta.function-call.cds
+    - include: keywords
+    - include: numbers
+    - include: strings
+    - include: comments
+    - include: operators
+    - include: identifiers
+  bracedElementDef:
+    - match: '{'
+      captures:
+        0: punctuation.section.scope.begin.cds
+      push:
+        - match: '}'
+          captures:
+            0: punctuation.section.scope.end.cds
+          pop: true
+        - include: comments
+        - include: extendElement
+        - include: elementDef
+  comments:
+    - match: '@\(?[\w.]+\b'
+      scope: entity.other.attribute-name
+    - match: /\*\*(?!/)
+      captures:
+        0: punctuation.definition.comment.begin.cds
+      push:
+        - meta_scope: comment.block.documentation.cds
+        - match: \*/
+          captures:
+            0: punctuation.definition.comment.end.cds
+          pop: true
+    - match: /\*
+      captures:
+        0: punctuation.definition.comment.begin.cds
+      push:
+        - meta_scope: comment.block.cds
+        - match: \*/
+          captures:
+            0: punctuation.definition.comment.end.cds
+          pop: true
+    - match: //.*
+      scope: comment.line.double-slash.cds
+  elementDef:
+    - match: \b(virtual(?:\s+))?(key(?:\s+))?(masked(?:\s+))?(element(?:\s+))?
+      captures:
+        1: keyword.cds
+        2: keyword.strong.cds
+        3: keyword.cds
+        4: keyword.cds
+      push:
+        - match: '(?=})|(;)'
+          captures:
+            1: punctuation.terminator.statement.cds
+          pop: true
+        - include: bracedElementDef
+        - include: strings
+        - include: comments
+        - include: keywords
+        - match: ':'
+          scope: keyword.operator.cds
+        - match: '([$_a-zA-Z][$_a-zA-Z0-9]*|"[^"]*(""[^"]*)*"|!\[[^\]]*(\]\][^\]]*)*\])(?=\s*[:{,])'
+          captures:
+            1: entity.name.type.attribute-name.cds
+          push:
+            - match: '(,)|(?=\s*[:{])'
+              captures:
+                1: punctuation.separator.object.cds
+              pop: true
+        - include: identifiers
+        - include: operators
+        - include: numbers
+  escapes:
+    - match: '\\([xu$]\{?[0-9a-fA-F]+}?|.|$)'
+      scope: constant.character.escape.cds
+  extendElement:
+    - match: \b(?=extend\b.*\bwith\b)
+      push:
+        - match: '(?<=})(;)?|(;)'
+          captures:
+            1: punctuation.terminator.statement.cds
+            2: punctuation.terminator.statement.cds
+          pop: true
+        - match: \bextend\b
+          captures:
+            0: keyword.strong.cds
+          push:
+            - match: \bwith\b
+              captures:
+                0: keyword.cds
+              pop: true
+            - match: element(?!(?:\s*/\*.*\*/\s*|\s+)?with\b)
+              scope: keyword.cds
+            - match: '[$_a-zA-Z][$_a-zA-Z0-9]*|"[^"]*(""[^"]*)*"|!\[[^\]]*(\]\][^\]]*)*\]'
+              scope: entity.name.type.attribute-name.cds
+            - include: comments
+        - match: '{'
+          captures:
+            0: punctuation.section.scope.begin.cds
+          push:
+            - match: '}'
+              captures:
+                0: punctuation.section.scope.end.cds
+              pop: true
+            - include: extendElement
+            - include: elementDef
+        - include: comments
+        - include: keywords
+        - include: identifiers
+        - include: operators
+        - match: \(
+          scope: punctuation.section.scope.begin.cds
+        - match: \)
+          scope: punctuation.section.scope.end.cds
+        - include: numbers
+  function-params:
+    - match: '(?=[\p{L}$_])'
+      push:
+        - match: '(?=[,)/])'
+          pop: true
+        - match: '[$_a-zA-Z][$_a-zA-Z0-9]*'
+          scope: variable.parameter.function.cds
+    - include: comments
+  identifiers:
+    - match: '[$_a-zA-Z][$_a-zA-Z0-9]*|"[^"]*(""[^"]*)*"|!\[[^\]]*(\]\][^\]]*)*\]'
+      scope: identifier.cds
+  interpolation:
+    - match: '\${'
+      captures:
+        0: punctuation.section.embedded.begin.cds
+      push:
+        - meta_scope: meta.embedded.line.cds
+        - meta_content_scope: source.cds
+        - match: '(})'
+          captures:
+            0: punctuation.section.embedded.end.cds
+            1: source.cds
+          pop: true
+        - match: '{'
+          captures:
+            0: meta.brace.curly.cds
+          push:
+            - match: '}'
+              captures:
+                0: meta.brace.curly.cds
+              pop: true
+            - include: main
+        - include: main
+  keywords:
+    - match: '(?<!\.|\$)\b(Association\s*(?:\[[0-9.eE+, *-]*\]\s*)?to\s*(?:(many|one)\s*)?|Composition\s*(?:\[[0-9.eE+, *-]*\]\s*)?of\s*(?:(many|one)\s*)?|(Binary|Boolean|Date|DateTime|DecimalFloat|Decimal|Double|Int(16|32|64)|Integer64|Integer|LargeBinary|LargeString|Number|String|Timestamp|Time|UInt8|UUID)\s*(\([^()]*\))?)(?!\$|\s*:)'
+      scope: support.class.cds
+    - match: (?<!\.|\$)\b(await)\b(?!\$|\s*:)
+      scope: invalid.illegal.cds
+    - match: (?<!\.|\$)\b(implements|interface|package|private|protected|public)\b(?!\$|\s*:)
+      scope: invalid.deprecated.cds
+    - match: (?<!\.|\$)\b(class|static|extends)\b(?!\$|\s*:)
+      scope: invalid.illegal.cds
+    - match: (?i)(?<!\.|\$)\b(all|and|any|asc|between|by|case|cast|cross|desc|distinct|element|elements|escape|except|excluding|exists|first|from|full|group|group by|having|in|inner|intersect|into|is|join|last|left|like|limit|many|minus|mixin|not null|not|null|nulls|offset|one|or|order by|outer|redirected to|select|some|top|type of|union|where|with)\b(?!\$|\s*:)
+      scope: keyword.cds
+    - match: (?i)(?<!\.|\$)\b(as|key|on|type)\b(?!\$|\s*:)
+      scope: keyword.strong.cds
+    - match: (?<!\.|\$)\b(after|always|analysis|array of|async|asynchronous|auto|both|cache|column|columns|configuration|current|cycle|day|default|depends|detection|disabled|documents|else|enabled|end|every|existing|export|extended|extract|fast|flush|fulltext|fuzzy|generated|getnumservers|hana|hash|hour|identity|import|increment|index|keeping|language|layout|leading|masked|maxvalue|merge|migration|mime|mining|minute|minutes|minvalue|mode|month|name|new|no|off|only|others|overlay|parameters|partition|partitioning|partitions|phrase|preprocess|priority|projection|projection on|queue|range|ratio|reset|returns|right|roundrobin|row|search|second|separators|start|storage|store|subtype|sync|synchronous|table|technical|temporary|text|then|token|trailing|trim|unique|unload|value|values|virtual|when|with parameters|year)\b(?!\$|\s*:)
+      scope: keyword.cds
+    - match: (?<!\.|\$)\b(abstract|action|actions|annotation|aspect|context|define|entity|enum|event|expose|extend|facet|function|namespace|service|view)\b(?!\$|\s*:)
+      scope: keyword.strong.cds
+  numbers:
+    - match: '(?<!\w|\$)0[xX]\h+\b'
+      scope: constant.numeric.hex.cds
+    - match: '(?<!\w|\$)0[bB][01]+\b'
+      scope: constant.numeric.binary.cds
+    - match: '(?<!\w|\$)0[oO][0-7]+\b'
+      scope: constant.numeric.octal.cds
+    - match: '(?<!\w|\$)[+-]?[0-9]+(''.''[0-9]+)?([eE][+-]?[0-9]+)?(?!\w)'
+      scope: constant.numeric.cds
+  operators:
+    - match: '%=|\+=|\-=|\*=|(?<!\()/='
+      scope: keyword.operator.assignment.compound.cds
+    - match: '&=|\^=|<<=|>>=|>>>=|\|='
+      scope: keyword.operator.assignment.compound.bitwise.cds
+    - match: '!==|!=|<=|>=|===|==|<|>'
+      scope: keyword.operator.comparison.cds
+    - match: '&&|!|\|\|'
+      scope: keyword.operator.logical.cds
+    - match: '&|\||\^|~'
+      scope: keyword.operator.bitwise.cds
+    - match: \:\s*(localized)\s+
+      scope: keyword.cds
+    - match: '\:'
+      scope: keyword.operator.cds
+    - match: '!'
+      scope: keyword.operator.logical.cds
+    - match: '=|\:'
+      scope: keyword.operator.assignment.cds
+    - match: \-\-
+      scope: keyword.operator.decrement.cds
+    - match: \+\+
+      scope: keyword.operator.increment.cds
+    - match: '%|\*|/|\-|\+'
+      scope: keyword.operator.arithmetic.cds
+  strings:
+    - match: "'"
+      captures:
+        0: punctuation.definition.string.begin.cds
+      push:
+        - meta_scope: string.quoted.single.cds
+        - match: '''(?!'')'
+          captures:
+            0: punctuation.definition.string.end.cds
+          pop: true
+        - match: "''"
+          scope: meta.single-quote.doubled.cds
+    - match: '`'
+      captures:
+        0: punctuation.definition.string.begin.cds
+      push:
+        - meta_scope: string.quoted.other.template.cds
+        - match: '`'
+          captures:
+            0: punctuation.definition.string.end.cds
+          pop: true
+        - include: interpolation
+        - include: escapes
+

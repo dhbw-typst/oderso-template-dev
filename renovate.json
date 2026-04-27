@@ -1,0 +1,21 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["helpers:pinGitHubActionDigests"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "binaries fetched with curl",
+      "managerFilePatterns": [
+        "/\\.github/workflows/.*\\.yml$/",
+        "/Dockerfile$/"
+      ],
+      "matchStrings": [
+        "curl\\s+.*https://github\\.com/(?<owner>[\\w-]*)/(?<packageName>[\\w-]*)/releases/download/v(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "{{packageName}}",
+      "versioningTemplate": "semver",
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "{{owner}}/{{packageName}}"
+    }
+  ]
+}

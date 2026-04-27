@@ -1,0 +1,26 @@
+{
+  "build": { "dockerfile": "Dockerfile" },
+  "name": "Typst",
+  // "workspaceFolder": "/workspace",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "myriad-dreamin.tinymist",
+        "ltex-plus.vscode-ltex-plus",
+        "shardulm94.trailing-spaces",
+        "tomoki1207.pdf",
+        "GitHub.vscode-github-actions"
+      ],
+      "settings": {
+        "tinymist.formatterMode": "typstyle",
+        "ltex.additionalRules.motherTongue": "de-DE",
+        "ltex.language": "en-US",
+        "ltex.statusBarItem": true,
+        "ltex.enabled": ["typst"]
+      }
+    }
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {}
+  }
+}

@@ -1,0 +1,130 @@
+name: Release
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  synchronize:
+    name: Synchronize files in `template/`
+    runs-on: ubuntu-24.04
+    outputs:
+      template_changed: ${{ steps.check_changes.outputs.template_changed }}
+    steps:
+      - name: Checkout `template-dev`
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          path: template-dev
+          repository: dhbw-typst/template-dev
+          # ensure that we checkout the `main` branch on `template-dev`
+          # this is VERY important when testing changes to this action via a PR
+          # branch on the `template-dev` repository
+          # if this is not specified, the checkout action will check out the PR
+          # branch and will sync that to the specified (test) repository
+          ref: main
+      - name: Check for changes in template
+        id: check_changes
+        working-directory: template-dev
+        run: |
+          if git diff --name-only HEAD^ HEAD | grep -q '^template/'; then
+            echo "template_changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "template_changed=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Stop if nothing changed in template
+        if: steps.check_changes.outputs.template_changed == 'false'
+        run: |
+          echo "No changes in template detected. Skipping sync and release."
+      - name: Create GitHub token for `template`
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+        if: steps.check_changes.outputs.template_changed == 'true'
+        id: app-token
+        with:
+          client-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: |
+            template
+      - name: Checkout `template`
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        if: steps.check_changes.outputs.template_changed == 'true'
+        with:
+          fetch-depth: 0
+          path: template
+          repository: star-tools/template
+          token: ${{ steps.app-token.outputs.token }}
+      - name: Install `git-filter-repo`
+        if: steps.check_changes.outputs.template_changed == 'true'
+        working-directory: /tmp
+        run: |
+          curl -L https://github.com/newren/git-filter-repo/releases/download/v2.47.0/git-filter-repo-2.47.0.tar.xz -o git-filter-repo.tar.xz
+          tar -xvf git-filter-repo.tar.xz
+
+          /tmp/git-filter-repo*/git-filter-repo --version
+      - name: Synchronize template files
+        if: steps.check_changes.outputs.template_changed == 'true'
+        run: /tmp/git-filter-repo*/git-filter-repo --source ./template-dev --target ./template --subdirectory-filter template/
+      - name: Push changes
+        if: steps.check_changes.outputs.template_changed == 'true'
+        working-directory: template
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+
+          git push --force
+  release:
+    name: Create Release in Dev and Prod
+    needs: synchronize
+    if: needs.synchronize.outputs.template_changed == 'true'
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+        id: app-token
+        with:
+          client-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: |
+            template
+      - name: Install typst
+        run: |
+          curl -L https://github.com/typst/typst/releases/download/v0.14.2/typst-x86_64-unknown-linux-musl.tar.xz -o typst.tar.xz
+          mkdir -p typst_bin
+          tar -xf typst.tar.xz -C typst_bin
+          mv typst_bin/typst-x86_64-unknown-linux-musl/typst typst
+          chmod +x typst
+      - name: Build template
+        run: |
+          for file in $(ls template/main-*.typ); do
+            ./typst compile $file
+          done
+      # Tags follow the pattern YYYY.MM.DD-R where R is a revision number starting at 0 for each day
+      - name: Get next tag
+        id: get_tag
+        run: |
+          DATE_PREFIX=$(date +%Y.%m.%d)
+          EXISTING_TAGS=$(git tag -l "${DATE_PREFIX}-*" | sort -t'-' -k2 -n | tail -1)
+          if [ -z "$EXISTING_TAGS" ]; then
+            REVISION=0
+          else
+            LAST_REVISION=$(echo "$EXISTING_TAGS" | sed "s/${DATE_PREFIX}-//")
+            REVISION=$((LAST_REVISION + 1))
+          fi
+          TAG="${DATE_PREFIX}-${REVISION}"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+      - name: Release dev repo
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
+        with:
+          files: template/main-*.pdf
+          tag_name: ${{ steps.get_tag.outputs.tag }}
+      - name: Release prod repo
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          files: template/main-*.pdf
+          tag_name: ${{ steps.get_tag.outputs.tag }}
+          repository: star-tools/template
