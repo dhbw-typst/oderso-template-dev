@@ -86,14 +86,16 @@
       it.body
     })
   }
-  figure(
-    body,
-    caption: caption,
-    kind: table,
-  )
-  if reference != none {
-    label(reference)
-  }
+  [
+    #figure(
+      body,
+      caption: caption,
+      kind: table,
+    )
+    #if reference != none {
+      label(reference)
+    }
+  ]
 }
 
 #let styled-table(
