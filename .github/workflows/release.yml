@@ -88,16 +88,19 @@ jobs:
           mv typst_bin/typst-x86_64-unknown-linux-musl/typst typst
           chmod +x typst
       - name: Build template
+        if: steps.version.outputs.hasNextVersion == 'true'
         run: |
           for file in $(ls template/main-*.typ); do
             ./typst compile $file
           done
       - name: Release dev repo
+        if: steps.version.outputs.hasNextVersion == 'true'
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
           files: template/main-*.pdf
           tag_name: ${{ steps.version.outputs.version }}
       - name: Release prod repo
+        if: steps.version.outputs.hasNextVersion == 'true'
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
           token: ${{ secrets.BOT_PAT }}
