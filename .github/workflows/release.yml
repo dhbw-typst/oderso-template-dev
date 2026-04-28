@@ -97,6 +97,7 @@ jobs:
         if: steps.version.outputs.hasNextVersion == 'true'
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
+          token: ${{ secrets.BOT_PAT }}
           files: template/main-*.pdf
           tag_name: ${{ steps.version.outputs.version }}
       - name: Release prod repo
