@@ -1,6 +1,6 @@
 <img src="template/banner.jpeg" width="100%" />
 
-# Typst Template for DHBW (Dev)
+# ODERSO Typst Template (Dev)
 
 Hello and welcome to the **development repository** of the Typst template. It is **awesome** to see you want to improve the template!
 
@@ -33,7 +33,7 @@ Add the correct prefix to your PR title and make sure it is included when mergin
 >[!TIP]
 >This guide assumes **basic familiarity with Git, GitHub, and Typst**.
 
-1. Create a fork of the `template-dev` repository
+1. Create a fork of the `oderso-template-dev` repository
 2. Clone the created repository to your local machine
 3. Navigate to the cloned repository
 4. Setup your dev environment

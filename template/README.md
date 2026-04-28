@@ -1,9 +1,11 @@
 <img src="banner.jpeg" width="100%" />
 
-# SAP Typst Template for DHBW
+# ODERSO Typst Template
 
 This is a university report template written in [Typst](https://typst.app/),
 based on the ["LaTeX-Vorlage für diverse Ausarbeitungen oder so ähnlich" by Prof. Dr. Jürgen Vollmer](https://www.karlsruhe.dhbw.de/fileadmin/user_upload/documents/content-de/Studiengaenge-Technik/Informatik/latex-vorlage-bericht.pdf) for LaTeX. [Why should you use Typst over LaTeX?](#-why-typst)
+
+The template was built for DHBW Karlsruhe, but also has adapters for DHBW Mannheim and IHK.
 
 > [!TIP]
 > Want to see how the template looks? [Download a preview PDF](https://github.com/dhbw-typst/oderso-template/releases/latest/download/main-dhbw-ka.pdf) to inspect the final result.
@@ -35,7 +37,7 @@ For the following setup guide, make sure you have installed [Visual Studio Code]
 If you have any idea on how to **improve the template**, please check out the
 [development repository](https://github.com/dhbw-typst/oderso-template-dev).
 
-## 😵‍💫 Troubleshooting 
+## 😵‍💫 Troubleshooting
 
 >[!TIP]
 >Don't hesitate to [open an issue](https://github.com/dhbw-typst/oderso-template-dev/issues/new) if you are puzzled on what is going on.
@@ -72,7 +74,7 @@ Over the years, the template has grown to include many features and now supports
 
 **This template thrives on contributions from its users.** Whether it's reporting bugs, adapting to new dependency versions, or starting a discussion about potential changes, there are many ways to get involved. Don't hesitate to start your [contribution](#-Contribute) now :)
 
-The goal of this template is to make writing your thesis at SAP as easy as possible! That said, there are some alternatives worth knowing about:
+The goal of this template is to make writing your thesis at DHBW as easy as possible! That said, there are some alternatives worth knowing about:
 
-- [clean-dhbw](https://typst.app/universe/package/clean-dhbw/): The "official" template for Computer Science at DHBW Karlsruhe. We found it to be fairly opinionated and limited in customization. At also lacks many features this template provides.
+- [clean-dhbw](https://typst.app/universe/package/clean-dhbw/): A template written by a professor of the DHBW Karlsruhe. We found it to be fairly opinionated and limited in customization. At also lacks many features this template provides.
 - [supercharged-dhbw](https://github.com/DannySeidel/typst-dhbw-template): Another template for DHBW students. As of 16.07.2025, the last commit was over half a year old, so outdated package versions may cause issues with the latest version of Typst. We do not recommend using an unmaintained template, especially for users less familiar with Typst.
