@@ -20,7 +20,7 @@ Inserting figures and code blocks into your Typst document enhances its informat
 
 === Tables
 
-Similar to images you can insert table figures. See more table examples and more advanced usage in @appendix-table-examples
+Similar to images you can insert table figures. See more table examples and more advanced usage in @appendix-table-examples.
 
 #typst-preview(
   "Table Figures in Typst",
