@@ -120,6 +120,8 @@
 
 // You can now start writing :)
 
+= Test heading
+
 #include "chapters/introduction.typ"
 #include "chapters/basic_formatting.typ"
 #include "chapters/advanced_elements.typ"
