@@ -49,7 +49,7 @@ To achieve this, open the terminal inside of your VSCode project and:
 1. Download and install Typst: `brew install typst` (if you don't have `homebrew`, install it as shown [here](https://brew.sh/))
 2. Open a new terminal window and run `typst compile main.typ`
 3. Most of the time, the original error is at the top of the program's output
-4. If this doesn't help you to figure out the issue, please [open an issue](https://github.tools.sap/vt-tools/vt-template-typst/issues/new)
+4. If this doesn't help you to figure out the issue, please [open an issue](https://github.com/dhbw-typst/oderso-template-dev/issues/new)
 
 ## 🌐 Web-IDE (typst.app)
 
