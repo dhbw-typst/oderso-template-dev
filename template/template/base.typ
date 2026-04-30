@@ -362,10 +362,22 @@
     }
   }
 
-  // display header
-  set page(header: {
-    context {
-      if here().page-numbering() == content-page-numbering {
+  // display main document and reset page counter
+  set page(
+    numbering: (..n) => context {
+      numbering(content-page-numbering, n.at(0), ..counter(page).at(<__last-content-page>))
+    },
+    footer: auto,
+    margin: (top: 4cm, x: 2.5cm, bottom: 2.5cm),
+  )
+  counter(page).update(1)
+
+  set par(leading: 0.9em)
+
+  {
+    // display header
+    set page(header: {
+      context {
         grid(
           columns: (auto, 1fr),
           align(left, text(title-short)),
@@ -375,26 +387,14 @@
         )
         line(length: 100%, stroke: (paint: gray))
       }
-    }
-  })
-
-  // display main document and reset page counter
-  set page(
-    numbering: content-page-numbering,
-    footer: auto,
-    margin: (top: 4cm, x: 2.5cm, bottom: 2.5cm),
-  )
-  counter(page).update(1)
-
-  set par(leading: 0.9em)
-
-  {
+    })
     show heading.where(level: 1): it => {
       pagebreak(weak: true)
       it
     }
 
     body
+    [#std.metadata("last-content-page") <__last-content-page>]
   }
 
   // display bibliography
