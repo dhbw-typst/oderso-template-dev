@@ -41,68 +41,119 @@ jobs:
             ./typst compile $file
           done
 
-  # needs to be rewritten for every program's main-file
+  check_pdf:
+    name: Check PDF parity (${{ matrix.file }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - file: main-dhbw-ka
+            path: template/main-dhbw-ka.typ
+          - file: main-dhbw-ma
+            path: template/main-dhbw-ma.typ
+          - file: main-ihk
+            path: template/main-ihk.typ
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          path: new
+      - name: Install typst
+        run: |
+          curl -L https://github.com/typst/typst/releases/download/v0.14.2/typst-x86_64-unknown-linux-musl.tar.xz -o typst.tar.xz
+          mkdir -p typst_bin
+          tar -xf typst.tar.xz -C typst_bin
+          mv typst_bin/typst-x86_64-unknown-linux-musl/typst typst
+          chmod +x typst
+      - name: Typst version
+        run: ./typst --version
+      - name: Build PDF on PR branch
+        run: |
+          ./typst compile new/${{ matrix.path }} new.pdf
+      - name: Checkout main branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: main
+          path: old
+      - name: Build PDF on main branch
+        run: |
+          ./typst compile old/${{ matrix.path }} old.pdf
+      - name: Compare PDFs
+        id: diff_check
+        uses: nowsprinting/diff-pdf-action@21193e71055e9cd98ae8704bf95590e50fb0d3c3 # v1.2.3
+        continue-on-error: true
+        with:
+          file1: old.pdf
+          file2: new.pdf
+          options: --skip-identical --mark-differences --output-diff=diff.pdf
+          suppress-diff-error: false
+      - name: Upload diff.pdf artifact
+        if: steps.diff_check.outcome == 'failure'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: diff-pdf-${{ matrix.file }}
+          path: diff.pdf
+      - name: Upload diff marker
+        if: steps.diff_check.outcome == 'failure'
+        run: echo "true" > diff-marker.txt
+      - name: Upload diff marker artifact
+        if: steps.diff_check.outcome == 'failure'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: diff-marker-${{ matrix.file }}
+          path: diff-marker.txt
 
-#   check_pdf:
-#     name: Check PDF parity
-#     permissions:
-#       pull-requests: write
-#     steps:
-#       - name: Checkout PR branch
-#         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-#         with:
-#           path: new
-#       - name: Install typst
-#         run: |
-#           curl -L https://github.com/typst/typst/releases/download/v0.14.2/typst-x86_64-unknown-linux-musl.tar.xz -o typst.tar.xz
-#           mkdir -p typst_bin
-#           tar -xf typst.tar.xz -C typst_bin
-#           mv typst_bin/typst-x86_64-unknown-linux-musl/typst typst
-#           chmod +x typst
-#       - name: Typst version
-#         run: ./typst --version
-#       - name: Build PDF on PR branch
-#         run: |
-#           ./typst compile new/template/main.typ new.pdf
-#       - name: Checkout main branch
-#         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-#         with:
-#           ref: main
-#           path: old
-#       - name: Build PDF on main branch
-#         run: |
-#           ./typst compile old/template/main.typ old.pdf
-#       - name: Compare PDFs
-#         id: diff_check
-#         uses: nowsprinting/diff-pdf-action@21193e71055e9cd98ae8704bf95590e50fb0d3c3 # v1.2.3
-#         continue-on-error: true
-#         with:
-#           file1: old.pdf
-#           file2: new.pdf
-#           options: --skip-identical --mark-differences --output-diff=diff.pdf
-#           suppress-diff-error: false
-#       - name: Upload diff.pdf artifact
-#         id: upload_diff
-#         if: steps.diff_check.outcome == 'failure'
-#         uses: actions/upload-artifact@ff15f0306b3f739f7b6fd43fb5d26cd321bd4de5 #v3.2.1
-#         with:
-#           name: diff-pdf
-#           path: diff.pdf
-#       - name: Comment on PR with artifact link
-#         if: steps.diff_check.outcome == 'failure' && github.event_name == 'pull_request'
-#         uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
-#         with:
-#           script: |
-#             github.rest.issues.createComment({
-#               issue_number: context.issue.number,
-#               owner: context.repo.owner,
-#               repo: context.repo.repo,
-#               body: `> [!NOTE]
-#             > **PDF Differences Detected:** The PDF output has changed between the main branch and this PR.
-#             > **Download the diff:** Go to the [Actions tab](${context.payload.repository.html_url}/actions/runs/${context.runId}) and download the \`diff-pdf\` artifact.`
-#             })
-#       - name: Fail workflow if PDFs differ
-#         if: steps.diff_check.outcome == 'failure' && startsWith(github.event.pull_request.head.ref, 'renovate/')
-#         run: |
-#           echo "PDF differences detected between main branch and PR"
-#           exit 1
+  comment_pdf_diff:
+    name: Comment PDF diff results
+    runs-on: ubuntu-24.04
+    needs: check_pdf
+    if: github.event_name == 'pull_request'
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Download diff markers
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        continue-on-error: true
+        with:
+          pattern: diff-marker-*
+          path: markers
+      - name: Build comment body
+        id: build_comment
+        run: |
+          HAS_DIFF=false
+          BODY="> [!NOTE]"
+          BODY="${BODY}\n> **PDF Differences Detected**"
+          BODY="${BODY}\n>"
+          BODY="${BODY}\n> The following PDF outputs have changed between the main branch and this PR:"
+          BODY="${BODY}\n>"
+
+          if [[ -f "markers/diff-marker-main-dhbw-ka/diff-marker.txt" ]]; then
+            BODY="${BODY}\n> - \`main-dhbw-ka\` — download [\`diff-pdf-main-dhbw-ka\`](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            HAS_DIFF=true
+          fi
+          if [[ -f "markers/diff-marker-main-dhbw-ma/diff-marker.txt" ]]; then
+            BODY="${BODY}\n> - \`main-dhbw-ma\` — download [\`diff-pdf-main-dhbw-ma\`](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            HAS_DIFF=true
+          fi
+          if [[ -f "markers/diff-marker-main-ihk/diff-marker.txt" ]]; then
+            BODY="${BODY}\n> - \`main-ihk\` — download [\`diff-pdf-main-ihk\`](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            HAS_DIFF=true
+          fi
+
+          echo "has_diff=${HAS_DIFF}" >> "$GITHUB_OUTPUT"
+
+          # Write multiline body to file for the comment action
+          echo -e "$BODY" > comment-body.md
+      - name: Create or update sticky comment
+        if: steps.build_comment.outputs.has_diff == 'true'
+        uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0 # v3.0.4
+        with:
+          header: pdf-diff
+          path: comment-body.md
+      - name: Delete sticky comment if no diffs
+        if: steps.build_comment.outputs.has_diff == 'false'
+        uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0 # v3.0.4
+        with:
+          header: pdf-diff
+          delete: true
