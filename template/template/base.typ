@@ -1,24 +1,65 @@
 // LTeX: enabled=false
 
-#import "@preview/glossarium:0.5.10": (
-  gls, glspl, make-glossary, print-glossary, register-glossary,
-)
+#import "@preview/glossarium:0.5.10": gls, glspl, make-glossary, print-glossary, register-glossary
 #import "@preview/hydra:0.6.2": hydra
 #import "@preview/codly-languages:0.1.10": *
 #import "@preview/codly:1.3.0": *
 #import "@preview/drafting:0.2.2": *
 #import "@preview/linguify:0.5.0": *
-#import "../utils.typ": __in-outline
+#import "@preview/tidy:0.4.3"
+#import "../utils.typ": __in-documentation, __in-outline, __documentation as __utils-documentation
 
+/// Default heading numbering pattern.
+/// -> str
+#let __heading-numbering = "1.1.1"
 
-#let page-numbering = "1 / 1"
-#let heading-numbering = "1.1.1"
+/// Generates documentation for an adapter and the base template.
+///
+/// This shared function generates consistent documentation across all adapters.
+/// It parses the adapter file, the base template, and utility functions.
+/// -> content
+#let __generate-adapter-documentation(
+  /// Title for the adapter section heading. -> str
+  adapter-title,
+  /// Filename of the adapter (e.g., "dhbw-ka.typ"). -> str
+  adapter-file,
+) = {
+  [== #adapter-title]
 
+  __in-documentation.update(true)
+
+  let adapter-docs = tidy.parse-module(read(adapter-file))
+  tidy.show-module(adapter-docs, omit-private-definitions: true)
+
+  [== Base Template]
+
+  let base-docs = tidy.parse-module(read("base.typ"))
+  tidy.show-module(base-docs, omit-private-definitions: true)
+
+  __in-documentation.update(false)
+
+  [== Utility Functions]
+
+  __utils-documentation()
+}
+
+/// Creates a signature line for statutory declarations.
+///
+/// Generates a formatted signature block with place, date, and signature fields.
+/// When `digital` is true, displays the author's name or signature image;
+/// when false, leaves the fields blank for handwritten signatures.
+/// -> content
 #let signature-line(
+  /// Whether this is a digital submission with pre-filled signature. -> bool
   digital: true,
+  /// City name for the signature location. -> str | none
   city: none,
+  /// Date of the signature. -> datetime | none
   date: none,
+  /// Format string for displaying the date. -> str
   date-format: "[day].[month].[year]",
+  /// Author dictionary with `firstname`, `lastname`, and optionally `signature`
+  /// (an image). -> dictionary
   author: (
     firstname: none,
     lastname: none,
@@ -58,44 +99,59 @@
 }
 
 
-/// Initilizes the base template
+/// Base template for thesis documents.
 ///
-/// - lang (str): The primary language of the document ("en" or "de")
-/// - logo-left(): Logo displayed in the top left corner of the cover
-/// - logo-right(): Logo displayed in the top right corner of the cover
-/// - title-long (str): Thesis title, displayed on the cover
-/// - title-short (str): Shortened title, which is displayed in the header on every page
-/// - thesis-type (str): Type of thesis. Displayed below the title on the cover
-/// - metadata (): List of metadata entries
-/// - submission-info (content): Additional information about the thesis, displayed below the thesis type.
-/// - authors (): List of authors of the thesis
-/// - preamble (): List of content to display directly after the cover
-/// - postamble (): List of content to display at the very end of the document
-/// - abstracts (): List of abstracts
-/// - appendices (): List of appendices with values "title" and "content"
-/// - library (str): Path to the library file (e.g. ./src.bib)
-/// - abbreviations (): List of abbreviations. See https://typst.app/universe/package/glossarium/ for more information
-/// - content-page-numbering (str): Page numbering pattern for main content
-/// - body (): Content
-/// ->
+/// This is the core template function that sets up the document structure,
+/// styling, and layout. It handles the cover page, table of contents,
+/// lists of figures/tables/code, bibliography, and appendices.
+///
+/// Institution-specific adapters should wrap this function to add their
+/// specific requirements.
+/// -> content
 #let project(
+  /// The primary language of the document. Affects hyphenation, quotes,
+  /// and localized strings. Supported: `"en"`, `"de"`. -> str
   lang: "en",
-  logo-left: none,
-  logo-right: none,
+  /// Logo displayed in the top left corner of the cover page (e.g., company logo).
+  /// Set by adapters from their own parameters. -> content | none
+  __logo-left: none,
+  /// Logo displayed in the top right corner of the cover page (e.g., institution logo).
+  /// Set by adapters. -> content | none
+  __logo-right: none,
+  /// Full thesis title displayed on the cover page. -> str | none
   title-long: none,
+  /// Shortened title displayed in the page header. -> str | none
   title-short: none,
+  /// Type of thesis (e.g., "Projektarbeit 1", "Bachelorarbeit").
+  /// Displayed below the title on the cover. -> str | none
   thesis-type: none,
-  submission-info: none,
-  metadata: (),
-  authors: (
+  /// Additional submission information displayed on the cover page,
+  /// such as examination type and institution details.
+  /// Generated by adapters. -> content | none
+  __submission-info: none,
+  /// Flat array of metadata key-value pairs for the cover page.
+  /// Generated by adapters from their parameters. -> array
+  __metadata: (),
+  /// List of author dictionaries. Each should contain `firstname` and `lastname`.
+  /// Additional fields may be used by adapter templates. -> array
+  __authors: (
     (
       firstname: none,
       lastname: none,
     ),
   ),
-  preamble: (),
-  postamble: (),
+  /// Content elements to display after the cover page but before abstracts
+  /// (e.g., statutory declaration, confidentiality clause).
+  /// Generated by adapters. -> array
+  __preamble: (),
+  /// Content elements to display at the very end of the document.
+  /// Generated by adapters. -> array
+  __postamble: (),
+  /// List of abstract tuples. Each tuple contains:
+  /// `(language-code, language-name, content)` e.g., `("en", "English", [Abstract text...])`. -> array
   abstracts: (),
+  /// List of appendix dictionaries. Each should have `title` (str),
+  /// `reference` (label string), and `content`. Set to `none` to disable appendices. -> array | none
   appendices: (
     (
       title: none,
@@ -103,9 +159,16 @@
       content: none,
     ),
   ),
+  /// Path to the bibliography file (`.bib` or `.yaml`), relative to the
+  /// template directory. -> str
   library: (),
+  /// List of abbreviation entries for the glossary. See the
+  /// #link("https://typst.app/universe/package/glossarium/")[glossarium package]
+  /// for the expected format. -> array
   abbreviations: (),
+  /// Page numbering pattern for the main content section. -> str
   content-page-numbering: "1",
+  /// The main document body content. -> content
   body,
 ) = {
   // load linguify
@@ -128,7 +191,7 @@
   set text(font: "New Computer Modern", size: 12pt)
 
   // heading setup
-  set heading(numbering: heading-numbering)
+  set heading(numbering: __heading-numbering)
 
   show heading: it => {
     text(font: "Libertinus Serif", it)
@@ -145,12 +208,19 @@
 
   // fancy inline code
   // if you don't like them, just remove this section.
-  show raw.where(block: false): box.with(
-    fill: luma(240),
-    inset: (x: 2pt, y: 0pt),
-    outset: (y: 3pt),
-    radius: 2pt,
-  )
+  show raw.where(block: false): it => context {
+    if __in-documentation.get() {
+      it
+    } else {
+      box(
+        it,
+        fill: luma(240),
+        inset: (x: 2pt, y: 0pt),
+        outset: (y: 3pt),
+        radius: 2pt,
+      )
+    }
+  }
 
   // fancy code blocks
   // if you don't like them, just remove this section.
@@ -231,7 +301,7 @@
 
       grid(
         columns: (1fr, 1fr),
-        align(left, logo-left), align(right, logo-right),
+        align(left, __logo-left), align(right, __logo-right),
       )
     },
 
@@ -243,11 +313,11 @@
 
       #smallcaps(text(1.25em, weight: "semibold")[#thesis-type])
 
-      #submission-info
+      #__submission-info
 
       #linguify("by")
 
-      #for author in authors {
+      #for author in __authors {
         [*#author.firstname #author.lastname*\ ]
       }
     ],
@@ -260,7 +330,7 @@
         columns: (1fr, 1fr),
         align: (right + top, left + top),
         stroke: none,
-        ..metadata
+        ..__metadata
       )
     }),
   )
@@ -273,7 +343,7 @@
   {
     set heading(outlined: false, numbering: none)
     // preamble
-    for p in preamble {
+    for p in __preamble {
       p
     }
   }
@@ -443,7 +513,7 @@
   {
     set heading(outlined: false, numbering: none)
     // postamble
-    for p in postamble {
+    for p in __postamble {
       p
     }
   }

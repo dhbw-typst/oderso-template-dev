@@ -1,13 +1,29 @@
 // LTeX: enabled=false
 
-#import "base.typ": project, signature-line
+#import "base.typ": project, signature-line, __generate-adapter-documentation
 #import "@preview/linguify:0.5.0": *
 
+/// Template adapter for IHK thesis documents.
+///
+/// This function configures the base `project` template for vocational training documentations.
+///
+/// In addition to the parameters listed below, this adapter accepts all parameters
+/// from the base `project` template (e.g., `title-long`, `title-short`, `thesis-type`,
+/// `abstracts`, `appendices`, `library`, `abbreviations`, `lang`).
+/// -> content
 #let ihk-adapter(
+  /// Whether the thesis is submitted digitally. Affects the signature line
+  /// display in the statutory declaration. -> bool
   digital-submission: true,
+  /// Whether to include a confidentiality clause page. -> bool
   confidentiality-clause: true,
+  /// The examination type (e.g., "Abschlussprüfung Teil 2"). -> str | none
   examination: none,
+  /// The training occupation (Ausbildungsberuf),
+  /// e.g., "Fachinformatiker für Anwendungsentwicklung". -> str
   training-occupation: "Fachinformatiker für Anwendungsentwicklung",
+  /// List of author dictionaries. Each author should have: `firstname`,
+  /// `lastname`, `examinee-number`, and optionally `signature`. -> array
   authors: (
     (
       firstname: none,
@@ -16,16 +32,27 @@
       signature: none,
     ),
   ),
+  /// City shown on the signature line. -> str
   signature-city: "Karlsruhe",
+  /// Submission date of the thesis. -> datetime
   submission-date: datetime.today(),
+  /// Format string for displaying the submission date. -> str
   submission-date-format: "[day].[month].[year]",
+  /// Duration of the thesis processing period in weeks. -> int | none
   processing-period-weeks: none,
+  /// Name of the training company. -> str
   company-name: "Corp SE",
+  /// City where the company is located. -> str
   company-city: "Berlin",
+  /// Company logo image. -> content | none
   company-logo: image("../do_not_touch/Company-Logo.svg"),
+  /// Department within the company. -> str | none
   company-department: none,
+  /// Name of the company supervisor. -> str | none
   company-supervisor: none,
+  /// Additional arguments passed to the base template.
   ..args,
+  /// The main document body content. -> content
   body,
 ) = {
   let submission-info = [
@@ -80,16 +107,23 @@
   }
 
   show: project.with(
-    logo-left: company-logo,
-    logo-right: image("../do_not_touch/IHK-Logo.svg"),
-    authors: authors,
-    submission-info: submission-info,
-    metadata: metadata,
-    preamble: (
+    __logo-left: company-logo,
+    __logo-right: image("../do_not_touch/IHK-Logo.svg"),
+    __authors: authors,
+    __submission-info: submission-info,
+    __metadata: metadata,
+    __preamble: (
       statutory-declaration,
       confidentiality-clause,
     ),
     ..args,
   )
   body
+}
+
+#let __documentation() = {
+  __generate-adapter-documentation(
+    "IHK Adapter",
+    "ihk.typ",
+  )
 }

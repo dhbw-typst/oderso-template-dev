@@ -8,7 +8,9 @@ based on the ["LaTeX-Vorlage für diverse Ausarbeitungen oder so ähnlich" by Pr
 The template was built for DHBW Karlsruhe, but also has adapters for DHBW Mannheim and IHK.
 
 > [!TIP]
-> Want to see how the template looks? [Download a preview PDF](https://github.com/dhbw-typst/oderso-template/releases/latest/download/main-dhbw-ka.pdf) to inspect the final result.
+> Want to see how the template looks? Download a preview PDF for [DHBW Karlsruhe](https://github.com/dhbw-typst/oderso-template/releases/latest/download/main-dhbw-ka.pdf), [DHBW Mannheim](https://github.com/dhbw-typst/oderso-template/releases/latest/download/main-dhbw-ma.pdf) or [IHK](https://github.com/dhbw-typst/oderso-template/releases/latest/download/main-ihk.pdf) to inspect the final result.
+>
+> Those pdfs also contain **a detailed documentation of the template**.
 
 ## 🏃‍♂️ Getting Started
 
