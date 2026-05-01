@@ -83,7 +83,7 @@ See #link("https://typst.app/docs/reference/math/", "the Typst documentation") f
 $<math-figure>",
 )
 
-You can reference labeled equations normally. @math-figure shows the sum of the first $n$ natural numbers.
+You can reference labeled equations like other figures. @math-figure shows the sum of the first $n$ natural numbers.
 
 == Block Quotes
 
