@@ -1,6 +1,6 @@
 // LTeX: enabled=false
 #import "utils.typ": caption-with-source
-#import "template/ihk.typ": __documentation, ihk-adapter
+#import "template/ihk.typ": ihk-adapter
 
 #show: ihk-adapter.with(
   lang: "de",
@@ -71,9 +71,4 @@
 #include "chapters/advanced_elements.typ"
 #include "chapters/references_citations.typ"
 #include "chapters/reference_management.typ"
-
-= Detailed Package Usage
-
-#__documentation()
-
 #include "chapters/conclusion.typ"

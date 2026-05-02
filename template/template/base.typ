@@ -9,6 +9,7 @@
 #import "@preview/drafting:0.2.2": *
 #import "@preview/linguify:0.5.0": *
 #import "@preview/tidy:0.4.3"
+#import "../utils.typ": __in-outline
 
 /// Default heading numbering pattern.
 /// -> str
@@ -179,19 +180,12 @@
 
   // fancy inline code
   // if you don't like them, just remove this section.
-  show raw.where(block: false): it => context {
-    if __in-documentation.get() {
-      it
-    } else {
-      box(
-        it,
-        fill: luma(240),
-        inset: (x: 2pt, y: 0pt),
-        outset: (y: 3pt),
-        radius: 2pt,
-      )
-    }
-  }
+  show raw.where(block: false): box.with(
+    fill: luma(240),
+    inset: (x: 2pt, y: 0pt),
+    outset: (y: 3pt),
+    radius: 2pt,
+  )
 
   // fancy code blocks
   // if you don't like them, just remove this section.

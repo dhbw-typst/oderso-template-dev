@@ -81,9 +81,6 @@
 /// -> state
 #let __in-outline = state("in-outline", false)
 
-/// Internal state to track wether we are currently rendering a documentation
-#let __in-documentation = state("in-documentation", false)
-
 /// Creates a caption that conditionally includes a source reference.
 ///
 /// When rendered in an outline (e.g., list of figures), only the caption text

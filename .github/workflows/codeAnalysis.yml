@@ -40,6 +40,7 @@ jobs:
           for file in $(ls template/main-*.typ); do
             ./typst compile $file
           done
+          ./typst compile documentation.typ
 
   # needs to be rewritten for every program's main-file
 
