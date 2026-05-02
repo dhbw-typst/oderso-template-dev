@@ -1,6 +1,8 @@
 // LTeX: enabled=false
 
-#import "@preview/glossarium:0.5.10": gls, glspl, make-glossary, print-glossary, register-glossary
+#import "@preview/glossarium:0.5.10": (
+  gls, glspl, make-glossary, print-glossary, register-glossary,
+)
 #import "@preview/hydra:0.6.2": hydra
 #import "@preview/codly-languages:0.1.10": *
 #import "@preview/codly:1.3.0": *

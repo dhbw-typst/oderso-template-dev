@@ -1,6 +1,6 @@
 // LTeX: enabled=false
 
-#import "base.typ": __generate-adapter-documentation, project, __signature-line
+#import "base.typ": __signature-line, project
 #import "../do_not_touch/ai-declaration-form_dhbw-ma.typ": ai-declaration-form
 #import "@preview/linguify:0.5.0": *
 

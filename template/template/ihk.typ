@@ -1,6 +1,6 @@
 // LTeX: enabled=false
 
-#import "base.typ": __generate-adapter-documentation, project, __signature-line
+#import "base.typ": __signature-line, project
 #import "@preview/linguify:0.5.0": *
 
 /// Template adapter for IHK thesis documents.
