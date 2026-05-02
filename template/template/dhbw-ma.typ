@@ -1,6 +1,6 @@
 // LTeX: enabled=false
 
-#import "base.typ": __generate-adapter-documentation, project, signature-line
+#import "base.typ": __generate-adapter-documentation, project, __signature-line
 #import "../do_not_touch/ai-declaration-form_dhbw-ma.typ": ai-declaration-form
 #import "@preview/linguify:0.5.0": *
 
@@ -205,7 +205,7 @@
     set grid.cell(align: left, inset: (x: 1em, y: 0.3em))
 
     for a in authors {
-      signature-line(
+      __signature-line(
         author: a,
         date: submission-date,
         date-format: submission-date-format,
@@ -272,11 +272,4 @@
     ..args,
   )
   body
-}
-
-#let __documentation() = {
-  __generate-adapter-documentation(
-    "DHBW Mannheim Adapter",
-    "dhbw-ma.typ",
-  )
 }

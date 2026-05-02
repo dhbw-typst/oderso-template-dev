@@ -1,6 +1,6 @@
 // LTeX: enabled=false
 
-#import "base.typ": __generate-adapter-documentation, project, signature-line
+#import "base.typ": __generate-adapter-documentation, project, __signature-line
 #import "@preview/linguify:0.5.0": *
 
 /// Template adapter for IHK thesis documents.
@@ -89,7 +89,7 @@
     set grid.cell(align: left, inset: (x: 1em, y: 0.3em))
 
     for a in authors {
-      signature-line(
+      __signature-line(
         author: a,
         date: submission-date,
         date-format: submission-date-format,
@@ -119,11 +119,4 @@
     ..args,
   )
   body
-}
-
-#let __documentation() = {
-  __generate-adapter-documentation(
-    "IHK Adapter",
-    "ihk.typ",
-  )
 }

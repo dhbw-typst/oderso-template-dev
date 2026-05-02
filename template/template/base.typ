@@ -1,51 +1,16 @@
 // LTeX: enabled=false
 
-#import "@preview/glossarium:0.5.10": (
-  gls, glspl, make-glossary, print-glossary, register-glossary,
-)
+#import "@preview/glossarium:0.5.10": gls, glspl, make-glossary, print-glossary, register-glossary
 #import "@preview/hydra:0.6.2": hydra
 #import "@preview/codly-languages:0.1.10": *
 #import "@preview/codly:1.3.0": *
 #import "@preview/drafting:0.2.2": *
 #import "@preview/linguify:0.5.0": *
 #import "@preview/tidy:0.4.3"
-#import "../utils.typ": (
-  __documentation as __utils-documentation, __in-documentation, __in-outline,
-)
 
 /// Default heading numbering pattern.
 /// -> str
 #let __heading-numbering = "1.1.1"
-
-/// Generates documentation for an adapter and the base template.
-///
-/// This shared function generates consistent documentation across all adapters.
-/// It parses the adapter file, the base template, and utility functions.
-/// -> content
-#let __generate-adapter-documentation(
-  /// Title for the adapter section heading. -> str
-  adapter-title,
-  /// Filename of the adapter (e.g., "dhbw-ka.typ"). -> str
-  adapter-file,
-) = {
-  [== #adapter-title]
-
-  __in-documentation.update(true)
-
-  let adapter-docs = tidy.parse-module(read(adapter-file))
-  tidy.show-module(adapter-docs, omit-private-definitions: true)
-
-  [== Base Template]
-
-  let base-docs = tidy.parse-module(read("base.typ"))
-  tidy.show-module(base-docs, omit-private-definitions: true)
-
-  __in-documentation.update(false)
-
-  [== Utility Functions]
-
-  __utils-documentation()
-}
 
 /// Creates a signature line for statutory declarations.
 ///
@@ -53,7 +18,7 @@
 /// When `digital` is true, displays the author's name or signature image;
 /// when false, leaves the fields blank for handwritten signatures.
 /// -> content
-#let signature-line(
+#let __signature-line(
   /// Whether this is a digital submission with pre-filled signature. -> bool
   digital: true,
   /// City name for the signature location. -> str | none
@@ -110,7 +75,7 @@
 /// lists of figures/tables/code, bibliography, and appendices.
 ///
 /// Institution-specific adapters should wrap this function to add their
-/// specific requirements.
+/// specific requirements. However the parameters shown here can be used with all adapters.
 /// -> content
 #let project(
   /// The primary language of the document. Affects hyphenation, quotes,
