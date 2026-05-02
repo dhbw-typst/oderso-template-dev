@@ -41,19 +41,32 @@ jobs:
             ./typst compile $file
           done
 
+  discover_files:
+    name: Discover main-*.typ files
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.find_files.outputs.matrix }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Find main-*.typ files
+        id: find_files
+        run: |
+          FILES=$(ls template/main-*.typ 2>/dev/null | while read f; do
+            basename="${f##*/}"
+            name="${basename%.typ}"
+            echo "{\"file\":\"$name\",\"path\":\"$f\"}"
+          done | jq -s -c '.')
+          echo "matrix=${FILES}" >> "$GITHUB_OUTPUT"
+
   check_pdf:
     name: Check PDF parity (${{ matrix.file }})
     runs-on: ubuntu-24.04
+    needs: discover_files
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - file: main-dhbw-ka
-            path: template/main-dhbw-ka.typ
-          - file: main-dhbw-ma
-            path: template/main-dhbw-ma.typ
-          - file: main-ihk
-            path: template/main-ihk.typ
+        include: ${{ fromJson(needs.discover_files.outputs.matrix) }}
     steps:
       - name: Checkout PR branch
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -128,18 +141,13 @@ jobs:
           BODY="${BODY}\n> The following PDF outputs have changed between the main branch and this PR:"
           BODY="${BODY}\n>"
 
-          if [[ -f "markers/diff-marker-main-dhbw-ka/diff-marker.txt" ]]; then
-            BODY="${BODY}\n> - \`main-dhbw-ka\` — download [\`diff-pdf-main-dhbw-ka\`](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
-            HAS_DIFF=true
-          fi
-          if [[ -f "markers/diff-marker-main-dhbw-ma/diff-marker.txt" ]]; then
-            BODY="${BODY}\n> - \`main-dhbw-ma\` — download [\`diff-pdf-main-dhbw-ma\`](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
-            HAS_DIFF=true
-          fi
-          if [[ -f "markers/diff-marker-main-ihk/diff-marker.txt" ]]; then
-            BODY="${BODY}\n> - \`main-ihk\` — download [\`diff-pdf-main-ihk\`](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
-            HAS_DIFF=true
-          fi
+          for marker_dir in markers/diff-marker-*/; do
+            if [[ -d "$marker_dir" ]]; then
+              file_name=$(basename "$marker_dir" | sed 's/^diff-marker-//')
+              BODY="${BODY}\n> - \`${file_name}\` — download [\`diff-pdf-${file_name}\`](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+              HAS_DIFF=true
+            fi
+          done
 
           echo "has_diff=${HAS_DIFF}" >> "$GITHUB_OUTPUT"
 
