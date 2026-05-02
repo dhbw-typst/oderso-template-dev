@@ -34,6 +34,8 @@ For the following setup guide, make sure you have installed [Visual Studio Code]
    OR
    - Open the command palette (<kbd>CMD</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>) and select `Typst: Show exported PDF`
 
+**Look at the preview PDF ([DHBW Karlsruhe](https://github.com/dhbw-typst/oderso-template/releases/latest/download/main-dhbw-ka.pdf), [DHBW Mannheim](https://github.com/dhbw-typst/oderso-template/releases/latest/download/main-dhbw-ma.pdf), [IHK](https://github.com/dhbw-typst/oderso-template/releases/latest/download/main-ihk.pdf)) or the [package documentation](https://github.com/dhbw-typst/oderso-template/releases/latest/download/documentation.pdf) to learn how to use the package.**
+
 ## 💡 Feedback
 
 If you have any idea on how to **improve the template**, please check out the
