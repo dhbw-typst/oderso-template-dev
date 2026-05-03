@@ -22,7 +22,7 @@ jobs:
               name="${basename%.typ}"
               echo "{\"file\":\"$name\",\"path\":\"$f\"}"
             done
-            echo '{"file":"documentation","path":"template/documentation.typ"}'
+            echo '{"file":"documentation","path":"documentation.typ"}'
           } | jq -s -c '.')
           echo "matrix=${FILES}" >> "$GITHUB_OUTPUT"
 
