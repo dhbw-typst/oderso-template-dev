@@ -59,8 +59,6 @@ fn main() {
 ```]",
 )
 
-/ Note: You can also provide custom syntax (`.sublime-syntax`) files for code highlighting. The template already includes a syntax file for CDS, so you can use the `cds` language in your code blocks.
-
 Use `codefigurefile` to create a code snippet figure from the content of a file. Note that the provided file is searched relative to the location of your `main.typ` file.
 
 #typst-preview(

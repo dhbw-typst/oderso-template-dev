@@ -140,9 +140,6 @@
     it
   }
 
-  // load additional syntaxes for code
-  set raw(syntaxes: "../do_not_touch/cds.sublime-syntax")
-
   // fancy inline code
   // if you don't like them, just remove this section.
   show raw.where(block: false): box.with(
@@ -156,21 +153,6 @@
   // if you don't like them, just remove this section.
   show: codly-init.with()
   let languages-extended = codly-languages
-  languages-extended.insert(
-    "cds",
-    (
-      name: [CDS],
-      color: rgb("#2599CD"),
-      // styling from https://github.com/swaits/typst-collection/blob/b399080660c0566792cb3579ccf52ce7af9048a6/codly-languages/lib.typ#L16-L21
-      // icon: box(
-      //   image("logo.svg", height: 0.9em),
-      //   baseline: 0.05em,
-      //   inset: 0pt,
-      //   outset: 0pt,
-      // )
-      //  + h(0.3em),
-    ),
-  )
 
   codly(
     languages: languages-extended,
