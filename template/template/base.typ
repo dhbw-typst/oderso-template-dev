@@ -307,11 +307,10 @@
   // table of contents
   // show level 1 headings in outline in a fancier way, if not desired feel free to remove it
   pagebreak()
-  [#show outline.entry.where(level: 1): it => {
-      v(12pt, weak: true)
-      strong(it)
-    }
-    #outline(
+  {
+    show outline.entry.where(level: 1): strong
+    set par(leading: 0.65em)
+    outline(
       title: linguify("table-of-contents"),
       depth: 3,
       indent: auto,
@@ -319,7 +318,7 @@
         <__appendix-start>,
       ),
     )
-  ]
+  }
 
   // index of abbreviations
   if abbreviations.len() > 0 {
