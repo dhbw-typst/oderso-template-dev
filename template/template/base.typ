@@ -138,9 +138,8 @@
   /// #link("https://typst.app/universe/package/glossarium/")[glossarium package]
   /// for the expected format. -> array
   abbreviations: (),
-  /// Page numbering pattern for the main content section. -> str
-  content-page-numbering: "1",
-  /// The main document body content. -> content
+  /// Whether the content page numbering should include total pages ("3 / 24") or not ("3"). -> bool
+  numbering-show-total: false,
   body,
 ) = {
   // load linguify
@@ -148,13 +147,13 @@
 
   // page setup
   set document(title: title-long)
-  set page(paper: "a4")
+  set page(paper: "a4", margin: (rest: 2.5cm))
 
   // set text language (e. g. for smart quotes)
   set text(lang: lang)
 
   // justify content
-  set par(justify: true)
+  set par(justify: true, leading: 0.9em, spacing: 1.2em)
 
   // tables settings
   show table: set par(justify: false)
@@ -342,11 +341,10 @@
   // table of contents
   // show level 1 headings in outline in a fancier way, if not desired feel free to remove it
   pagebreak()
-  [#show outline.entry.where(level: 1): it => {
-      v(12pt, weak: true)
-      strong(it)
-    }
-    #outline(
+  {
+    show outline.entry.where(level: 1): strong
+    set par(leading: 0.65em)
+    outline(
       title: linguify("table-of-contents"),
       depth: 3,
       indent: auto,
@@ -354,7 +352,7 @@
         <__appendix-start>,
       ),
     )
-  ]
+  }
 
   // index of abbreviations
   if abbreviations.len() > 0 {
@@ -397,39 +395,41 @@
     }
   }
 
-  // display header
-  set page(header: {
-    context {
-      if here().page-numbering() == content-page-numbering {
-        grid(
-          columns: (auto, 1fr),
-          align(left, text(title-short)),
-          align(right, emph(hydra(1, display: (_, it) => {
-            it.body
-          }))),
-        )
-        line(length: 100%, stroke: (paint: gray))
-      }
-    }
-  })
-
-  // display main document and reset page counter
-  set page(
-    numbering: content-page-numbering,
-    footer: auto,
-    margin: (top: 4cm, x: 2.5cm, bottom: 2.5cm),
-  )
-  counter(page).update(1)
-
-  set par(leading: 0.9em)
-
   {
+    // display header
+    set page(
+      margin: (top: 4cm),
+      header: {
+        context {
+          grid(
+            columns: (auto, 1fr),
+            align(left, text(title-short)),
+            align(right, emph(hydra(1, display: (_, it) => {
+              it.body
+            }))),
+          )
+          line(length: 100%, stroke: (paint: gray))
+        }
+      },
+      numbering: (..n) => context {
+        if numbering-show-total {
+          numbering("1 / 1", n.at(0), ..counter(page).at(<__content-end>))
+        } else {
+          numbering("1", n.at(0))
+        }
+      },
+      footer: auto,
+    )
     show heading.where(level: 1): it => {
       pagebreak(weak: true)
       it
     }
 
+    // reset page counter and show content
+    counter(page).update(1)
+
     body
+    [#[] <__content-end>]
   }
 
   // display bibliography
