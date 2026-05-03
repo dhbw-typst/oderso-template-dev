@@ -5,42 +5,6 @@ on:
       - main
   workflow_dispatch:
 jobs:
-  check_formatting:
-    name: Check Formatting
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Install typstyle
-        run: |
-          curl -L https://github.com/typstyle-rs/typstyle/releases/download/v0.14.4/typstyle-x86_64-unknown-linux-gnu -o typstyle
-          chmod +x typstyle
-      - name: Typstyle version
-        run: ./typstyle --version
-      - name: Run formatting check
-        run: |
-          ./typstyle ./template --check
-  check_build:
-    name: Check Build
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - name: Install typst
-        run: |
-          curl -L https://github.com/typst/typst/releases/download/v0.14.2/typst-x86_64-unknown-linux-musl.tar.xz -o typst.tar.xz
-          mkdir -p typst_bin
-          tar -xf typst.tar.xz -C typst_bin
-          mv typst_bin/typst-x86_64-unknown-linux-musl/typst typst
-          chmod +x typst
-      - name: Typst version
-        run: ./typst --version
-      - name: Build template
-        run: |
-          for file in $(ls template/main-*.typ); do
-            ./typst compile $file
-          done
-
   discover_files:
     name: Discover main-*.typ files
     runs-on: ubuntu-24.04
@@ -59,10 +23,49 @@ jobs:
           done | jq -s -c '.')
           echo "matrix=${FILES}" >> "$GITHUB_OUTPUT"
 
+  check_formatting:
+    name: Check Formatting
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Install typstyle
+        run: |
+          curl -L https://github.com/typstyle-rs/typstyle/releases/download/v0.14.4/typstyle-x86_64-unknown-linux-gnu -o typstyle
+          chmod +x typstyle
+      - name: Typstyle version
+        run: ./typstyle --version
+      - name: Run formatting check
+        run: |
+          ./typstyle ./template --check
+
+  check_build:
+    name: Check Build
+    needs: discover_files
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.discover_files.outputs.matrix) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Install typst
+        run: |
+          curl -L https://github.com/typst/typst/releases/download/v0.14.2/typst-x86_64-unknown-linux-musl.tar.xz -o typst.tar.xz
+          mkdir -p typst_bin
+          tar -xf typst.tar.xz -C typst_bin
+          mv typst_bin/typst-x86_64-unknown-linux-musl/typst typst
+          chmod +x typst
+      - name: Typst version
+        run: ./typst --version
+      - name: Build template
+        run: ./typst compile ${{ matrix.path }}
+
   check_pdf:
     name: Check PDF parity (${{ matrix.file }})
-    runs-on: ubuntu-24.04
     needs: discover_files
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
