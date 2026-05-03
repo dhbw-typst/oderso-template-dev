@@ -113,13 +113,13 @@
 
   // page setup
   set document(title: title-long)
-  set page(paper: "a4", margin: (inside: 2.5cm))
+  set page(paper: "a4", margin: (rest: 2.5cm))
 
   // set text language (e. g. for smart quotes)
   set text(lang: lang)
 
   // justify content
-  set par(justify: true)
+  set par(justify: true, leading: 0.9em, spacing: 1.2em)
 
   // tables settings
   show table: set par(justify: false)
@@ -362,12 +362,8 @@
     }
   }
 
-  // reset page counter and show content
-  counter(page).update(1)
-
-  set par(leading: 0.9em)
-
   {
+
     // display header
     set page(
       margin: (top: 4cm),
@@ -396,6 +392,9 @@
       pagebreak(weak: true)
       it
     }
+
+    // reset page counter and show content
+    counter(page).update(1)
 
     body
     [#[] <__content-end>]
