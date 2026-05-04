@@ -10,4 +10,5 @@ template/main-dhbw-ka.typ @dhbw-typst/dhbw-ka
 ## - Currently no maintainer -
 
 ## IHK
-## - Currently no maintainer -
+template/template/ihk.typ @dhbw-typst/ihk
+template/main-ihk.typ @dhbw-typst/ihk
