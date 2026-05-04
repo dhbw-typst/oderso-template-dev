@@ -205,15 +205,6 @@
     signature-image: main-author.signature,
   )
 
-  let ai-tools-declaration-preamble = none
-  let ai-tools-declaration-postamble = none
-
-  if (ai-declaration-form-data.position == "preamble") {
-    ai-tools-declaration-preamble = ai-tools-declaration
-  } else if (ai-declaration-form-data.position == "postamble") {
-    ai-tools-declaration-postamble = ai-tools-declaration
-  }
-
   show: project.with(
     logo-left: company-logo,
     logo-right: image("../do_not_touch/DHBW-Logo.svg"),
