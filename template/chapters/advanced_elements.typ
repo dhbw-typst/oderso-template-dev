@@ -80,8 +80,10 @@ See #link("https://typst.app/docs/reference/math/", "the Typst documentation") f
   sum_(k=0)^n k
   &= 1 + ... + n \
   &= (n(n+1)) / 2 \
-$",
+$<math-figure>",
 )
+
+You can reference labeled equations like other figures. @math-figure shows the sum of the first $n$ natural numbers.
 
 == Block Quotes
 
