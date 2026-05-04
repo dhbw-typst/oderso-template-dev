@@ -69,8 +69,7 @@
 /// - metadata (): List of metadata entries
 /// - submission-info (content): Additional information about the thesis, displayed below the thesis type.
 /// - authors (): List of authors of the thesis
-/// - preamble (): List of content to display directly after the cover
-/// - postamble (): List of content to display at the very end of the document
+/// - postamble (): List of content to display after lists (e.g. statutory declaration, confidentiality)
 /// - abstracts (): List of abstracts
 /// - appendices (): List of appendices with values "title" and "content"
 /// - library (str): Path to the library file (e.g. ./src.bib)
@@ -270,18 +269,10 @@
   counter(page).update(1)
   set page(numbering: "I")
 
-  {
-    set heading(outlined: false, numbering: none)
-    // preamble
-    for p in preamble {
-      p
-    }
-  }
-
   // abstracts
   for a in abstracts {
     let (abstract-lang, abstract-lang-long, abstract-body) = a
-    pagebreak()
+    pagebreak(weak: true)
     align(center + horizon)[
       #heading(outlined: false, numbering: none, [#text(
           0.85em,
@@ -306,7 +297,7 @@
 
   // table of contents
   // show level 1 headings in outline in a fancier way, if not desired feel free to remove it
-  pagebreak()
+  pagebreak(weak: true)
   {
     show outline.entry.where(level: 1): strong
     set par(leading: 0.65em)
@@ -320,45 +311,9 @@
     )
   }
 
-  // index of abbreviations
+  // register abbreviations before content so references resolve
   if abbreviations.len() > 0 {
-    pagebreak()
-    heading(outlined: true, numbering: none, linguify("list-of-abbreviations"))
     register-glossary(abbreviations)
-    print-glossary(abbreviations, deduplicate-back-references: true)
-  }
-
-  // only display certain outlines if elements for it exist
-  context {
-    // list of figures
-    if query(figure.where(kind: image)).len() > 0 {
-      pagebreak()
-      heading(linguify("list-of-figures"), numbering: none)
-      outline(
-        target: figure.where(kind: image).before(<__appendix-start>),
-        title: none,
-      )
-    }
-
-    // list of tables
-    if query(figure.where(kind: table)).len() > 0 {
-      pagebreak()
-      heading(linguify("list-of-tables"), numbering: none)
-      outline(
-        target: figure.where(kind: table).before(<__appendix-start>),
-        title: none,
-      )
-    }
-
-    // list of source code
-    if query(figure.where(kind: raw)).len() > 0 {
-      pagebreak()
-      heading(linguify("list-of-code"), numbering: none)
-      outline(
-        target: figure.where(kind: raw).before(<__appendix-start>),
-        title: none,
-      )
-    }
   }
 
   {
@@ -404,6 +359,56 @@
 
   bibliography("../" + library, title: linguify("list-of-bibliography"))
 
+  // lists and declarations (between content and appendix)
+  {
+    set heading(numbering: none)
+
+    // index of abbreviations
+    if abbreviations.len() > 0 {
+      pagebreak()
+      heading(linguify("list-of-abbreviations"))
+      print-glossary(abbreviations, deduplicate-back-references: true)
+    }
+
+    // only display certain outlines if elements for it exist
+    context {
+      // list of figures
+      if query(figure.where(kind: image)).len() > 0 {
+        pagebreak()
+        heading(linguify("list-of-figures"))
+        outline(
+          target: figure.where(kind: image).before(<__appendix-start>),
+          title: none,
+        )
+      }
+
+      // list of tables
+      if query(figure.where(kind: table)).len() > 0 {
+        pagebreak()
+        heading(linguify("list-of-tables"))
+        outline(
+          target: figure.where(kind: table).before(<__appendix-start>),
+          title: none,
+        )
+      }
+
+      // list of source code
+      if query(figure.where(kind: raw)).len() > 0 {
+        pagebreak()
+        heading(linguify("list-of-code"))
+        outline(
+          target: figure.where(kind: raw).before(<__appendix-start>),
+          title: none,
+        )
+      }
+    }
+
+    // postamble (statutory declaration, confidentiality, AI declaration)
+    for p in postamble {
+      p
+    }
+  }
+
   // display appendix
   if appendices != none {
     set heading(
@@ -438,14 +443,6 @@
       [#heading(appendix.title) #label(appendix.reference)]
 
       appendix.content
-    }
-  }
-
-  {
-    set heading(outlined: false, numbering: none)
-    // postamble
-    for p in postamble {
-      p
     }
   }
 }
