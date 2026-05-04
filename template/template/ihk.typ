@@ -85,7 +85,7 @@
     authors: authors,
     submission-info: submission-info,
     metadata: metadata,
-    preamble: (
+    postamble: (
       statutory-declaration,
       confidentiality-clause,
     ),

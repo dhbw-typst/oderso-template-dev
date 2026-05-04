@@ -79,7 +79,6 @@
     topic-editing: "Strukturierung, Gliederung",
     research: "Quellenrecherche mit KI",
     design: "Textgenerierung, Korrektur",
-    position: "preamble", //"preamble", "postamble"
   ),
 
   // abstracs: usage: (language, language (displayed), content)
