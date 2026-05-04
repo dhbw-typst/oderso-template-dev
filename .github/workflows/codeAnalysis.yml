@@ -16,11 +16,14 @@ jobs:
       - name: Find main-*.typ files
         id: find_files
         run: |
-          FILES=$(ls template/main-*.typ 2>/dev/null | while read f; do
-            basename="${f##*/}"
-            name="${basename%.typ}"
-            echo "{\"file\":\"$name\",\"path\":\"$f\"}"
-          done | jq -s -c '.')
+          FILES=$({
+            ls template/main-*.typ 2>/dev/null | while read f; do
+              basename="${f##*/}"
+              name="${basename%.typ}"
+              echo "{\"file\":\"$name\",\"path\":\"$f\"}"
+            done
+            echo '{"file":"documentation","path":"documentation.typ"}'
+          } | jq -s -c '.')
           echo "matrix=${FILES}" >> "$GITHUB_OUTPUT"
 
   check_formatting:

@@ -1,15 +1,35 @@
 // LTeX: enabled=false
 
-#import "base.typ": project, signature-line
+#import "base.typ": __signature-line, project
 #import "../do_not_touch/ai-declaration-form_dhbw-ma.typ": ai-declaration-form
 #import "@preview/linguify:0.5.0": *
 
+/// Template adapter for DHBW Mannheim thesis documents.
+///
+/// This function configures the base `project` template with DHBW Mannheim-specific
+/// settings, including statutory declarations, confidentiality clauses,
+/// and the official AI declaration form.
+///
+/// In addition to the parameters listed below, this adapter accepts all parameters
+/// from the base `project` template (e.g., `title-long`, `title-short`, `thesis-type`,
+/// `abstracts`, `appendices`, `library`, `abbreviations`, `lang`).
+/// -> content
 #let dhbw-ma-adapter(
+  /// Whether the thesis is submitted digitally. Affects the signature line
+  /// display in the statutory declaration. -> bool
   digital-submission: true,
+  /// Whether the thesis is submitted digitally only (no printed copy).
+  /// Affects the wording of the statutory declaration. -> bool
   digital-only: true,
+  /// Whether to include a confidentiality clause page. -> bool
   confidentiality-clause: true,
+  /// The examination degree, e.g., "Bachelor of Science (B.Sc.)". -> str
   examination: "Bachelor of Science (B.Sc.)",
+  /// The field of study, e.g., "Computer Science". -> str
   study: "Computer Science",
+  /// List of author dictionaries. Each author should have: `firstname`,
+  /// `lastname`, `matriculation-number`, `course`, `signature` (optional),
+  /// `email`, `address`, and `phone-number`. -> array
   authors: (
     (
       firstname: none,
@@ -22,31 +42,49 @@
       phone-number: none,
     ),
   ),
+  /// City shown on the signature line. -> str
   signature-city: "Mannheim",
+  /// Submission date of the thesis. -> datetime
   submission-date: datetime.today(),
+  /// Submission date for the module (used in AI declaration form). -> datetime
   module-submission-date: datetime.today(),
+  /// Format string for displaying dates. -> str
   submission-date-format: "[day].[month].[year]",
+  /// Duration of the thesis processing period in weeks. -> int | none
   processing-period-weeks: none,
+  /// University supervisor dictionary with `firstname`, `lastname`,
+  /// `email`, and `phone-number`. -> dictionary
   university-supervisor: (
     firstname: none,
     lastname: none,
     email: none,
     phone-number: none,
   ),
+  /// Name of the training company. -> str | none
   company-name: "Corp SE",
+  /// City where the company is located. -> str | none
   company-city: "Berlin",
+  /// Company logo image. -> content | none
   company-logo: image("../do_not_touch/Company-Logo.svg"),
+  /// Department within the company. -> str | none
   company-department: none,
+  /// Company supervisor dictionary with `firstname`, `lastname`,
+  /// `email`, and `phone-number`. -> dictionary
   company-supervisor: (
     firstname: none,
     lastname: none,
     email: none,
     phone-number: none,
   ),
+  /// Name of the course director. -> str | none
   course-director: none,
+  /// AI declaration form data dictionary. Contains: `module-name`, `exam-type`
+  /// ("Projektarbeit I", "Projektarbeit II", "Seminararbeit", "Bachelorarbeit"),
+  /// `product-name`, `topic`, `topic-editing`, `research`, `design`, and
+  /// `position` ("preamble", "postamble", or "after-confidentiality-clause"). -> dictionary
   ai-declaration-form-data: (
     module-name: none,
-    exam-type: none, // "Projektarbeit I", "Projektarbeit II", "Seminararbeit", "Bachelorarbeit"
+    exam-type: none,
     product-name: none,
     topic: none,
     topic-editing: none,
@@ -54,7 +92,9 @@
     design: none,
     position: "after-confidentiality-clause",
   ),
+  /// Additional arguments passed to the base template.
   ..args,
+  /// The main document body content. -> content
   body,
 ) = {
   let submission-info = [
@@ -165,7 +205,7 @@
     set grid.cell(align: left, inset: (x: 1em, y: 0.3em))
 
     for a in authors {
-      signature-line(
+      __signature-line(
         author: a,
         date: submission-date,
         date-format: submission-date-format,
@@ -216,17 +256,17 @@
   }
 
   show: project.with(
-    logo-left: company-logo,
-    logo-right: image("../do_not_touch/DHBW-Logo.svg"),
-    authors: authors,
-    submission-info: submission-info,
-    metadata: metadata,
-    preamble: (
+    __logo-left: company-logo,
+    __logo-right: image("../do_not_touch/DHBW-Logo.svg"),
+    __authors: authors,
+    __submission-info: submission-info,
+    __metadata: metadata,
+    __preamble: (
       statutory-declaration,
       ..if (confidentiality-clause) { (confidentiality-clause-text,) },
       ai-tools-declaration-preamble,
     ),
-    postamble: (
+    __postamble: (
       ai-tools-declaration-postamble,
     ),
     ..args,

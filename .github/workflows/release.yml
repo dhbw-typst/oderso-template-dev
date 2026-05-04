@@ -93,18 +93,26 @@ jobs:
           for file in $(ls template/main-*.typ); do
             ./typst compile $file
           done
+      - name: Build documentation
+        if: steps.version.outputs.hasNextVersion == 'true'
+        run: |
+          ./typst compile documentation.typ --input version=${{ steps.version.outputs.version }}
       - name: Release dev repo
         if: steps.version.outputs.hasNextVersion == 'true'
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
           token: ${{ secrets.BOT_PAT }}
-          files: template/main-*.pdf
+          files: |
+            template/main-*.pdf
+            documentation.pdf
           tag_name: ${{ steps.version.outputs.version }}
       - name: Release prod repo
         if: steps.version.outputs.hasNextVersion == 'true'
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
           token: ${{ secrets.BOT_PAT }}
-          files: template/main-*.pdf
+          files: |
+            template/main-*.pdf
+            documentation.pdf
           tag_name: ${{ steps.version.outputs.version }}
           repository: dhbw-typst/oderso-template
