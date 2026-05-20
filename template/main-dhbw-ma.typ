@@ -45,9 +45,9 @@
 
   signature-city: "Mannheim",
 
-  // Set to specific date with datetime(year: 2026, month: 06, day: 10)
-  submission-date: datetime.today(),
-  module-submission-date: datetime.today(),
+  // Set to specific date with "24.12.2026"
+  submission-date: datetime.today().display("[day].[month].[year]"),
+  module-submission-date: datetime.today().display("[day].[month].[year]"),
 
   processing-period-weeks: 12,
 
