@@ -39,7 +39,7 @@
       firstname: "John",
       lastname: "Doe",
       matriculation-number: "0000000",
-      course: "TINF23B2",
+      course: "TINF24B2",
       // remove if you do not have a signature image
       signature: image("assets/example-signature.png"),
     ), // make sure to keep this comma after the first author if there is only one author!
@@ -47,7 +47,7 @@
       firstname: "Erika",
       lastname: "Musterfrau",
       matriculation-number: "1234567",
-      course: "TINF23B1",
+      course: "TINF24B1",
     ),
   ),
 
@@ -84,7 +84,7 @@
   //   reference: "reference-label",
   //   content: [content] || include("appendix.typ")
   // )
-  // change to "appendices: none" to remove appendix
+  // remove property to remove appendices
   appendices: (
     (
       title: "Relevant Stuff",

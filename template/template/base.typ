@@ -155,20 +155,21 @@
   // set text language (e. g. for smart quotes)
   set text(lang: lang)
 
-  // justify content
-  set par(justify: true, leading: 0.9em, spacing: 1.2em)
+  // font setup (LaTeX Look: 'New Computer Modern')
+  set text(font: "New Computer Modern", size: 12pt)
+
+  // justify content.
+  // Values researched in https://github.com/dhbw-typst/oderso-template-dev/pull/64 to match Arial 12pt and 1.5 line spacing in Microsoft Word
+  set par(justify: true, leading: 1.05em, spacing: 1.5em)
 
   // tables settings
   show table: set par(justify: false)
-
-  // font setup (LaTeX Look: 'New Computer Modern')
-  set text(font: "New Computer Modern", size: 12pt)
 
   // heading setup
   set heading(numbering: __heading-numbering)
 
   show heading: it => {
-    text(font: "Libertinus Serif", it)
+    it
     v(0.5cm)
   }
 
@@ -196,6 +197,8 @@
     display-name: false,
     number-align: right + top,
   )
+
+  show figure.where(kind: raw): set figure(supplement: "Code")
 
   // set table numbering to roman
   show figure.where(kind: table): set figure(numbering: "I")
@@ -281,8 +284,10 @@
     ],
 
     // Meta
-    align(center, {
+    place(center + bottom, {
       show table.cell.where(x: 0): set text(weight: "semibold")
+
+      set par(leading: .6em)
 
       table(
         columns: (1fr, 1fr),
@@ -466,7 +471,10 @@
   }
 
   // display appendix
-  if appendices != none {
+  appendices = appendices.filter(item => (
+    item.title != none and item.content != none
+  ))
+  if appendices.len() > 0 {
     set heading(
       outlined: true,
       numbering: (..nums) => {
@@ -485,7 +493,7 @@
     )
 
     outline(
-      depth: 3,
+      depth: 1,
       indent: auto,
       title: none,
       target: selector(heading).after(<__appendix-start>),

@@ -62,6 +62,10 @@ statutory-declaration-note-dhbw-printed = { $author-count ->
     [one] Furthermore, I declare that the submitted electronic version is identical to the printed version.
    *[other] Furthermore, we declare that the submitted electronic version is identical to the printed version.
 }
+statutory-declaration-note-dhbw-ai = { $author-count ->
+    [one] I have used AI tools in the creation of this work. I have indicated this at the appropriate place in the work.
+   *[other] We have used AI tools in the creation of this work. We have indicated this at the appropriate place in the work.
+}
 
 statutory-declaration-note-dhbw-old = { $author-count ->
     [one] I hereby declare that I have written my { $type } on the topic: "{ $title }" independently and have not used any sources or aids other than those specified.

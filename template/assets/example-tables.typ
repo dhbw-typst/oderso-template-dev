@@ -12,15 +12,12 @@ This appendix shows example tables. Sourced from #link("https://ieeexplore.ieee.
     [1],
     [Are there FPA problems being reported in terms of accuracy?],
     [Identify and summarize potential FPA problems, pointed out by researchers.],
-
     [2],
     [Are there proposals to improve the FPA’s accuracy? Which improvements are being proposed?],
     [Identify and summarize the approaches proposed to improve the FPA accuracy.],
-
     [3],
     [Are the proposed improvements effective?],
     [Verify if the proposed improvements are more effective when compared to the standard FPA.],
-
     [4],
     [What are the limitations for the proposed improvements?],
     [Identify potential problems or weaknesses for the proposed improvements.],

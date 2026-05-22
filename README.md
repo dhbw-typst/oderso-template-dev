@@ -1,4 +1,4 @@
-<img src="template/banner.jpeg" width="100%" />
+<img src="banner.jpeg" width="100%" />
 
 # ODERSO Typst Template (Dev)
 
@@ -14,19 +14,7 @@ Hello and welcome to the **development repository** of the Typst template. It is
 
 ## 🤝 Contribute
 
-1. Pick an issue you want to work or create an issue you want to work on yourself.
-2. Follow [setup guide](#️-setup) for your local development environment.
-3. Make sure to format your changes with `typstyle . -i` before committing.
-
-This project is using [get-next-version](https://github.com/thenativeweb/get-next-version) for automatic releases.
-New releases are automatically created for commits on main. The version is determined by the commits prefix:
-
-- `chore`: No release
-- `fix`: Patch version bump
-- `feat`: Minor version bump
-- `feat!`: Major version bump
-
-Add the correct prefix to your PR title and make sure it is included when merging.
+We welcome new contributors! Please take a look at [good first issues](https://github.com/dhbw-typst/oderso-template-dev/contribute) or our [contribution guide](CONTRIBUTING.md) for more information on how to help!
 
 ## 🛠️ Setup
 

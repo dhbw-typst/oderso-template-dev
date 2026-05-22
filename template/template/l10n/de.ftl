@@ -62,6 +62,10 @@ statutory-declaration-note-dhbw-printed = { $author-count ->
     [one] Des Weiteren versichere ich, dass die eingereichte elektronische Fassung mit der gedruckten Ausfertigung übereinstimmt.
    *[other] Des Weiteren versichern wir, dass die eingereichte elektronische Fassung mit der gedruckten Ausfertigung übereinstimmt.
 }
+statutory-declaration-note-dhbw-ai = { $author-count ->
+    [one] Ich habe bei der Erstellung der Arbeit KI-Werkzeuge eingesetzt. Dies habe ich an entsprechender Stelle der Arbeit kenntlich gemacht.
+   *[other] Wir haben bei der Erstellung der Arbeit KI-Werkzeuge eingesetzt. Dies haben wir an entsprechender Stelle der Arbeit kenntlich gemacht.
+}
 
 statutory-declaration-note-dhbw-old = { $author-count ->
     [one] Ich versichere hiermit, dass ich meine { $type } dem Thema: "{ $title }" selbstständig verfasst und keine anderen als die angegebenen Quellen und Hilfsmittel benutzt habe.

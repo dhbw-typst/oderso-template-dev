@@ -110,10 +110,10 @@
     ))
   ]
   let company-supervisor-data = [
-    #company-supervisor.firstname #company-supervisor.lastname
-    #if (company-supervisor.phone-number != none) {
-      linebreak()
-      company-supervisor.phone-number
+    #company-supervisor.firstname #company-supervisor.lastname#if (
+      company-supervisor.phone-number != none
+    ) {
+      ", " + company-supervisor.phone-number
     }
     #if (company-supervisor.email != none) {
       linebreak()
@@ -122,10 +122,10 @@
   ]
 
   let university-supervisor-data = [
-    #university-supervisor.firstname #university-supervisor.lastname
-    #if (university-supervisor.phone-number != none) {
-      linebreak()
-      university-supervisor.phone-number
+    #university-supervisor.firstname #university-supervisor.lastname#if (
+      university-supervisor.phone-number != none
+    ) {
+      ", " + university-supervisor.phone-number
     }
     #if (university-supervisor.email != none) {
       linebreak()

@@ -137,6 +137,7 @@ jobs:
         with:
           pattern: diff-*
           path: diffs
+          merge-multiple: true
       - name: Build comment body
         id: build_comment
         run: |
@@ -148,12 +149,14 @@ jobs:
           BODY="${BODY}\n>"
 
           for diff in diffs/diff-*; do
-            if [[ -f "$diff" ]]; then
-              file_name=$(basename "$diff" | sed 's/^diff-//')
-              echo "Found diff for ${file_name}"
-              BODY="${BODY}\n> - \`${file_name}\` — download [\`diff-${file_name}\`](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
-              HAS_DIFF=true
+            if [[ ! -f "$diff" ]]; then
+              continue
             fi
+
+            file_name=$(basename "$diff" | sed 's/^diff-//')
+            echo "Found diff for ${file_name}"
+            BODY="${BODY}\n> - \`${file_name}\` — download [\`diff-${file_name}\`](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            HAS_DIFF=true
           done
 
           echo "has_diff=${HAS_DIFF}" >> "$GITHUB_OUTPUT"
