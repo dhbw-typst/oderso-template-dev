@@ -7,7 +7,8 @@ template/template/dhbw-ka.typ @dhbw-typst/dhbw-ka
 template/main-dhbw-ka.typ @dhbw-typst/dhbw-ka
 
 ## DHBW Mannheim
-## - Currently no maintainer -
+template/template/dhbw-ma.typ @dhbw-typst/dhbw-ma
+template/main-dhbw-ma.typ @dhbw-typst/dhbw-ma
 
 ## IHK
 template/template/ihk.typ @dhbw-typst/ihk
