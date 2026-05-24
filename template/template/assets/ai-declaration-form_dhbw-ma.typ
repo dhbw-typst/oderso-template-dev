@@ -166,7 +166,7 @@
 
     grid(
       columns: (3.4cm, 5.9cm, 8cm),
-      text(size: fontSizeNormal)[*#__linguify-content("ai-dec-for-module")*],
+      text(size: fontSizeNormal)[#__linguify-content("ai-dec-for-module")],
       grid.cell(colspan: 2, text(size: fontSizeNormal)[#fieldModuleName]),
       [],
       grid.cell(
@@ -174,7 +174,7 @@
         stroke: (top: 1pt),
         align: center,
       )[#__linguify-content("ai-dec-module-semester")],
-      text(size: fontSizeNormal)[*#__linguify-content("ai-dec-have-to-on")*],
+      text(size: fontSizeNormal)[#__linguify-content("ai-dec-have-to-on")],
       grid.cell(colspan: 2, text(size: fontSizeNormal)[#fieldDate]),
       [], grid.cell(stroke: (top: 1pt), align: center)[#__linguify-content("ai-dec-deadline-date")], [],
     )
@@ -184,7 +184,7 @@
 
   pad(right: 1cm)[
 
-    *#__linguify-content("ai-dec-following-examination")*
+    #__linguify-content("ai-dec-following-examination")
     #v(0.35cm)
 
     #grid(
@@ -203,7 +203,7 @@
 
     #v(2.2cm)
 
-    *#__linguify-content("ai-dec-intro")*
+    #__linguify-content("ai-dec-intro")
   ]
 
   v(1cm)
@@ -230,7 +230,7 @@
   pad(right: 1.1cm)[
     #set par(justify: true)
 
-    *#__linguify-content("ai-dec-title-products")*
+    #__linguify-content("ai-dec-title-products")
     #{
       if (digital) {
         v(0.7cm)
@@ -243,7 +243,7 @@
 
     #v(1.3cm)
 
-    *#__linguify-content("ai-dec-title-used-functions")*
+    #__linguify-content("ai-dec-title-used-functions")
     #v(1cm)
 
     - #__linguify-content("ai-dec-topic-structure")
@@ -269,7 +269,7 @@
 
   pad(right: 0.5cm)[
     #block(stroke: 0.5pt, inset: 3pt)[
-      *#__linguify-content("notice")*:
+      #__linguify-content("notice")
 
       #__linguify-content("ai-dec-notice")
     ]
@@ -285,8 +285,8 @@
     column-gutter: 0.5cm,
     align(bottom, text(size: fontSizeNormal, fieldSignature)),
     place(bottom, signature),
-    grid.cell(stroke: (top: 1pt), [*#__linguify-content("place-date")*]),
-    grid.cell(stroke: (top: 1pt), [*#__linguify-content("sign-student")*]),
+    grid.cell(stroke: (top: 1pt), [#__linguify-content("place-date")]),
+    grid.cell(stroke: (top: 1pt), [#__linguify-content("sign-student")]),
   )
 }
 
