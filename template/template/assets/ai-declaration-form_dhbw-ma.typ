@@ -136,7 +136,9 @@
 
   v(0.7cm)
 
-  heading(level: 2, outlined: false)[#__linguify-content("ai-dec-personal-information")]
+  heading(level: 2, outlined: false)[#__linguify-content(
+    "ai-dec-personal-information",
+  )]
 
   v(1.1cm)
 
@@ -148,8 +150,12 @@
       columns: (60%, 40%),
       text(size: fontSizeNormal)[#fieldName],
       text(size: fontSizeNormal)[#fieldIdentificatioNumber],
-      grid.cell(stroke: (top: 1pt))[#__linguify-content("ai-dec-last-first-name")],
-      grid.cell(stroke: (top: 1pt))[#__linguify-content("ai-dec-matriculation-number")],
+      grid.cell(stroke: (top: 1pt))[#__linguify-content(
+        "ai-dec-last-first-name",
+      )],
+      grid.cell(stroke: (top: 1pt))[#__linguify-content(
+        "ai-dec-matriculation-number",
+      )],
       grid.cell(inset: lineSpacing, colspan: 2)[],
       text(size: fontSizeNormal)[#fieldAddress],
       text(size: fontSizeNormal)[#fieldCourse],
@@ -176,7 +182,11 @@
       )[#__linguify-content("ai-dec-module-semester")],
       text(size: fontSizeNormal)[#__linguify-content("ai-dec-have-to-on")],
       grid.cell(colspan: 2, text(size: fontSizeNormal)[#fieldDate]),
-      [], grid.cell(stroke: (top: 1pt), align: center)[#__linguify-content("ai-dec-deadline-date")], [],
+      [],
+      grid.cell(stroke: (top: 1pt), align: center)[#__linguify-content(
+        "ai-dec-deadline-date",
+      )],
+      [],
     )
   }
 
@@ -189,8 +199,12 @@
 
     #grid(
       columns: (4.2cm, 4.1cm, 1.7cm, 5.8cm),
-      [#fillCheckRec([#__linguify-content("project-thesis", args: (thesis-number:"I"))])],
-      [#fillCheckRec([#__linguify-content("project-thesis", args: (thesis-number:"II"))])],
+      [#fillCheckRec([#__linguify-content("project-thesis", args: (
+        thesis-number: "I",
+      ))])],
+      [#fillCheckRec([#__linguify-content("project-thesis", args: (
+        thesis-number: "II",
+      ))])],
       [#fillCheckRec([#__linguify-content("others")])],
       [#h(2pt) #getOtherExamTypes()],
       grid.cell(colspan: 3)[],
@@ -198,7 +212,8 @@
         size: fontSizeSmall,
       )[#__linguify-content("specific-descr")]),
       grid.cell(colspan: 4, inset: (top: 0.15cm, bottom: 0pt))[],
-      [#fillCheckRec([#__linguify-content("seminar-thesis")])], [#fillCheckRec([#__linguify-content("bachelor-thesis")])],
+      [#fillCheckRec([#__linguify-content("seminar-thesis")])],
+      [#fillCheckRec([#__linguify-content("bachelor-thesis")])],
     )
 
     #v(2.2cm)
