@@ -1,4 +1,5 @@
 //Declaration form for the use of AI-based tools in Projektarbeiten at DHBW Mannheim.
+#import "../utils.typ": __linguify-content
 
 #let ai-declaration-form(
   digital: true,
@@ -129,13 +130,13 @@
     inset: 0cm,
     align(left, heading(
       level: 1,
-    )[Hilfsmittelangabe zum Einsatz von KI-basierten Werkzeugen bei der Anfertigung von wissenschaftlichen Arbeiten]),
+    )[#__linguify-content("ai-dec-title")]),
     align(right, image("DHBW-Logo.svg", width: 100%)),
   )
 
   v(0.7cm)
 
-  heading(level: 2, outlined: false)[Persönliche Angaben]
+  heading(level: 2, outlined: false)[#__linguify-content("ai-dec-personal-information")]
 
   v(1.1cm)
 
@@ -147,35 +148,35 @@
       columns: (60%, 40%),
       text(size: fontSizeNormal)[#fieldName],
       text(size: fontSizeNormal)[#fieldIdentificatioNumber],
-      grid.cell(stroke: (top: 1pt))[Nachname, Vorname],
-      grid.cell(stroke: (top: 1pt))[Matrikelnummer],
+      grid.cell(stroke: (top: 1pt))[#__linguify-content("ai-dec-last-first-name")],
+      grid.cell(stroke: (top: 1pt))[#__linguify-content("ai-dec-matriculation-number")],
       grid.cell(inset: lineSpacing, colspan: 2)[],
       text(size: fontSizeNormal)[#fieldAddress],
       text(size: fontSizeNormal)[#fieldCourse],
-      grid.cell(stroke: (top: 1pt))[Anschrift],
-      grid.cell(stroke: (top: 1pt))[Kurs],
+      grid.cell(stroke: (top: 1pt))[#__linguify-content("ai-dec-address")],
+      grid.cell(stroke: (top: 1pt))[#__linguify-content("ai-dec-course")],
       grid.cell(inset: lineSpacing, colspan: 2)[],
       text(size: fontSizeNormal)[#fieldEmail],
       text(size: fontSizeNormal)[#fieldMobileNumber],
-      grid.cell(stroke: (top: 1pt))[E-Mail],
-      grid.cell(stroke: (top: 1pt))[Telefonnummer /  Handynummer],
+      grid.cell(stroke: (top: 1pt))[#__linguify-content("ai-dec-mail")],
+      grid.cell(stroke: (top: 1pt))[#__linguify-content("ai-dec-tel-number")],
     )
 
     v(1.1cm)
 
     grid(
       columns: (3.4cm, 5.9cm, 8cm),
-      text(size: fontSizeNormal)[*Für das Modul*],
+      text(size: fontSizeNormal)[*#__linguify-content("ai-dec-for-module")*],
       grid.cell(colspan: 2, text(size: fontSizeNormal)[#fieldModuleName]),
       [],
       grid.cell(
         colspan: 2,
         stroke: (top: 1pt),
         align: center,
-      )[Modulbezeichnung /   Semester],
-      text(size: fontSizeNormal)[*muss ich am*],
+      )[#__linguify-content("ai-dec-module-semester")],
+      text(size: fontSizeNormal)[*#__linguify-content("ai-dec-have-to-on")*],
       grid.cell(colspan: 2, text(size: fontSizeNormal)[#fieldDate]),
-      [], grid.cell(stroke: (top: 1pt), align: center)[Datum der Frist], [],
+      [], grid.cell(stroke: (top: 1pt), align: center)[#__linguify-content("ai-dec-deadline-date")], [],
     )
   }
 
@@ -183,26 +184,26 @@
 
   pad(right: 1cm)[
 
-    *folgende Prüfungsleistung erbringen:*
+    *#__linguify-content("ai-dec-following-examination")*
     #v(0.35cm)
 
     #grid(
       columns: (4.2cm, 4.1cm, 1.7cm, 5.8cm),
-      [#fillCheckRec("Projektarbeit I")],
-      [#fillCheckRec("Projektarbeit II")],
-      [#fillCheckRec("Sonstige")],
+      [#fillCheckRec([#__linguify-content("project-thesis", args: (thesis-number:"I"))])],
+      [#fillCheckRec([#__linguify-content("project-thesis", args: (thesis-number:"II"))])],
+      [#fillCheckRec([#__linguify-content("others")])],
       [#h(2pt) #getOtherExamTypes()],
       grid.cell(colspan: 3)[],
       grid.cell(align: center, stroke: (top: 1pt), text(
         size: fontSizeSmall,
-      )[genaue Bezeichnung]),
+      )[#__linguify-content("specific-descr")]),
       grid.cell(colspan: 4, inset: (top: 0.15cm, bottom: 0pt))[],
-      [#fillCheckRec("Seminararbeit")], [#fillCheckRec("Bachelorarbeit")],
+      [#fillCheckRec([#__linguify-content("seminar-thesis")])], [#fillCheckRec([#__linguify-content("bachelor-thesis")])],
     )
 
     #v(2.2cm)
 
-    *Zur Verwendung KI-gestützter Werkzeuge erkläre ich in Kenntnis des Hinweisblatts   "Hinweise zum Einsatz von KI-basierten Werkzeugen bei der Anfertigung wissenschaftlicher  Arbeiten und die prüfungsrechtlichen Folgen ihres Einsatzes" Folgendes:*
+    *#__linguify-content("ai-dec-intro")*
   ]
 
   v(1cm)
@@ -214,12 +215,12 @@
       show text: strong
       list(
         spacing: 0.6cm,
-        [Ich habe mich aktiv über die Leistungsfähigkeit und Beschränkungen der in meiner   Arbeit eingesetzten KI-Werkzeuge informiert.],
-        [Bei der Anfertigung der Prüfungsleistung habe ich durchgehend eigenständig und beim  Einsatz KI-gestützter Werkzeuge maßgeblich steuernd gearbeitet.],
-        [Insbesondere habe ich die Inhalte entweder aus wissenschaftlichen oder anderen   zugelassenen Quellen entnommen und diese gekennzeichnet oder diese unter Anwendung  wissenschaftlicher Methoden selbst entwickelt.],
-        [Mir ist bewusst, dass ich als Autor/in der Arbeit die Verantwortung für die in ihr   gemachten Angaben und Aussagen trage.],
-        [Ich habe keine weiteren als die nachstehend von mir benannten KI-gestützten Werk-  zeuge zur Erstellung der Arbeit eingesetzt und diese nur in der angegebenen Art und  Weise.],
-        [Soweit ich KI-gestützte Werkzeuge zur Erstellung der Arbeit eingesetzt habe, gebe  ich diese in der nachstehenden "Übersicht verwendeter Hilfsmittel" mit ihrem   Produkt-\ namen und ihres genutzten Funktionsumfangs vollständig an; wörtliche oder   sinn- gemäße Übernahmen KI-generierter Inhalte habe ich in ein separates Verzeichnis  aufgenommen und im Text belegt (z. B. als Fußnote). Diese Inhalte sind als pdf-Datei   in den elektronischen Beigaben hinterlegt.],
+        [#__linguify-content("ai-dec-informed-performance-restrictions")],
+        [#__linguify-content("ai-dec-independence-controlling")],
+        [#__linguify-content("ai-dec-scientific-independent-work")],
+        [#__linguify-content("ai-dec-scientific-responsibility")],
+        [#__linguify-content("ai-dec-no-other-tools")],
+        [#__linguify-content("ai-dec-all-specified")],
       )
     }
   ]
@@ -229,7 +230,7 @@
   pad(right: 1.1cm)[
     #set par(justify: true)
 
-    *#underline[Produktname] (n) eingesetzter Hilfsmittel:*
+    *#__linguify-content("ai-dec-title-products")*
     #{
       if (digital) {
         v(0.7cm)
@@ -242,24 +243,24 @@
 
     #v(1.3cm)
 
-    *#underline[Genutzter Funktionsumfang] im Hinblick auf:*
+    *#__linguify-content("ai-dec-title-used-functions")*
     #v(1cm)
 
-    - *Themenerfassung und Strukturierung* (Aufgabenstellung oder Präzisierung,   Forschungsansatz, Gliederung)
+    - #__linguify-content("ai-dec-topic-structure")
     #v(1cm)
     #textArea(content: fieldTopic)
 
-    - *Themenbearbeitung* (Darstellung/Beschreibung des Problems, Darlegung von   wissenschaft-\ lichen Grundlagen, Schlussfolgerungen allgemein und für das konkrete   Thema / Erkenntnisgewinn, Evaluierung des Textes / Feedback der KI)
+    - #__linguify-content("ai-dec-topic-processing")
     #v(1cm)
     #textArea(content: topic-editing)
 
-    - *Quellenrecherche, -auswahl und -auswertung* (welche Quellen wurden durch das KI-\  Werkzeug gefunden, wie erfolgte die weitere Recherche)
+    - #__linguify-content("ai-dec-research-choose")
     #v(1cm)
     #textArea(content: research)
 
     #set par(justify: false)
 
-    - *Formale Gestaltung, insbesondere Sprache* (Welche Eingabe wurde an die KI getätigt?  Textgenerierung, Textkorrektur, Paraphrasieren und Umschreiben, Übersetzen, kreatives  Schreiben)
+    - #__linguify-content("ai-dec-formal-design")
     #v(1cm)
     #textArea(content: design)
   ]
@@ -268,9 +269,9 @@
 
   pad(right: 0.5cm)[
     #block(stroke: 0.5pt, inset: 3pt)[
-      *Hinweis*:
+      *#__linguify-content("notice")*:
 
-      Geben Sie in der jeweiligen Rubrik die Seitenzahl in ihrer wissenschaftlichen Arbeit an   und erläutern Sie die Art und Weise sowie den Umfang der von Ihnen genutzten  KI-basierten Werkzeuge.
+      #__linguify-content("ai-dec-notice")
     ]
   ]
   v(1.6cm)
@@ -284,8 +285,8 @@
     column-gutter: 0.5cm,
     align(bottom, text(size: fontSizeNormal, fieldSignature)),
     place(bottom, signature),
-    grid.cell(stroke: (top: 1pt), [*Ort, Datum*]),
-    grid.cell(stroke: (top: 1pt), [*Unterschrift der/des Studierenden*]),
+    grid.cell(stroke: (top: 1pt), [*#__linguify-content("place-date")*]),
+    grid.cell(stroke: (top: 1pt), [*#__linguify-content("sign-student")*]),
   )
 }
 
@@ -304,9 +305,9 @@
   exam-type: "Projektarbeit I", //"Projektarbeit I", "Projektarbeit II", "Seminararbeit",   Bachelorarbeit"
   product-name: "ChatGPT, DeepL",
   topic: "Automatisierung von Geschäftsprozessen",
-  topic-editing: "Strukturierung, Gliederung",
-  research: "Quellenrecherche mit KI",
-  design: "Textgenerierung, Korrektur",
+  topic-editing: __linguify-content("ai-dec-structure"),
+  research: __linguify-content("ai-dec-research-ai"),
+  design: __linguify-content("ai-dec-generation-correcture"),
   signature-city: "Mannheim",
   signature-date: datetime(year: 2026, month: 06, day: 10),
 )

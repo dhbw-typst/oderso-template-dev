@@ -239,7 +239,7 @@
 
   let ai-tools-declaration = ai-declaration-form(
     digital: digital-only,
-    name: main-author.firstname + " " + main-author.lastname,
+    name: main-author.lastname + " " + main-author.firstname,
     identification-number: main-author.matriculation-number,
     address: main-author.address,
     course: main-author.course,

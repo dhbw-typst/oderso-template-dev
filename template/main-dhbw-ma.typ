@@ -2,7 +2,7 @@
 #import "template/lib.typ": caption-with-source, dhbw-ma-adapter
 
 #show: dhbw-ma-adapter.with(
-  lang: "en",
+  lang: "de",
 
   // Wether to display a signature line for the statutory declaration
   digital-submission: true,
