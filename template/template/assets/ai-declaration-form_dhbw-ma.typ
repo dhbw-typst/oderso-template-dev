@@ -107,9 +107,27 @@
             )
         )
     ) {
-      return checkRecFilled + " " + kind
+      if (kind.starts-with("Projektarbeit") == false) {
+        return checkRecFilled + " " + __linguify-content(lower(kind))
+      } else {
+        let a = lower(kind).split(" ")
+        return (
+          checkRecFilled
+            + " "
+            + __linguify-content(a.at(0), args: (thesis-number: upper(a.at(1))))
+        )
+      }
     } else {
-      return checkRec + " " + kind
+      if (kind.starts-with("Projektarbeit") == false) {
+        return checkRec + " " + __linguify-content(lower(kind))
+      } else {
+        let a = lower(kind).split(" ")
+        return (
+          checkRec
+            + " "
+            + __linguify-content(a.at(0), args: (thesis-number: upper(a.at(1))))
+        )
+      }
     }
   }
 
@@ -199,21 +217,17 @@
 
     #grid(
       columns: (4.2cm, 4.1cm, 1.7cm, 5.8cm),
-      [#fillCheckRec([#__linguify-content("project-thesis", args: (
-        thesis-number: "I",
-      ))])],
-      [#fillCheckRec([#__linguify-content("project-thesis", args: (
-        thesis-number: "II",
-      ))])],
-      [#fillCheckRec([#__linguify-content("others")])],
+      [#fillCheckRec("Projektarbeit I")],
+      [#fillCheckRec("Projektarbeit II")],
+      [#fillCheckRec("Sonstige")],
       [#h(2pt) #getOtherExamTypes()],
       grid.cell(colspan: 3)[],
       grid.cell(align: center, stroke: (top: 1pt), text(
         size: fontSizeSmall,
       )[#__linguify-content("specific-descr")]),
       grid.cell(colspan: 4, inset: (top: 0.15cm, bottom: 0pt))[],
-      [#fillCheckRec([#__linguify-content("seminar-thesis")])],
-      [#fillCheckRec([#__linguify-content("bachelor-thesis")])],
+      [#fillCheckRec("Seminararbeit")],
+      [#fillCheckRec("Bachelorarbeit")],
     )
 
     #v(2.2cm)
@@ -323,7 +337,7 @@
   topic: "Automatisierung von Geschäftsprozessen",
   topic-editing: __linguify-content("ai-dec-structure"),
   research: __linguify-content("ai-dec-research-ai"),
-  design: __linguify-content("ai-dec-generation-correcture"),
+  design: __linguify-content("ai-dec-generation-correction"),
   signature-city: "Mannheim",
   signature-date: datetime(year: 2026, month: 06, day: 10),
 )
