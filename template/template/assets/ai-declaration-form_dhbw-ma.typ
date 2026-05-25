@@ -245,7 +245,8 @@
   pad(right: 1.1cm)[
     #set par(justify: true)
 
-    #__linguify-content("ai-dec-title-products")
+    #underline(__linguify-content("ai-dec-title-products-first"))
+    #__linguify-content("ai-dec-title-products-second")
     #{
       if (digital) {
         v(0.7cm)
