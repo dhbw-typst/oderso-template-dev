@@ -271,7 +271,7 @@
     __postamble: (
       statutory-declaration,
       ..if (confidentiality-clause) { (confidentiality-clause-text,) },
-     ai-declarations
+      ai-declarations,
     ),
     ..args,
   )
