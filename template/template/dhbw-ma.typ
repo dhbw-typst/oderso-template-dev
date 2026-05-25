@@ -235,30 +235,32 @@
     __linguify-content("confidentiality-agreement-note-dhbw")
   }
 
-  let main-author = authors.at(0)
+  let ai-declarations = ()
 
-  let ai-tools-declaration = ai-declaration-form(
-    digital: digital-only,
-    name: main-author.lastname + " " + main-author.firstname,
-    identification-number: main-author.matriculation-number,
-    address: main-author.address,
-    course: main-author.course,
-    email: main-author.email,
-    mobile-number: main-author.phone-number,
-    module-name: ai-declaration-form-data.module-name,
-    module-submission-date: module-submission-date,
-    date-format: submission-date-format,
-    exam-type: ai-declaration-form-data.exam-type,
-    product-name: ai-declaration-form-data.product-name,
-    topic: ai-declaration-form-data.topic,
-    topic-editing: ai-declaration-form-data.topic-editing,
-    research: ai-declaration-form-data.research,
-    design: ai-declaration-form-data.design,
-    signature-city: signature-city,
-    signature-date: submission-date,
-    signature-image: main-author.signature,
-  )
-
+  for a in authors {
+    let ai-tools-declaration = ai-declaration-form(
+      digital: digital-only,
+      name: a.lastname + " " + a.firstname,
+      identification-number: a.matriculation-number,
+      address: a.address,
+      course: a.course,
+      email: a.email,
+      mobile-number: a.phone-number,
+      module-name: ai-declaration-form-data.module-name,
+      module-submission-date: module-submission-date,
+      date-format: submission-date-format,
+      exam-type: ai-declaration-form-data.exam-type,
+      product-name: ai-declaration-form-data.product-name,
+      topic: ai-declaration-form-data.topic,
+      topic-editing: ai-declaration-form-data.topic-editing,
+      research: ai-declaration-form-data.research,
+      design: ai-declaration-form-data.design,
+      signature-city: signature-city,
+      signature-date: submission-date,
+      signature-image: a.signature,
+    )
+    ai-declarations.push(ai-tools-declaration)
+  }
   show: project.with(
     __logo-left: company-logo,
     __logo-right: image("assets/DHBW-Logo.svg"),
@@ -269,7 +271,7 @@
     __postamble: (
       statutory-declaration,
       ..if (confidentiality-clause) { (confidentiality-clause-text,) },
-      ai-tools-declaration,
+     ai-declarations
     ),
     ..args,
   )
