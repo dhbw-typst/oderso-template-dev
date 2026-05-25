@@ -40,6 +40,10 @@
       lastname: "Musterfrau",
       matriculation-number: "1234567",
       course: "TINF23B1",
+      signature: none,
+      email: none,
+      address: none,
+      phone-number: none,
     ),
   ),
 
