@@ -10,6 +10,7 @@
   email: "",
   mobile-number: "",
   module-name: "",
+  semester: "",
   module-submission-date: datetime.today(),
   date-format: "dd. MMMM yyyy",
   exam-type: "",
@@ -30,7 +31,7 @@
   let fieldCourse = course + emptyFieldPlaceHolder
   let fieldEmail = email + emptyFieldPlaceHolder
   let fieldMobileNumber = mobile-number + emptyFieldPlaceHolder
-  let fieldModuleName = module-name + emptyFieldPlaceHolder
+  let fieldModuleNameSemester = module-name + emptyFieldPlaceHolder + " / " + emptyFieldPlaceHolder + semester
   let fieldDate = [#module-submission-date.display(
       date-format,
     ) #emptyFieldPlaceHolder]
@@ -88,7 +89,8 @@
       return block(height: 2.9cm, content)
     }
   }
-
+  // This function takes the thesis type (e.g. 'Projektarbeit I, Bachelorarbeit')
+  // returns a rectangle (checked if the exam type equals the thesis type) and the thesis type
   let fillCheckRec(kind) = {
     if (
       (kind == examType)
@@ -107,7 +109,7 @@
             )
         )
     ) {
-      if (kind.starts-with("Projektarbeit") == false) {
+      if (not kind.starts-with("Projektarbeit")) {
         return checkRecFilled + " " + __linguify-content(lower(kind))
       } else {
         let a = lower(kind).split(" ")
@@ -118,7 +120,7 @@
         )
       }
     } else {
-      if (kind.starts-with("Projektarbeit") == false) {
+      if (not kind.starts-with("Projektarbeit")) {
         return checkRec + " " + __linguify-content(lower(kind))
       } else {
         let a = lower(kind).split(" ")
@@ -191,7 +193,7 @@
     grid(
       columns: (3.4cm, 5.9cm, 8cm),
       text(size: fontSizeNormal)[#__linguify-content("ai-dec-for-module")],
-      grid.cell(colspan: 2, text(size: fontSizeNormal)[#fieldModuleName]),
+      grid.cell(colspan: 2, text(size: fontSizeNormal)[#fieldModuleNameSemester]),
       [],
       grid.cell(
         colspan: 2,
@@ -316,7 +318,7 @@
     align(bottom, text(size: fontSizeNormal, fieldSignature)),
     place(bottom, signature),
     grid.cell(stroke: (top: 1pt), [#__linguify-content("place-date")]),
-    grid.cell(stroke: (top: 1pt), [#__linguify-content("sign-student")]),
+    grid.cell(stroke: (top: 1pt), [#__linguify-content("signature-student")]),
   )
 }
 
