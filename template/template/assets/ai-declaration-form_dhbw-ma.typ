@@ -11,8 +11,8 @@
   mobile-number: "",
   module-name: "",
   semester: "",
-  module-submission-date: datetime.today(),
   date-format: "dd. MMMM yyyy",
+  module-submission-date: datetime.today().display("[day].[month].[year]"),
   exam-type: "",
   product-name: "",
   topic: "",
@@ -20,7 +20,7 @@
   research: "",
   design: "",
   signature-city: "",
-  signature-date: datetime.today(),
+  signature-date: datetime.today().display("[day].[month].[year]"),
   signature-image: none,
 ) = {
   //parameters
@@ -38,9 +38,7 @@
       + emptyFieldPlaceHolder
       + semester
   )
-  let fieldDate = [#module-submission-date.display(
-      date-format,
-    ) #emptyFieldPlaceHolder]
+  let fieldDate = [#module-submission-date #emptyFieldPlaceHolder]
   let examType = exam-type //"Projektarbeit I", "Projektarbeit II", "Seminararbeit",   Bachelorarbeit"
   let fieldProductName = product-name + emptyFieldPlaceHolder
   let fieldTopic = topic
@@ -53,7 +51,7 @@
   let signature
   if (digital) {
     fieldSignature = fieldPlaceHolder(
-      content: [#signature-city, #signature-date.display(date-format)],
+      content: [#signature-city, #signature-date],
     )
     signature = signature-image
   } else {
@@ -336,8 +334,11 @@
   email: "max.mustermann@dhbw-mannheim.de",
   mobile-number: "0171 1234567",
   module-name: "Projektmanagement",
-  module-submission-date: datetime(year: 2026, month: 06, day: 10),
-  date-format: "",
+  module-submission-date: datetime
+    .today()
+    .display(
+      "[day].[month].[year]",
+    ),
   exam-type: "Projektarbeit I", //"Projektarbeit I", "Projektarbeit II", "Seminararbeit",   Bachelorarbeit"
   product-name: "ChatGPT, DeepL",
   topic: "Automatisierung von Geschäftsprozessen",
@@ -345,5 +346,9 @@
   research: __linguify-content("ai-dec-research-ai"),
   design: __linguify-content("ai-dec-generation-correction"),
   signature-city: "Mannheim",
-  signature-date: datetime(year: 2026, month: 06, day: 10),
+  signature-date: datetime
+    .today()
+    .display(
+      "[day].[month].[year]",
+    ),
 )
