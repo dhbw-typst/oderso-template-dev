@@ -41,7 +41,7 @@
       email: none,
       address: none,
       phone-number: none,
-      product-name: none,
+      ai-dec-product-name: none,
       topic: none,
       topic-editing: none,
       research: none,
@@ -86,13 +86,13 @@
   course-director: none,
   /// AI declaration form data dictionary. Contains: `module-name`, `exam-type`
   /// ("Projektarbeit I", "Projektarbeit II", "Seminararbeit", "Bachelorarbeit"),
-  /// `product-name`, `topic`, `topic-editing`, `research`, `design`, and
+  /// `ai-dec-product-name`, `topic`, `topic-editing`, `research`, `design`, and
   /// `position` ("preamble", "postamble", or "after-confidentiality-clause"). -> dictionary
   ai-declaration-form-data: (
     module-name: none,
     semester: none,
     exam-type: none,
-    product-name: none,
+    ai-dec-product-name: none,
     topic: none,
     topic-editing: none,
     research: none,
@@ -266,11 +266,11 @@
       semester: ai-declaration-form-data.semester,
       module-submission-date: module-submission-date,
       exam-type: ai-declaration-form-data.exam-type,
-      product-name: a.product-name,
-      topic: a.topic,
-      topic-editing: a.topic-editing,
-      research: a.research,
-      design: a.design,
+      ai-dec-product-name: a.ai-dec-product-name,
+      topic: a.ai-dec-topic,
+      topic-editing: a.ai-dec-topic-editing,
+      research: a.ai-dec-research,
+      design: a.ai-dec-design,
       signature-city: signature-city,
       signature-date: submission-date,
       signature-image: a.signature,
