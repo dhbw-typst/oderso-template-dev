@@ -8,6 +8,7 @@ template/main-dhbw-ka.typ @dhbw-typst/dhbw-ka
 
 ## DHBW Mannheim
 template/template/dhbw-ma.typ @dhbw-typst/dhbw-ma
+template/template/assets/ai-declaration-form_dhbw-ma.typ @dhbw-typst/dhbw-ma
 template/main-dhbw-ma.typ @dhbw-typst/dhbw-ma
 
 ## IHK
