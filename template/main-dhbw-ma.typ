@@ -34,6 +34,7 @@
       email: "john.doe@dhbw.com",
       address: "Example Street 1, 12345 Example City",
       phone-number: "+49 0000 0000",
+      // specific attributes for the ai declaration
       ai-dec-product-name: "ChatGPT, DeepL",
       ai-dec-topic: "Writing in Typst about a long, very scientific topic",
       ai-dec-topic-editing: "Strukturierung, Gliederung",
