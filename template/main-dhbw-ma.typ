@@ -72,6 +72,7 @@
 
   ai-declaration-form-data: (
     module-name: "Projektmanagement",
+    semester: "1",
     exam-type: "Projektarbeit I", // "Projektarbeit I", "Projektarbeit II", "Seminararbeit", "Bachelorarbeit"
     product-name: "ChatGPT, DeepL",
     topic: "Writing in Typst about a long, very scientific topic",
