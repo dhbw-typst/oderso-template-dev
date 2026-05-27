@@ -89,10 +89,10 @@
       return block(height: 2.9cm, content)
     }
   }
-  // This function takes the thesis type (e.g. 'Projektarbeit I, Bachelorarbeit')
-  // returns a rectangle (checked if the exam type equals the thesis type) and the thesis type
-  let fillCheckRec(kind) = {
-    if (
+  // takes the thesis kind in the form
+  // returns filed rec if the type is selected or not one of the placeholders
+  let rec(kind) = {
+     if (
       (kind == examType)
         or (
           (
@@ -109,28 +109,24 @@
             )
         )
     ) {
-      if (not kind.starts-with("Projektarbeit")) {
-        return checkRecFilled + " " + __linguify-content(lower(kind))
-      } else {
-        let a = lower(kind).split(" ")
-        return (
-          checkRecFilled
-            + " "
-            + __linguify-content(a.at(0), args: (thesis-number: upper(a.at(1))))
-        )
-      }
+      return checkRecFilled
     } else {
+      return checkRec
+    }
+  }
+  // takes the thesis type (e.g. 'Projektarbeit I, Bachelorarbeit')
+  // returns a rectangle (checked if the exam type equals the thesis type) and the thesis type
+  let fillCheckRec(kind) = {
       if (not kind.starts-with("Projektarbeit")) {
-        return checkRec + " " + __linguify-content(lower(kind))
+        return rec(kind) + " " + __linguify-content(lower(kind))
       } else {
         let a = lower(kind).split(" ")
         return (
-          checkRec
+          rec(kind)
             + " "
             + __linguify-content(a.at(0), args: (thesis-number: upper(a.at(1))))
         )
       }
-    }
   }
 
   let getOtherExamTypes() = {
