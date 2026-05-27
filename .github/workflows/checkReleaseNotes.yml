@@ -1,0 +1,49 @@
+name: Check Release Notes
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR number to check"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  check_pr_type:
+    name: Determine if release notes are required
+    runs-on: ubuntu-24.04
+    outputs:
+      requires_release_notes: ${{ steps.check.outputs.requires_release_notes }}
+      pr_number: ${{ steps.check.outputs.pr_number }}
+    steps:
+      - name: Determine PR type
+        id: check
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
+        run: |
+          echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
+
+          # `chore:` PRs do not require release notes.
+          # `fix:`, `feat:` and `feat!:` PRs do require release notes.
+          if [[ "$PR_TITLE" =~ ^(fix|feat|feat!)(\(.+\))?:\  ]]; then
+            echo "PR title '${PR_TITLE}' requires release notes."
+            echo "requires_release_notes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "PR title '${PR_TITLE}' does not require release notes (chore or unknown prefix)."
+            echo "requires_release_notes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  check_release_notes:
+    name: Check release notes
+    needs: check_pr_type
+    if: needs.check_pr_type.outputs.requires_release_notes == 'true'
+    uses: ./.github/workflows/extractReleaseNotes.yml
+    with:
+      pr_number: ${{ needs.check_pr_type.outputs.pr_number }}
+      fail_if_missing: true
