@@ -384,7 +384,7 @@
         }
       },
       numbering: (..n) => context {
-        if numbering-show-total {
+        if numbering-show-total and not __in-outline.get() {
           numbering("1 / 1", n.at(0), ..counter(page).at(<__content-end>))
         } else {
           numbering("1", n.at(0))
