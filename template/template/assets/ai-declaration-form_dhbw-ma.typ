@@ -10,8 +10,9 @@
   email: "",
   mobile-number: "",
   module-name: "",
-  module-submission-date: datetime.today(),
+  semester: "",
   date-format: "dd. MMMM yyyy",
+  module-submission-date: datetime.today().display("[day].[month].[year]"),
   exam-type: "",
   product-name: "",
   topic: "",
@@ -19,54 +20,60 @@
   research: "",
   design: "",
   signature-city: "",
-  signature-date: datetime.today(),
+  signature-date: datetime.today().display("[day].[month].[year]"),
   signature-image: none,
 ) = {
   //parameters
-  let emptyFieldPlaceHolder = box(height: 0.3cm)
-  let fieldName = name + emptyFieldPlaceHolder
-  let fieldIdentificatioNumber = identification-number + emptyFieldPlaceHolder
-  let fieldAddress = address + emptyFieldPlaceHolder
-  let fieldCourse = course + emptyFieldPlaceHolder
-  let fieldEmail = email + emptyFieldPlaceHolder
-  let fieldMobileNumber = mobile-number + emptyFieldPlaceHolder
-  let fieldModuleName = module-name + emptyFieldPlaceHolder
-  let fieldDate = [#module-submission-date.display(
-      date-format,
-    ) #emptyFieldPlaceHolder]
-  let examType = exam-type //"Projektarbeit I", "Projektarbeit II", "Seminararbeit",   Bachelorarbeit"
-  let fieldProductName = product-name + emptyFieldPlaceHolder
-  let fieldTopic = topic
-  let fieldTopicEditing = topic-editing
-  let fieldResearch = research
-  let fieldDesign = design
-  let fieldSignature
+  let empty-field-placeholder = box(height: 0.3cm)
+  let field-name = name + empty-field-placeholder
+  let field-identification-number = (
+    identification-number + empty-field-placeholder
+  )
+  let field-address = address + empty-field-placeholder
+  let field-course = course + empty-field-placeholder
+  let field-email = email + empty-field-placeholder
+  let field-mobile-number = mobile-number + empty-field-placeholder
+  let field-module-name-semester = (
+    module-name
+      + empty-field-placeholder
+      + " / "
+      + empty-field-placeholder
+      + semester
+  )
+  let field-date = [#module-submission-date #empty-field-placeholder]
+  let exam-type = exam-type //"Projektarbeit I", "Projektarbeit II", "Seminararbeit",   Bachelorarbeit"
+  let field-production-name = product-name + empty-field-placeholder
+  let field-topic = topic
+  let field-topic-editing = topic-editing
+  let field-research = research
+  let field-design = design
+  let field-signature
 
-  let fieldPlaceHolder(content: []) = box(height: 2.6cm, content)
+  let field-placeholder(content: []) = box(height: 2.6cm, content)
   let signature
   if (digital) {
-    fieldSignature = fieldPlaceHolder(
-      content: [#signature-city, #signature-date.display(date-format)],
+    field-signature = field-placeholder(
+      content: [#signature-city, #signature-date],
     )
     signature = signature-image
   } else {
-    fieldSignature = fieldPlaceHolder()
-    signature = fieldPlaceHolder()
+    field-signature = field-placeholder()
+    signature = field-placeholder()
   }
 
   //measurements and styles
   let margin = (top: 2cm, right: 1.5cm, left: 2.5cm, bottom: 3cm)
-  let fontSizeNormal = 10pt
-  let fontSizeSmall = 7pt
-  let checkRec = [#sym.square]
-  let checkRecFilled = [#sym.square.filled]
+  let font-size-normal = 10pt
+  let font-size-small = 7pt
+  let check-rec = [#sym.square]
+  let check-rec-filled = [#sym.square.filled]
 
   //page settings
   set page(paper: "a4", margin: margin)
   set par(leading: 0.2cm, spacing: 0.4cm)
   set v(weak: true)
   set grid(inset: (top: 0.1cm, bottom: 0.1cm))
-  set text(size: fontSizeNormal, font: "Arial")
+  set text(size: font-size-normal, font: "Arial")
 
   show heading: it => {
     text(it.body) // Disable previous styling
@@ -75,7 +82,7 @@
   show heading.where(level: 2): set text(size: 10pt)
 
   //helpers
-  let textArea(lines: 4, content: []) = {
+  let text-area(lines: 4, content: []) = {
     if (digital == false) {
       content = []
       let n = 0
@@ -85,13 +92,17 @@
       }
       return content
     } else {
-      return block(height: 2.9cm, content)
+      return {
+        content
+        v(1cm)
+      }
     }
   }
-
-  let fillCheckRec(kind) = {
+  // takes the thesis kind in the form
+  // returns filled rec if the type is selected or not one of the placeholders
+  let rec(kind) = {
     if (
-      (kind == examType)
+      (kind == exam-type)
         or (
           (
             kind != "Projektarbeit I"
@@ -100,27 +111,41 @@
               and kind != "Bachelorarbeit"
           )
             and (
-              examType != "Projektarbeit I"
-                and examType != "Projektarbeit II"
-                and examType != "Seminararbeit"
-                and examType != "Bachelorarbeit"
+              exam-type != "Projektarbeit I"
+                and exam-type != "Projektarbeit II"
+                and exam-type != "Seminararbeit"
+                and exam-type != "Bachelorarbeit"
             )
         )
     ) {
-      return checkRecFilled + " " + kind
+      return check-rec-filled
     } else {
-      return checkRec + " " + kind
+      return check-rec
+    }
+  }
+  // takes the thesis type (e.g. 'Projektarbeit I, Bachelorarbeit')
+  // returns a rectangle (checked if the exam type equals the thesis type) and the thesis type
+  let fill-check-rec(kind) = {
+    if (not kind.starts-with("Projektarbeit")) {
+      return rec(kind) + " " + __linguify-content(lower(kind))
+    } else {
+      let a = lower(kind).split(" ")
+      return (
+        rec(kind)
+          + " "
+          + __linguify-content(a.at(0), args: (thesis-number: upper(a.at(1))))
+      )
     }
   }
 
-  let getOtherExamTypes() = {
+  let get-other-exam-types() = {
     if (
-      examType != "Projektarbeit I"
-        and examType != "Projektarbeit II"
-        and examType != "Seminararbeit"
-        and examType != "Bachelorarbeit"
+      exam-type != "Projektarbeit I"
+        and exam-type != "Projektarbeit II"
+        and exam-type != "Seminararbeit"
+        and exam-type != "Bachelorarbeit"
     ) {
-      return examType
+      return exam-type
     }
   }
 
@@ -143,13 +168,13 @@
   v(1.1cm)
 
   {
-    set text(size: fontSizeSmall)
+    set text(size: font-size-small)
     let lineSpacing = 0.3cm
 
     grid(
       columns: (60%, 40%),
-      text(size: fontSizeNormal)[#fieldName],
-      text(size: fontSizeNormal)[#fieldIdentificatioNumber],
+      text(size: font-size-normal)[#field-name],
+      text(size: font-size-normal)[#field-identification-number],
       grid.cell(stroke: (top: 1pt))[#__linguify-content(
         "ai-dec-last-first-name",
       )],
@@ -157,13 +182,13 @@
         "ai-dec-matriculation-number",
       )],
       grid.cell(inset: lineSpacing, colspan: 2)[],
-      text(size: fontSizeNormal)[#fieldAddress],
-      text(size: fontSizeNormal)[#fieldCourse],
+      text(size: font-size-normal)[#field-address],
+      text(size: font-size-normal)[#field-course],
       grid.cell(stroke: (top: 1pt))[#__linguify-content("ai-dec-address")],
       grid.cell(stroke: (top: 1pt))[#__linguify-content("ai-dec-course")],
       grid.cell(inset: lineSpacing, colspan: 2)[],
-      text(size: fontSizeNormal)[#fieldEmail],
-      text(size: fontSizeNormal)[#fieldMobileNumber],
+      text(size: font-size-normal)[#field-email],
+      text(size: font-size-normal)[#field-mobile-number],
       grid.cell(stroke: (top: 1pt))[#__linguify-content("ai-dec-mail")],
       grid.cell(stroke: (top: 1pt))[#__linguify-content("ai-dec-tel-number")],
     )
@@ -172,16 +197,18 @@
 
     grid(
       columns: (3.4cm, 5.9cm, 8cm),
-      text(size: fontSizeNormal)[#__linguify-content("ai-dec-for-module")],
-      grid.cell(colspan: 2, text(size: fontSizeNormal)[#fieldModuleName]),
+      text(size: font-size-normal)[#__linguify-content("ai-dec-for-module")],
+      grid.cell(colspan: 2, text(
+        size: font-size-normal,
+      )[#field-module-name-semester]),
       [],
       grid.cell(
         colspan: 2,
         stroke: (top: 1pt),
         align: center,
       )[#__linguify-content("ai-dec-module-semester")],
-      text(size: fontSizeNormal)[#__linguify-content("ai-dec-have-to-on")],
-      grid.cell(colspan: 2, text(size: fontSizeNormal)[#fieldDate]),
+      text(size: font-size-normal)[#__linguify-content("ai-dec-have-to-on")],
+      grid.cell(colspan: 2, text(size: font-size-normal)[#field-date]),
       [],
       grid.cell(stroke: (top: 1pt), align: center)[#__linguify-content(
         "ai-dec-deadline-date",
@@ -199,21 +226,17 @@
 
     #grid(
       columns: (4.2cm, 4.1cm, 1.7cm, 5.8cm),
-      [#fillCheckRec([#__linguify-content("project-thesis", args: (
-        thesis-number: "I",
-      ))])],
-      [#fillCheckRec([#__linguify-content("project-thesis", args: (
-        thesis-number: "II",
-      ))])],
-      [#fillCheckRec([#__linguify-content("others")])],
-      [#h(2pt) #getOtherExamTypes()],
+      [#fill-check-rec("Projektarbeit I")],
+      [#fill-check-rec("Projektarbeit II")],
+      [#fill-check-rec("Sonstige")],
+      [#h(2pt) #get-other-exam-types()],
       grid.cell(colspan: 3)[],
       grid.cell(align: center, stroke: (top: 1pt), text(
-        size: fontSizeSmall,
+        size: font-size-small,
       )[#__linguify-content("specific-descr")]),
       grid.cell(colspan: 4, inset: (top: 0.15cm, bottom: 0pt))[],
-      [#fillCheckRec([#__linguify-content("seminar-thesis")])],
-      [#fillCheckRec([#__linguify-content("bachelor-thesis")])],
+      [#fill-check-rec("Seminararbeit")],
+      [#fill-check-rec("Bachelorarbeit")],
     )
 
     #v(2.2cm)
@@ -250,7 +273,7 @@
     #{
       if (digital) {
         v(0.7cm)
-        fieldProductName
+        field-production-name
       } else {
         v(1cm)
         line(length: 100%)
@@ -264,21 +287,21 @@
 
     - #__linguify-content("ai-dec-topic-structure")
     #v(1cm)
-    #textArea(content: fieldTopic)
+    #text-area(content: field-topic)
 
     - #__linguify-content("ai-dec-topic-processing")
     #v(1cm)
-    #textArea(content: topic-editing)
+    #text-area(content: topic-editing)
 
     - #__linguify-content("ai-dec-research-choose")
     #v(1cm)
-    #textArea(content: research)
+    #text-area(content: research)
 
     #set par(justify: false)
 
     - #__linguify-content("ai-dec-formal-design")
     #v(1cm)
-    #textArea(content: design)
+    #text-area(content: design)
   ]
 
   v(1.8cm)
@@ -299,10 +322,10 @@
   grid(
     columns: (4.9cm, 10.1cm),
     column-gutter: 0.5cm,
-    align(bottom, text(size: fontSizeNormal, fieldSignature)),
+    align(bottom, text(size: font-size-normal, field-signature)),
     place(bottom, signature),
     grid.cell(stroke: (top: 1pt), [#__linguify-content("place-date")]),
-    grid.cell(stroke: (top: 1pt), [#__linguify-content("sign-student")]),
+    grid.cell(stroke: (top: 1pt), [#__linguify-content("signature-student")]),
   )
 }
 
@@ -316,14 +339,21 @@
   email: "max.mustermann@dhbw-mannheim.de",
   mobile-number: "0171 1234567",
   module-name: "Projektmanagement",
-  module-submission-date: datetime(year: 2026, month: 06, day: 10),
-  date-format: "",
+  module-submission-date: datetime
+    .today()
+    .display(
+      "[day].[month].[year]",
+    ),
   exam-type: "Projektarbeit I", //"Projektarbeit I", "Projektarbeit II", "Seminararbeit",   Bachelorarbeit"
   product-name: "ChatGPT, DeepL",
   topic: "Automatisierung von Geschäftsprozessen",
   topic-editing: __linguify-content("ai-dec-structure"),
   research: __linguify-content("ai-dec-research-ai"),
-  design: __linguify-content("ai-dec-generation-correcture"),
+  design: __linguify-content("ai-dec-generation-correction"),
   signature-city: "Mannheim",
-  signature-date: datetime(year: 2026, month: 06, day: 10),
+  signature-date: datetime
+    .today()
+    .display(
+      "[day].[month].[year]",
+    ),
 )

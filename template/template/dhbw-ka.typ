@@ -50,8 +50,8 @@
   ),
   /// City shown on the signature line. -> str
   signature-city: "Karlsruhe",
-  /// Submission date of the thesis. -> datetime
-  submission-date: datetime.today(),
+  /// Submission date of the thesis. -> str
+  submission-date: datetime.today().display("[day].[month].[year]"),
   /// Format string for displaying the submission date. (see #link("https://typst.app/docs/reference/foundations/datetime/#format")[datetime formats]) -> str
   submission-date-format: "[day].[month].[year]",
   /// Duration of the thesis processing period in weeks. -> int | none
@@ -89,10 +89,15 @@
     ))
   ]
 
+  // TODO: only for compatibility reasons: Remove with v3.0.0 release
+  if type(submission-date) == datetime {
+    submission-date = submission-date.display(submission-date-format)
+  }
+
   // Metadata
   let metadata = (
     __linguify-content("submission-date"),
-    submission-date.display(submission-date-format),
+    submission-date,
     __linguify-content("processing-duration"),
     __linguify-content("weeks", args: (count: processing-period-weeks)),
     __linguify-content("matriculation-number")
@@ -202,7 +207,6 @@
       __signature-line(
         author: a,
         date: submission-date,
-        date-format: submission-date-format,
         digital: digital-submission,
         city: signature-city,
       )
