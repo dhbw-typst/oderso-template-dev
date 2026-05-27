@@ -90,11 +90,14 @@
       }
       return content
     } else {
-      return block(height: 2.9cm, content)
+      return {
+        content
+        v(1cm)
+      }
     }
   }
   // takes the thesis kind in the form
-  // returns filed rec if the type is selected or not one of the placeholders
+  // returns filled rec if the type is selected or not one of the placeholders
   let rec(kind) = {
     if (
       (kind == examType)
