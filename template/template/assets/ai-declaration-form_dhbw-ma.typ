@@ -11,10 +11,9 @@
   mobile-number: "",
   module-name: "",
   semester: "",
-  date-format: "dd. MMMM yyyy",
   module-submission-date: datetime.today().display("[day].[month].[year]"),
   exam-type: "",
-  ai-dec-product-name: "",
+  product-name: "",
   topic: "",
   topic-editing: "",
   research: "",
@@ -42,7 +41,7 @@
   )
   let field-date = [#module-submission-date #empty-field-placeholder]
   let exam-type = exam-type //"Projektarbeit I", "Projektarbeit II", "Seminararbeit",   Bachelorarbeit"
-  let field-production-name = ai-dec-product-name + empty-field-placeholder
+  let field-production-name = product-name + empty-field-placeholder
   let field-topic = topic
   let field-topic-editing = topic-editing
   let field-research = research
@@ -345,7 +344,7 @@
       "[day].[month].[year]",
     ),
   exam-type: "Projektarbeit I", //"Projektarbeit I", "Projektarbeit II", "Seminararbeit",   Bachelorarbeit"
-  ai-dec-product-name: "ChatGPT, DeepL",
+  product-name: "ChatGPT, DeepL",
   topic: "Automatisierung von Geschäftsprozessen",
   topic-editing: __linguify-content("ai-dec-structure"),
   research: __linguify-content("ai-dec-research-ai"),
