@@ -14,9 +14,12 @@ permissions:
   pull-requests: read
 
 jobs:
-  check_release_notes:
-    name: Check release notes
+  determine_requirement:
+    name: Determine if release notes are required
     runs-on: ubuntu-24.04
+    outputs:
+      pr_number: ${{ steps.pr_type.outputs.pr_number }}
+      requires_release_notes: ${{ steps.pr_type.outputs.requires_release_notes }}
     steps:
       - name: Determine if release notes are required
         id: pr_type
@@ -36,49 +39,51 @@ jobs:
             echo "requires_release_notes=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Fetch PR description
-        if: steps.pr_type.outputs.requires_release_notes == 'true'
+  extract_release_notes:
+    name: Extract release notes
+    needs: determine_requirement
+    if: needs.determine_requirement.outputs.requires_release_notes == 'true'
+    uses: ./.github/workflows/extractReleaseNotes.yml
+    with:
+      pr_number: ${{ needs.determine_requirement.outputs.pr_number }}
+      fail_if_missing: true
+
+  check_release_notes:
+    name: Check release notes
+    # Run regardless of whether `extract_release_notes` was skipped, succeeded
+    # or failed, so that this job always produces a definitive PR check status.
+    needs:
+      - determine_requirement
+      - extract_release_notes
+    if: ${{ always() && needs.determine_requirement.result == 'success' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Report status
         env:
-          GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ steps.pr_type.outputs.pr_number }}
+          REQUIRES: ${{ needs.determine_requirement.outputs.requires_release_notes }}
+          EXTRACT_RESULT: ${{ needs.extract_release_notes.result }}
         run: |
-          gh pr view "$PR_NUMBER" \
-            --repo "${{ github.repository }}" \
-            --json body \
-            --jq '.body' > pr_body.md
-          echo "Fetched PR #${PR_NUMBER} description"
-
-      - name: Check release notes
-        if: steps.pr_type.outputs.requires_release_notes == 'true'
-        run: |
-          # Normalize line endings
-          tr -d '\r' < pr_body.md > pr_body_clean.md
-          mv pr_body_clean.md pr_body.md
-
-          # Find the line number of the last `---` horizontal rule.
-          # A horizontal rule in markdown is a line that contains only `---`
-          # (optionally surrounded by whitespace).
-          last_hr=$(grep -n -E '^[[:space:]]*---[[:space:]]*$' pr_body.md | tail -n 1 | cut -d: -f1)
-
-          if [[ -z "$last_hr" ]]; then
-            echo "::error::No release notes found in PR description."
-            echo "::error::Please add release notes to the PR description after a final '---' horizontal rule."
-            exit 1
+          if [[ "$REQUIRES" != "true" ]]; then
+            echo "Release notes are not required for this PR. Check passes."
+            exit 0
           fi
 
-          # Take everything after the last horizontal rule
-          notes=$(tail -n +$((last_hr + 1)) pr_body.md)
-
-          # Strip leading/trailing blank lines
-          notes=$(printf '%s\n' "$notes" | sed -e '/./,$!d' | tac | sed -e '/./,$!d' | tac)
-
-          if [[ -z "$notes" ]]; then
-            echo "::error::Release notes section is empty."
-            echo "::error::Please add release notes to the PR description after a final '---' horizontal rule."
-            exit 1
-          fi
-
-          echo "Release notes successfully extracted."
-          echo "----- Release notes -----"
-          echo "$notes"
-          echo "-------------------------"
+          case "$EXTRACT_RESULT" in
+            success)
+              echo "Release notes successfully extracted from PR description. Check passes."
+              exit 0
+              ;;
+            failure)
+              echo "::error::Release notes are required but were not found in the PR description."
+              echo "::error::Please add release notes to the PR description after a final '---' horizontal rule."
+              exit 1
+              ;;
+            cancelled)
+              echo "::error::Release notes extraction was cancelled."
+              exit 1
+              ;;
+            *)
+              echo "::error::Unexpected extract_release_notes result: '${EXTRACT_RESULT}'."
+              exit 1
+              ;;
+          esac
