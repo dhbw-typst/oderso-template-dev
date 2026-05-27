@@ -31,7 +31,13 @@
   let fieldCourse = course + emptyFieldPlaceHolder
   let fieldEmail = email + emptyFieldPlaceHolder
   let fieldMobileNumber = mobile-number + emptyFieldPlaceHolder
-  let fieldModuleNameSemester = module-name + emptyFieldPlaceHolder + " / " + emptyFieldPlaceHolder + semester
+  let fieldModuleNameSemester = (
+    module-name
+      + emptyFieldPlaceHolder
+      + " / "
+      + emptyFieldPlaceHolder
+      + semester
+  )
   let fieldDate = [#module-submission-date.display(
       date-format,
     ) #emptyFieldPlaceHolder]
@@ -92,7 +98,7 @@
   // takes the thesis kind in the form
   // returns filed rec if the type is selected or not one of the placeholders
   let rec(kind) = {
-     if (
+    if (
       (kind == examType)
         or (
           (
@@ -117,16 +123,16 @@
   // takes the thesis type (e.g. 'Projektarbeit I, Bachelorarbeit')
   // returns a rectangle (checked if the exam type equals the thesis type) and the thesis type
   let fillCheckRec(kind) = {
-      if (not kind.starts-with("Projektarbeit")) {
-        return rec(kind) + " " + __linguify-content(lower(kind))
-      } else {
-        let a = lower(kind).split(" ")
-        return (
-          rec(kind)
-            + " "
-            + __linguify-content(a.at(0), args: (thesis-number: upper(a.at(1))))
-        )
-      }
+    if (not kind.starts-with("Projektarbeit")) {
+      return rec(kind) + " " + __linguify-content(lower(kind))
+    } else {
+      let a = lower(kind).split(" ")
+      return (
+        rec(kind)
+          + " "
+          + __linguify-content(a.at(0), args: (thesis-number: upper(a.at(1))))
+      )
+    }
   }
 
   let getOtherExamTypes() = {
@@ -189,7 +195,9 @@
     grid(
       columns: (3.4cm, 5.9cm, 8cm),
       text(size: fontSizeNormal)[#__linguify-content("ai-dec-for-module")],
-      grid.cell(colspan: 2, text(size: fontSizeNormal)[#fieldModuleNameSemester]),
+      grid.cell(colspan: 2, text(
+        size: fontSizeNormal,
+      )[#fieldModuleNameSemester]),
       [],
       grid.cell(
         colspan: 2,
