@@ -1,0 +1,89 @@
+name: Check Release Notes
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: "PR number to check"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  determine_requirement:
+    name: Determine if release notes are required
+    runs-on: ubuntu-24.04
+    outputs:
+      pr_number: ${{ steps.pr_type.outputs.pr_number }}
+      requires_release_notes: ${{ steps.pr_type.outputs.requires_release_notes }}
+    steps:
+      - name: Determine if release notes are required
+        id: pr_type
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_NUMBER: ${{ github.event.pull_request.number || inputs.pr_number }}
+        run: |
+          echo "pr_number=${PR_NUMBER}" >> "$GITHUB_OUTPUT"
+
+          # `chore:` PRs do not require release notes.
+          # `fix:`, `feat:` and `feat!:` PRs do require release notes.
+          if [[ "$PR_TITLE" =~ ^(fix|feat|feat!)(\(.+\))?:\  ]]; then
+            echo "PR title '${PR_TITLE}' requires release notes."
+            echo "requires_release_notes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "PR title '${PR_TITLE}' does not require release notes (chore or unknown prefix)."
+            echo "requires_release_notes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  extract_release_notes:
+    name: Extract release notes
+    needs: determine_requirement
+    if: needs.determine_requirement.outputs.requires_release_notes == 'true'
+    uses: ./.github/workflows/extractReleaseNotes.yml
+    with:
+      pr_number: ${{ needs.determine_requirement.outputs.pr_number }}
+      fail_if_missing: true
+
+  check_release_notes:
+    name: Check release notes
+    # Run regardless of whether `extract_release_notes` was skipped, succeeded
+    # or failed, so that this job always produces a definitive PR check status.
+    needs:
+      - determine_requirement
+      - extract_release_notes
+    if: ${{ always() && needs.determine_requirement.result == 'success' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Report status
+        env:
+          REQUIRES: ${{ needs.determine_requirement.outputs.requires_release_notes }}
+          EXTRACT_RESULT: ${{ needs.extract_release_notes.result }}
+        run: |
+          if [[ "$REQUIRES" != "true" ]]; then
+            echo "Release notes are not required for this PR. Check passes."
+            exit 0
+          fi
+
+          case "$EXTRACT_RESULT" in
+            success)
+              echo "Release notes successfully extracted from PR description. Check passes."
+              exit 0
+              ;;
+            failure)
+              echo "::error::Release notes are required but were not found in the PR description."
+              echo "::error::Please add release notes to the PR description after a final '---' horizontal rule."
+              exit 1
+              ;;
+            cancelled)
+              echo "::error::Release notes extraction was cancelled."
+              exit 1
+              ;;
+            *)
+              echo "::error::Unexpected extract_release_notes result: '${EXTRACT_RESULT}'."
+              exit 1
+              ;;
+          esac

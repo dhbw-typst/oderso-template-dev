@@ -39,3 +39,20 @@ These prefixes are used by our release pipeline to determine the next version bu
 - `feat!`: (_Major bump_) Should be used for major changes to the look of the template or when making changes that are not backwards compatible.
 
 Add the correct prefix to your PR title (e.g., `fix: <PR title>`). If you are unsure, let us know in your PR description.
+
+### Release Notes
+
+For non-`chore` PRs (i.e. PRs prefixed with `fix:`, `feat:` or `feat!:`), the PR description must contain release notes.
+The release notes are everything that follows the **last** horizontal rule (`---`) in the PR description and will be used as the body of the GitHub release that is created when the PR is merged.
+
+Example PR description:
+
+```markdown
+Some information about the PR
+
+---
+# Changes
+
+- Added a new function
+- Removed property `x` of `some-function`
+```
