@@ -1,0 +1,100 @@
+name: Extract Release Notes
+on:
+  workflow_call:
+    inputs:
+      pr_number:
+        description: "The pull request number to extract release notes from"
+        required: true
+        type: string
+      fail_if_missing:
+        description: "Fail the workflow if no release notes are found"
+        required: false
+        type: boolean
+        default: true
+    outputs:
+      release_notes:
+        description: "The release notes extracted from the PR description"
+        value: ${{ jobs.extract.outputs.release_notes }}
+      has_release_notes:
+        description: "Whether release notes were found"
+        value: ${{ jobs.extract.outputs.has_release_notes }}
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  extract:
+    name: Extract release notes from PR description
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      release_notes: ${{ steps.extract.outputs.release_notes }}
+      has_release_notes: ${{ steps.extract.outputs.has_release_notes }}
+    steps:
+      - name: Fetch PR description
+        id: fetch_pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ inputs.pr_number }}
+        run: |
+          gh pr view "$PR_NUMBER" \
+            --repo "${{ github.repository }}" \
+            --json body \
+            --jq '.body' > pr_body.md
+          echo "Fetched PR #${PR_NUMBER} description"
+      - name: Extract release notes
+        id: extract
+        run: |
+          # Normalize line endings
+          tr -d '\r' < pr_body.md > pr_body_clean.md
+          mv pr_body_clean.md pr_body.md
+
+          # Find the line number of the last `---` horizontal rule.
+          # A horizontal rule in markdown is a line that contains only `---`
+          # (optionally surrounded by whitespace).
+          last_hr=$(grep -n -E '^[[:space:]]*---[[:space:]]*$' pr_body.md | tail -n 1 | cut -d: -f1)
+
+          if [[ -z "$last_hr" ]]; then
+            echo "No horizontal rule (---) found in PR description."
+            echo "has_release_notes=false" >> "$GITHUB_OUTPUT"
+            echo "release_notes<<__EOF__" >> "$GITHUB_OUTPUT"
+            echo "" >> "$GITHUB_OUTPUT"
+            echo "__EOF__" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Take everything after the last horizontal rule
+          notes=$(tail -n +$((last_hr + 1)) pr_body.md)
+
+          # Strip leading/trailing blank lines
+          notes=$(printf '%s\n' "$notes" | sed -e '/./,$!d' | tac | sed -e '/./,$!d' | tac)
+
+          if [[ -z "$notes" ]]; then
+            echo "Release notes section is empty."
+            echo "has_release_notes=false" >> "$GITHUB_OUTPUT"
+            echo "release_notes<<__EOF__" >> "$GITHUB_OUTPUT"
+            echo "" >> "$GITHUB_OUTPUT"
+            echo "__EOF__" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Release notes successfully extracted."
+          echo "----- Release notes -----"
+          echo "$notes"
+          echo "-------------------------"
+
+          echo "has_release_notes=true" >> "$GITHUB_OUTPUT"
+          {
+            echo "release_notes<<__EOF__"
+            echo "$notes"
+            echo "__EOF__"
+          } >> "$GITHUB_OUTPUT"
+      - name: Fail if release notes missing
+        if: inputs.fail_if_missing && steps.extract.outputs.has_release_notes != 'true'
+        run: |
+          echo "::error::No release notes found in PR description."
+          echo "::error::Please add release notes to the PR description after a final '---' horizontal rule."
+          exit 1
