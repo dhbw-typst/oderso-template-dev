@@ -98,6 +98,9 @@
     research: none,
     design: none,
   ),
+  /// Whether to generate one AI declaration per author (`true`) or a single
+  /// shared declaration for the whole group (`false`)
+  ai-declaration-per-author: true,
   /// Additional arguments passed to the base template.
   ..args,
   /// The main document body content. -> content
@@ -253,29 +256,60 @@
   }
 
   let ai-declarations = ()
-  for a in authors {
-    let ai-tools-declaration = ai-declaration-form(
+  if ai-declaration-per-author {
+    // One form per author — each author's personal data and AI-usage fields are used individually.
+    for a in authors {
+      ai-declarations.push(ai-declaration-form(
+        digital: digital-only,
+        name: a.lastname + ", " + a.firstname,
+        identification-number: a.matriculation-number,
+        address: a.address,
+        course: a.course,
+        email: a.email,
+        mobile-number: a.phone-number,
+        module-name: ai-declaration-form-data.module-name,
+        semester: ai-declaration-form-data.semester,
+        module-submission-date: module-submission-date,
+        exam-type: ai-declaration-form-data.exam-type,
+        product-name: a.ai-dec-product-name,
+        topic: a.ai-dec-topic,
+        topic-editing: a.ai-dec-topic-editing,
+        research: a.ai-dec-research,
+        design: a.ai-dec-design,
+        signature-city: signature-city,
+        signature-date: submission-date,
+        signature-image: a.signature,
+      ))
+    }
+  } else {
+    // One shared form for the whole group.
+    // Personal data from all authors is joined with line breaks.
+    // AI-usage fields (ai-dec-product-name, ai-dec-topic, ai-dec-topic-editing,
+    // ai-dec-research, ai-dec-design) are taken from the first author only.
+    let first = authors.at(0)
+    ai-declarations.push(ai-declaration-form(
       digital: digital-only,
-      name: a.lastname + ", " + a.firstname,
-      identification-number: a.matriculation-number,
-      address: a.address,
-      course: a.course,
-      email: a.email,
-      mobile-number: a.phone-number,
+      name: authors.map(a => a.lastname + ", " + a.firstname).join("; "),
+      identification-number: authors
+        .map(a => a.matriculation-number)
+        .join("; "),
+      address: authors.map(a => a.address).join("; "),
+      course: authors.map(a => a.course).join("; "),
+      email: authors.map(a => a.email).join("; "),
+      mobile-number: authors.map(a => a.phone-number).join("; "),
       module-name: ai-declaration-form-data.module-name,
       semester: ai-declaration-form-data.semester,
       module-submission-date: module-submission-date,
       exam-type: ai-declaration-form-data.exam-type,
-      product-name: a.ai-dec-product-name,
-      topic: a.ai-dec-topic,
-      topic-editing: a.ai-dec-topic-editing,
-      research: a.ai-dec-research,
-      design: a.ai-dec-design,
+      product-name: first.ai-dec-product-name,
+      topic: first.ai-dec-topic,
+      topic-editing: first.ai-dec-topic-editing,
+      research: first.ai-dec-research,
+      design: first.ai-dec-design,
       signature-city: signature-city,
       signature-date: submission-date,
-      signature-image: a.signature,
-    )
-    ai-declarations.push(ai-tools-declaration)
+      signature-image: first.signature,
+    ))
   }
   show: project.with(
     __logo-left: company-logo,
