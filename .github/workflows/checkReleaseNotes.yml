@@ -2,6 +2,8 @@ name: Check Release Notes
 on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
+    branches:
+      - 'main'
   workflow_dispatch:
     inputs:
       pr_number:
