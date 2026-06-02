@@ -8,5 +8,6 @@
 #import "utils.typ": (
   caption-with-source, styled-table, table-hline-spaced, tablefigure,
   tablefigure-raw,
+  inline-glossary,
 )
 #import "base.typ": project
