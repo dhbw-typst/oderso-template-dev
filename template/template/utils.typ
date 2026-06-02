@@ -249,8 +249,8 @@
   /// Whether to show group headings or not -> bool
   display-headings: false,
   /// Additional arguments passed to `print-glossary` -> arguments
-  ..args) = {
-
+  ..args,
+) = {
   let custom-print-reference(
     entry,
     show-all: false,

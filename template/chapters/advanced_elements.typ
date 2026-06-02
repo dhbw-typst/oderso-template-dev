@@ -109,7 +109,7 @@ If you want to include parts of your glossary in your documents content this is 
   "#import \"../template/lib.typ\": inline-glossary
 #import \"../glossary.typ\": glossary
 
-#inline-glossary(glossary, (\"Dependencies\",), show-all: true)"
+#inline-glossary(glossary, (\"Dependencies\",), show-all: true)",
 )
 
 

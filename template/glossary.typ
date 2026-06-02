@@ -55,5 +55,5 @@
       Linguify brings #link("https://projectfluent.org/fluent/guide/", "fluent") support to typst, enabling easy i18n.
     ],
     group: "Dependencies",
-  )
+  ),
 )

@@ -1,6 +1,6 @@
 // LTeX: enabled=false
 #import "template/lib.typ": caption-with-source, dhbw-ka-adapter
-#import "glossary.typ": glossary, abbreviations
+#import "glossary.typ": abbreviations, glossary
 
 #show: dhbw-ka-adapter.with(
   lang: "en",
