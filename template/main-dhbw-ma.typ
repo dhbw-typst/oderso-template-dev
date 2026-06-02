@@ -35,8 +35,6 @@
       address: "Example Street 1, 12345 Example City",
       phone-number: "+49 0000 0000",
       // specific attributes for the ai declaration
-      // if 'ai-declaration-per-author' is false, only the first ai-dec
-      // information is processed
       ai-dec-product-name: "ChatGPT, DeepL",
       ai-dec-topic: "Writing in Typst about a long, very scientific topic",
       ai-dec-topic-editing: "Strukturierung, Gliederung",
@@ -92,10 +90,6 @@
     semester: "1",
     exam-type: "Projektarbeit I", // "Projektarbeit I", "Projektarbeit II", "Seminararbeit", "Bachelorarbeit"
   ),
-
-  // Set to false to generate a single shared AI declaration for the whole group instead of one per author.
-  // per-person contributions; set to true (default) in that case.
-  ai-declaration-per-author: true,
 
   // abstracs: usage: (language, language (displayed), content)
   abstracts: (
