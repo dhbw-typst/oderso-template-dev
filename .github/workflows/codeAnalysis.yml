@@ -24,6 +24,20 @@ jobs:
           } | jq -s -c '.')
           echo "matrix=${FILES}" >> "$GITHUB_OUTPUT"
 
+  discover_versions:
+    name: Discover Typst versions
+    runs-on: ubuntu-24.04
+    outputs:
+      versions: ${{ steps.read_versions.outputs.versions }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - name: Read supported-typst-versions.json
+        id: read_versions
+        run: |
+          VERSIONS=$(jq -c '.' .github/supported-typst-versions.json)
+          echo "versions=${VERSIONS}" >> "$GITHUB_OUTPUT"
+
   check_formatting:
     name: Check Formatting
     runs-on: ubuntu-24.04
@@ -41,19 +55,20 @@ jobs:
           ./typstyle ./template --check
 
   check_build:
-    name: Check Build
-    needs: discover_files
+    name: Check Build (${{ matrix.file_entry.file }}, typst ${{ matrix.typst_version }})
+    needs: [discover_files, discover_versions]
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        include: ${{ fromJson(needs.discover_files.outputs.matrix) }}
+        file_entry: ${{ fromJson(needs.discover_files.outputs.matrix) }}
+        typst_version: ${{ fromJson(needs.discover_versions.outputs.versions) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - name: Install typst
         run: |
-          curl -L https://github.com/typst/typst/releases/download/v0.14.2/typst-x86_64-unknown-linux-musl.tar.xz -o typst.tar.xz
+          curl -L https://github.com/typst/typst/releases/download/v${{ matrix.typst_version }}/typst-x86_64-unknown-linux-musl.tar.xz -o typst.tar.xz
           mkdir -p typst_bin
           tar -xf typst.tar.xz -C typst_bin
           mv typst_bin/typst-x86_64-unknown-linux-musl/typst typst
@@ -61,7 +76,7 @@ jobs:
       - name: Typst version
         run: ./typst --version
       - name: Build template
-        run: ./typst compile ${{ matrix.path }}
+        run: ./typst compile ${{ matrix.file_entry.path }}
 
   check_build_results:
     name: Check Build Result
@@ -75,7 +90,7 @@ jobs:
 
   check_pdf:
     name: Check PDF parity (${{ matrix.file }})
-    needs: discover_files
+    needs: [discover_files, discover_versions]
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -88,7 +103,7 @@ jobs:
           path: new
       - name: Install typst
         run: |
-          curl -L https://github.com/typst/typst/releases/download/v0.14.2/typst-x86_64-unknown-linux-musl.tar.xz -o typst.tar.xz
+          curl -L https://github.com/typst/typst/releases/download/v${{ fromJson(needs.discover_versions.outputs.versions)[0] }}/typst-x86_64-unknown-linux-musl.tar.xz -o typst.tar.xz
           mkdir -p typst_bin
           tar -xf typst.tar.xz -C typst_bin
           mv typst_bin/typst-x86_64-unknown-linux-musl/typst typst
