@@ -415,8 +415,8 @@
   set page(numbering: "a", footer: auto)
   counter(page).update(1)
 
-  // TODO: remove with 3.0.0
   // This is just for supporting the old method of usage, but it is deprecated
+  // TODO: with typst 0.15.0 and the introduction of path types, the bibliograhy call should be moved back into base.typ again
   if type(library) == str {
     bibliography(
       "../" + library,

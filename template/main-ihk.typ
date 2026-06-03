@@ -54,7 +54,7 @@
     ), // appendix from file
   ),
 
-  // Path/s to references - .bib files
+  // Bibliography
   library: bibliography("refs.bib"),
 
   // Specify abbreviations here.
