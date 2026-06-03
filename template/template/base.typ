@@ -471,14 +471,7 @@
 
     // postamble (statutory declaration, confidentiality, AI declaration)
     for p in __postamble {
-      if type(p) == content {
-        p
-      }
-      if type(p) == array {
-        for c in p {
-          c
-        }
-      }
+      p
     }
   }
 

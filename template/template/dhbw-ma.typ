@@ -254,7 +254,7 @@
 
   let ai-declarations = ()
   for a in authors {
-    let ai-tools-declaration = ai-declaration-form(
+    let ai-declaration = ai-declaration-form(
       digital: digital-only,
       name: a.lastname + ", " + a.firstname,
       identification-number: a.matriculation-number,
@@ -275,7 +275,7 @@
       signature-date: submission-date,
       signature-image: a.signature,
     )
-    ai-declarations.push(ai-tools-declaration)
+    ai-declarations.push(ai-declaration)
   }
   show: project.with(
     __logo-left: company-logo,
@@ -287,7 +287,7 @@
     __postamble: (
       statutory-declaration,
       ..if (confidentiality-clause) { (confidentiality-clause-text,) },
-      ai-declarations,
+      ..ai-declarations,
     ),
     ..args,
   )
