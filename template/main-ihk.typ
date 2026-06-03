@@ -55,7 +55,7 @@
   ),
 
   // Path/s to references - .bib files
-  library: "refs.bib",
+  library: bibliography("refs.bib"),
 
   // Specify abbreviations here.
   // The key is used to reference the acronym.

@@ -148,6 +148,8 @@
   // load linguify
   set-database(eval(load-ftl-data("l10n", ("en", "de"))))
 
+  set bibliography(title: __linguify-content("bibliography"))
+
   // page setup
   set document(title: title-long)
   set page(paper: "a4", margin: (rest: 2.5cm))
@@ -408,10 +410,16 @@
   set page(numbering: "a", footer: auto)
   counter(page).update(1)
 
-  bibliography(
-    "../" + library,
-    title: __linguify-content("bibliography"),
-  )
+  // TODO: remove with 3.0.0
+  // This is just for supporting the old method of usage, but it is deprecated
+  if type(library) == str {
+    bibliography(
+      "../" + library,
+      title: __linguify-content("bibliography"),
+    )
+  } else {
+    library
+  }
 
   // lists and declarations (between content and appendix)
   {
