@@ -37,9 +37,9 @@
       // specific attributes for the ai declaration
       ai-dec-product-name: "ChatGPT, DeepL",
       ai-dec-topic: "Writing in Typst about a long, very scientific topic",
-      ai-dec-topic-editing: "Strukturierung, Gliederung",
-      ai-dec-research: "Quellenrecherche mit KI",
-      ai-dec-design: "Textgenerierung, Korrektur",
+      ai-dec-topic-editing: "Structuring, organizing",
+      ai-dec-research: "Research using AI",
+      ai-dec-design: "Text generation, correction",
     ), // make sure to keep this comma after the first author if there is only one author!
     (
       firstname: "Erika",
@@ -52,9 +52,9 @@
       phone-number: none,
       ai-dec-product-name: "ChatGPT, DeepL",
       ai-dec-topic: "Writing in Typst about a long, very scientific topic",
-      ai-dec-topic-editing: "Strukturierung, Gliederung",
-      ai-dec-research: "Quellenrecherche mit KI",
-      ai-dec-design: "Textgenerierung, Korrektur",
+      ai-dec-topic-editing: "Structuring, organizing",
+      ai-dec-research: "Research using AI",
+      ai-dec-design: "Text generation, correction",
     ),
   ),
 
