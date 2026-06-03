@@ -41,6 +41,11 @@
       email: none,
       address: none,
       phone-number: none,
+      ai-dec-product-name: none,
+      ai-dec-topic: none,
+      ai-dec-topic-editing: none,
+      ai-dec-research: none,
+      ai-dec-design: none,
     ),
   ),
   /// City shown on the signature line. -> str
@@ -247,30 +252,31 @@
     __linguify-content("confidentiality-agreement-note-dhbw")
   }
 
-  let main-author = authors.at(0)
-
-  let ai-tools-declaration = ai-declaration-form(
-    digital: digital-only,
-    name: main-author.lastname + ", " + main-author.firstname,
-    identification-number: main-author.matriculation-number,
-    address: main-author.address,
-    course: main-author.course,
-    email: main-author.email,
-    mobile-number: main-author.phone-number,
-    module-name: ai-declaration-form-data.module-name,
-    semester: ai-declaration-form-data.semester,
-    module-submission-date: module-submission-date,
-    exam-type: ai-declaration-form-data.exam-type,
-    product-name: ai-declaration-form-data.product-name,
-    topic: ai-declaration-form-data.topic,
-    topic-editing: ai-declaration-form-data.topic-editing,
-    research: ai-declaration-form-data.research,
-    design: ai-declaration-form-data.design,
-    signature-city: signature-city,
-    signature-date: submission-date,
-    signature-image: main-author.signature,
-  )
-
+  let ai-declarations = ()
+  for a in authors {
+    let ai-declaration = ai-declaration-form(
+      digital: digital-only,
+      name: a.lastname + ", " + a.firstname,
+      identification-number: a.matriculation-number,
+      address: a.address,
+      course: a.course,
+      email: a.email,
+      mobile-number: a.phone-number,
+      module-name: ai-declaration-form-data.module-name,
+      semester: ai-declaration-form-data.semester,
+      module-submission-date: module-submission-date,
+      exam-type: ai-declaration-form-data.exam-type,
+      product-name: a.ai-dec-product-name,
+      topic: a.ai-dec-topic,
+      topic-editing: a.ai-dec-topic-editing,
+      research: a.ai-dec-research,
+      design: a.ai-dec-design,
+      signature-city: signature-city,
+      signature-date: submission-date,
+      signature-image: a.signature,
+    )
+    ai-declarations.push(ai-declaration)
+  }
   show: project.with(
     __logo-left: company-logo,
     __logo-right: image("assets/DHBW-Logo.svg"),
@@ -281,7 +287,7 @@
     __postamble: (
       statutory-declaration,
       ..if (confidentiality-clause) { (confidentiality-clause-text,) },
-      ai-tools-declaration,
+      ..ai-declarations,
     ),
     ..args,
   )

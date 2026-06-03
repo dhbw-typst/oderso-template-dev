@@ -34,12 +34,27 @@
       email: "john.doe@dhbw.com",
       address: "Example Street 1, 12345 Example City",
       phone-number: "+49 0000 0000",
+      // specific attributes for the ai declaration
+      ai-dec-product-name: "ChatGPT, DeepL",
+      ai-dec-topic: "Writing in Typst about a long, very scientific topic",
+      ai-dec-topic-editing: "Structuring, organizing",
+      ai-dec-research: "Research using AI",
+      ai-dec-design: "Text generation, correction",
     ), // make sure to keep this comma after the first author if there is only one author!
     (
       firstname: "Erika",
       lastname: "Musterfrau",
       matriculation-number: "1234567",
       course: "TINF23B1",
+      signature: none,
+      email: none,
+      address: none,
+      phone-number: none,
+      ai-dec-product-name: "ChatGPT, DeepL",
+      ai-dec-topic: "Writing in Typst about a long, very scientific topic",
+      ai-dec-topic-editing: "Structuring, organizing",
+      ai-dec-research: "Research using AI",
+      ai-dec-design: "Text generation, correction",
     ),
   ),
 
@@ -74,11 +89,6 @@
     module-name: "Projektmanagement",
     semester: "1",
     exam-type: "Projektarbeit I", // "Projektarbeit I", "Projektarbeit II", "Seminararbeit", "Bachelorarbeit"
-    product-name: "ChatGPT, DeepL",
-    topic: "Writing in Typst about a long, very scientific topic",
-    topic-editing: "Strukturierung, Gliederung",
-    research: "Quellenrecherche mit KI",
-    design: "Textgenerierung, Korrektur",
   ),
 
   // abstracs: usage: (language, language (displayed), content)
