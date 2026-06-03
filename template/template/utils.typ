@@ -238,7 +238,7 @@
 ///
 /// Usefull when wanting to display part of a glossary in the document content.
 ///
-/// Wraps `print-glossary` by `glossarium`. See the #link("https://typst.app/universe/package/glossarium/", "glossarium documentation") for more information.
+/// Wraps `print-glossary` by `glossarium`. See the #link("https://typst.app/universe/package/glossarium/")[glossarium documentation] for more information.
 ///
 /// -> content
 #let inline-glossary(
