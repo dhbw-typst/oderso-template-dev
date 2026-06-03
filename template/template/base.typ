@@ -420,7 +420,6 @@
   if type(library) == str {
     bibliography(
       "../" + library,
-      title: __linguify-content("bibliography"),
     )
   } else {
     library
