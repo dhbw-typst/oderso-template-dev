@@ -11,7 +11,6 @@
   mobile-number: "",
   module-name: "",
   semester: "",
-  date-format: "dd. MMMM yyyy",
   module-submission-date: datetime.today().display("[day].[month].[year]"),
   exam-type: "",
   product-name: "",
