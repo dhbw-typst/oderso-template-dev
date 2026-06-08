@@ -416,7 +416,7 @@
   counter(page).update(1)
 
   // This is just for supporting the old method of usage, but it is deprecated
-  // TODO: with typst 0.15.0 and the introduction of path types, the bibliograhy call should be moved back into base.typ again
+  // TODO: probably rework with Typst 0.15.0
   if type(library) == str {
     bibliography(
       "../" + library,
