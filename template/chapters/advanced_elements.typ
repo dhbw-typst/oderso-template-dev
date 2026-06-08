@@ -102,7 +102,7 @@ You can reference labeled equations like other figures. @math-figure shows the s
 
 == Inline Glossary
 
-If you want to include parts of your glossary in your documents content this is possible using the `inline-glossary` function. This is useful if you need word definitions directly in a chapter let the reader explicitly read those definitions. The `group` parameter can be used to only show parts of the glossary. In the following example the _Dependency_ group of the example glossary defined in `glossary.typ` is shown. The _Dependency_ group contains definitions for @glossarium, @drafting, @codly, @hydra and @linguify, which are the packages used by this template.
+If you want to include parts of your glossary in your documents content this is possible using the `inline-glossary` function. This is useful if you need word definitions directly in a chapter and want the reader to explicitly read those definitions. The `group` parameter can be used to only show parts of the glossary. In the following example the _Dependency_ group of the example glossary defined in `glossary.typ` is shown. The _Dependency_ group contains definitions for @glossarium, @drafting, @codly, @hydra and @linguify, which are the packages used by this template.
 
 #typst-preview(
   "Inline Glossary Showing the Templates Dependencies",
