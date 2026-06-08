@@ -153,6 +153,8 @@
   // load linguify
   set-database(eval(load-ftl-data("l10n", ("en", "de"))))
 
+  set bibliography(title: __linguify-content("bibliography"))
+
   // page setup
   set document(title: title-long)
   set page(paper: "a4", margin: (rest: 2.5cm))
@@ -413,10 +415,15 @@
   set page(numbering: "a", footer: auto)
   counter(page).update(1)
 
-  bibliography(
-    "../" + library,
-    title: __linguify-content("bibliography"),
-  )
+  // This is just for supporting the old method of usage, but it is deprecated
+  // TODO: probably rework with Typst 0.15.0
+  if type(library) == str {
+    bibliography(
+      "../" + library,
+    )
+  } else {
+    library
+  }
 
   // lists and declarations (between content and appendix)
   {

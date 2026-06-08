@@ -130,9 +130,8 @@
     ), // appendix from file
   ),
 
-  // Path to reference - either .yaml or .bib file
-  // * for `.yaml` files see: [hayagriva](https://github.com/typst/hayagriva)
-  library: "refs.bib",
+  // Bibliography
+  library: bibliography("refs.bib"),
 
   abbreviations: abbreviations,
   glossary: glossary,

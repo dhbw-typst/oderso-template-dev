@@ -55,8 +55,8 @@
     ), // appendix from file
   ),
 
-  // Path/s to references - .bib files
-  library: "refs.bib",
+  // Bibliography
+  library: bibliography("refs.bib"),
 
   abbreviations: abbreviations,
   glossary: glossary,
