@@ -1,5 +1,6 @@
 // LTeX: enabled=false
 #import "template/lib.typ": caption-with-source, dhbw-ma-adapter
+#import "glossary.typ": abbreviations, glossary
 
 #show: dhbw-ma-adapter.with(
   lang: "en",
@@ -34,20 +35,35 @@
       email: "john.doe@dhbw.com",
       address: "Example Street 1, 12345 Example City",
       phone-number: "+49 0000 0000",
+      // specific attributes for the ai declaration
+      ai-dec-product-name: "ChatGPT, DeepL",
+      ai-dec-topic: "Writing in Typst about a long, very scientific topic",
+      ai-dec-topic-editing: "Structuring, organizing",
+      ai-dec-research: "Research using AI",
+      ai-dec-design: "Text generation, correction",
     ), // make sure to keep this comma after the first author if there is only one author!
     (
       firstname: "Erika",
       lastname: "Musterfrau",
       matriculation-number: "1234567",
       course: "TINF23B1",
+      signature: none,
+      email: none,
+      address: none,
+      phone-number: none,
+      ai-dec-product-name: "ChatGPT, DeepL",
+      ai-dec-topic: "Writing in Typst about a long, very scientific topic",
+      ai-dec-topic-editing: "Structuring, organizing",
+      ai-dec-research: "Research using AI",
+      ai-dec-design: "Text generation, correction",
     ),
   ),
 
   signature-city: "Mannheim",
 
-  // Set to specific date with datetime(year: 2026, month: 06, day: 10)
-  submission-date: datetime.today(),
-  module-submission-date: datetime.today(),
+  // Set to specific date with "24.12.2026"
+  submission-date: datetime.today().display("[day].[month].[year]"),
+  module-submission-date: datetime.today().display("[day].[month].[year]"),
 
   processing-period-weeks: 12,
 
@@ -72,12 +88,8 @@
 
   ai-declaration-form-data: (
     module-name: "Projektmanagement",
+    semester: "1",
     exam-type: "Projektarbeit I", // "Projektarbeit I", "Projektarbeit II", "Seminararbeit", "Bachelorarbeit"
-    product-name: "ChatGPT, DeepL",
-    topic: "Writing in Typst about a long, very scientific topic",
-    topic-editing: "Strukturierung, Gliederung",
-    research: "Quellenrecherche mit KI",
-    design: "Textgenerierung, Korrektur",
   ),
 
   // abstracs: usage: (language, language (displayed), content)
@@ -118,32 +130,11 @@
     ), // appendix from file
   ),
 
-  // Path to reference - either .yaml or .bib file
-  // * for `.yaml` files see: [hayagriva](https://github.com/typst/hayagriva)
-  library: "refs.bib",
+  // Bibliography
+  library: bibliography("refs.bib"),
 
-  // Specify abbreviations here.
-  // The key is used to reference the acronym.
-  // The short form is used every time and the long form is used
-  // additionally the first time you reference the acronym.
-  abbreviations: (
-    (key: "NN", short: "NN", long: "Neural Network"),
-    (key: "SG", short: "SG", long: "Singular"),
-  ),
-
-  // Specify glossary terms here for term definitions (not abbreviations).
-  // The key is used to reference the term.
-  // The long form is the term and the short form is the abbreviation (only if you need it).
-  // The description is used for the detailed explanation of the term.
-  // Set to empty array () if you don't need a glossary.
-  glossary: (
-    (
-      key: "typ",
-      short: none,
-      long: "Typst",
-      description: "Typst is a new markup-based typesetting system that is designed to be as powerful as LaTeX while being much easier to learn and use.",
-    ),
-  ),
+  abbreviations: abbreviations,
+  glossary: glossary,
 )
 
 // You can now start writing :)

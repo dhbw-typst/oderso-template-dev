@@ -6,7 +6,7 @@
 #import "dhbw-ma.typ": dhbw-ma-adapter
 #import "ihk.typ": ihk-adapter
 #import "utils.typ": (
-  caption-with-source, styled-table, table-hline-spaced, tablefigure,
-  tablefigure-raw,
+  caption-with-source, inline-glossary, styled-table, table-hline-spaced,
+  tablefigure, tablefigure-raw,
 )
 #import "base.typ": project
