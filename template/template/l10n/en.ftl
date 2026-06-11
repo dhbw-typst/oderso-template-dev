@@ -27,6 +27,7 @@ usage-description = Usage Description
 
 ### Base template
 by = by
+acknowledgments = Acknowledgments
 abstract = Abstract
 
 # lists headers
