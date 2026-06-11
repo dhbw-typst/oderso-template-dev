@@ -32,6 +32,20 @@
       "versioningTemplate": "semver",
       "datasourceTemplate": "github-releases",
       "packageNameTemplate": "typst/typst"
+    },
+    {
+      "customType": "regex",
+      "description": "Newest supported Typst version",
+      "managerFilePatterns": [
+        "/\\.github/workflows/.*\\.yml$/"
+      ],
+      "matchStrings": [
+        "\"(?<currentValue>\\d+\\.\\d+\\.\\d+)\"[^,]"
+      ],
+      "depNameTemplate": "typst",
+      "versioningTemplate": "semver",
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "typst/typst"
     }
   ]
 }
