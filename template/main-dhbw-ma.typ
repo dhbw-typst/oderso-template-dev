@@ -102,7 +102,7 @@
 
   // abstracs: usage: (language, language (displayed), content)
   abstracts: (
-    ("de", "Deutsch", include "abstracts/abstract_german.typ"),
+    ("de", "Deutsch", include "front-matter/abstract-german.typ"),
     (
       "en",
       "English",
