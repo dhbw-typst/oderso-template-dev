@@ -37,7 +37,7 @@
       "customType": "regex",
       "description": "Newest supported Typst version",
       "managerFilePatterns": [
-        "/\\.github/workflows/.*\\.yml$/"
+        "/\\.github/supported-typst-versions\\.json$/"
       ],
       "matchStrings": [
         "\"(?<currentValue>\\d+\\.\\d+\\.\\d+)\"[^,]"
