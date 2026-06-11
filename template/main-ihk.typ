@@ -1,5 +1,6 @@
 // LTeX: enabled=false
 #import "template/lib.typ": caption-with-source, ihk-adapter
+#import "glossary.typ": abbreviations, glossary
 
 #show: ihk-adapter.with(
   lang: "de",
@@ -54,31 +55,11 @@
     ), // appendix from file
   ),
 
-  // Path/s to references - .bib files
-  library: "refs.bib",
+  // Bibliography
+  library: bibliography("refs.bib"),
 
-  // Specify abbreviations here.
-  // The key is used to reference the acronym.
-  // The short form is used every time and the long form is used
-  // additionally the first time you reference the acronym.
-  abbreviations: (
-    (key: "NN", short: "NN", long: "Neural Network"),
-    (key: "SG", short: "SG", long: "Singular"),
-  ),
-
-  // Specify glossary terms here for term definitions (not abbreviations).
-  // The key is used to reference the term.
-  // The long form is the term and the short form is the abbreviation (only if you need it).
-  // The description is used for the detailed explanation of the term.
-  // Set to empty array () if you don't need a glossary.
-  glossary: (
-    (
-      key: "typ",
-      short: none,
-      long: "Typst",
-      description: "Typst is a new markup-based typesetting system that is designed to be as powerful as LaTeX while being much easier to learn and use.",
-    ),
-  ),
+  abbreviations: abbreviations,
+  glossary: glossary,
 )
 
 // You can now start writing :)

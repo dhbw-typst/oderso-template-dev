@@ -1,6 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["helpers:pinGitHubActionDigests"],
+  "extends": [
+    "helpers:pinGitHubActionDigests"
+  ],
   "customManagers": [
     {
       "customType": "regex",
@@ -16,6 +18,20 @@
       "versioningTemplate": "semver",
       "datasourceTemplate": "github-releases",
       "packageNameTemplate": "{{owner}}/{{packageName}}"
+    },
+    {
+      "customType": "regex",
+      "description": "Typst version with setup-typst action",
+      "managerFilePatterns": [
+        "/\\.github/workflows/.*\\.yml$/"
+      ],
+      "matchStrings": [
+        "uses: typst-community\\/setup-typst\\@[0-9a-f]{40} \\# v\\d+\\.\\d+\\.\\d+\\n\\s*with:\\n\\s*typst-version: (?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "typst",
+      "versioningTemplate": "semver",
+      "datasourceTemplate": "github-releases",
+      "packageNameTemplate": "typst/typst"
     }
   ]
 }

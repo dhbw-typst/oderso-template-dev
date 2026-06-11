@@ -1,6 +1,7 @@
 // LTeX: enabled=false
 
 #import "@preview/linguify:0.5.0": linguify-raw
+#import "@preview/glossarium:0.5.10": print-glossary
 
 /// Internal state to track whether we are currently rendering an outline.
 /// -> state
@@ -231,4 +232,60 @@
 
 #let __linguify-content(..args) = {
   context eval(linguify-raw(..args), mode: "markup")
+}
+
+/// Displays a glossary without interfering with the glossary shown at the end of the document.
+///
+/// Usefull when wanting to display part of a glossary in the document content.
+///
+/// Wraps `print-glossary` by `glossarium`. See the #link("https://typst.app/universe/package/glossarium/")[glossarium documentation] for more information.
+///
+/// -> content
+#let inline-glossary(
+  /// The list of entries -> array
+  entry-list,
+  /// The list of groups to display (only included groups will be shown the rest will be hidden) -> array
+  groups,
+  /// Whether to show group headings or not -> bool
+  display-headings: false,
+  /// Additional arguments passed to `print-glossary` -> arguments
+  ..args,
+) = {
+  let custom-print-reference(
+    entry,
+    show-all: false,
+    disable-back-references: false,
+    deduplicate-back-references: false,
+    minimum-refs: 1,
+    description-separator: ": ",
+    shorthands: none,
+    user-print-gloss: none,
+    user-print-title: none,
+    user-print-description: none,
+    user-print-back-references: none,
+  ) = {
+    user-print-gloss(
+      entry,
+      show-all: show-all,
+      disable-back-references: true,
+      deduplicate-back-references: deduplicate-back-references,
+      minimum-refs: minimum-refs,
+      description-separator: description-separator,
+      user-print-title: user-print-title,
+      user-print-description: user-print-description,
+      user-print-back-references: user-print-back-references,
+    )
+  }
+
+  let args-cp = args.named()
+  if not display-headings {
+    args-cp.insert("user-print-group-heading", (..args) => {})
+  }
+
+  print-glossary(
+    entry-list,
+    groups: groups,
+    user-print-reference: custom-print-reference,
+    ..args-cp,
+  )
 }

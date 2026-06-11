@@ -41,14 +41,19 @@
       email: none,
       address: none,
       phone-number: none,
+      ai-dec-product-name: none,
+      ai-dec-topic: none,
+      ai-dec-topic-editing: none,
+      ai-dec-research: none,
+      ai-dec-design: none,
     ),
   ),
   /// City shown on the signature line. -> str
   signature-city: "Mannheim",
-  /// Submission date of the thesis. -> datetime
-  submission-date: datetime.today(),
-  /// Submission date for the module (used in AI declaration form). -> datetime
-  module-submission-date: datetime.today(),
+  /// Submission date of the thesis. -> str
+  submission-date: datetime.today().display("[day].[month].[year]"),
+  /// Submission date for the module (used in AI declaration form). -> str
+  module-submission-date: datetime.today().display("[day].[month].[year]"),
   /// Format string for displaying dates. (see #link("https://typst.app/docs/reference/foundations/datetime/#format")[datetime formats]) -> str
   submission-date-format: "[day].[month].[year]",
   /// Duration of the thesis processing period in weeks. -> int | none
@@ -85,6 +90,7 @@
   /// `position` ("preamble", "postamble", or "after-confidentiality-clause"). -> dictionary
   ai-declaration-form-data: (
     module-name: none,
+    semester: none,
     exam-type: none,
     product-name: none,
     topic: none,
@@ -109,6 +115,18 @@
       city: linguify-raw("ma"),
     ))
   ]
+
+  // TODO: only for compatibility reasons: Remove with v3.0.0 release
+  if type(submission-date) == datetime {
+    submission-date = submission-date.display(submission-date-format)
+  }
+  // TODO: only for compatibility reasons: Remove with v3.0.0 release
+  if type(module-submission-date) == datetime {
+    module-submission-date = module-submission-date.display(
+      submission-date-format,
+    )
+  }
+
   let company-supervisor-data = [
     #company-supervisor.firstname #company-supervisor.lastname#if (
       company-supervisor.phone-number != none
@@ -135,7 +153,7 @@
 
   let metadata = (
     __linguify-content("submission-date"),
-    submission-date.display(submission-date-format),
+    submission-date,
     __linguify-content("processing-duration"),
     __linguify-content("weeks", args: (count: processing-period-weeks)),
     __linguify-content("matriculation-number")
@@ -217,7 +235,6 @@
       __signature-line(
         author: a,
         date: submission-date,
-        date-format: submission-date-format,
         digital: digital-submission,
         city: signature-city,
       )
@@ -235,30 +252,31 @@
     __linguify-content("confidentiality-agreement-note-dhbw")
   }
 
-  let main-author = authors.at(0)
-
-  let ai-tools-declaration = ai-declaration-form(
-    digital: digital-only,
-    name: main-author.firstname + " " + main-author.lastname,
-    identification-number: main-author.matriculation-number,
-    address: main-author.address,
-    course: main-author.course,
-    email: main-author.email,
-    mobile-number: main-author.phone-number,
-    module-name: ai-declaration-form-data.module-name,
-    module-submission-date: module-submission-date,
-    date-format: submission-date-format,
-    exam-type: ai-declaration-form-data.exam-type,
-    product-name: ai-declaration-form-data.product-name,
-    topic: ai-declaration-form-data.topic,
-    topic-editing: ai-declaration-form-data.topic-editing,
-    research: ai-declaration-form-data.research,
-    design: ai-declaration-form-data.design,
-    signature-city: signature-city,
-    signature-date: submission-date,
-    signature-image: main-author.signature,
-  )
-
+  let ai-declarations = ()
+  for a in authors {
+    let ai-declaration = ai-declaration-form(
+      digital: digital-only,
+      name: a.lastname + ", " + a.firstname,
+      identification-number: a.matriculation-number,
+      address: a.address,
+      course: a.course,
+      email: a.email,
+      mobile-number: a.phone-number,
+      module-name: ai-declaration-form-data.module-name,
+      semester: ai-declaration-form-data.semester,
+      module-submission-date: module-submission-date,
+      exam-type: ai-declaration-form-data.exam-type,
+      product-name: a.ai-dec-product-name,
+      topic: a.ai-dec-topic,
+      topic-editing: a.ai-dec-topic-editing,
+      research: a.ai-dec-research,
+      design: a.ai-dec-design,
+      signature-city: signature-city,
+      signature-date: submission-date,
+      signature-image: a.signature,
+    )
+    ai-declarations.push(ai-declaration)
+  }
   show: project.with(
     __logo-left: company-logo,
     __logo-right: image("assets/DHBW-Logo.svg"),
@@ -269,7 +287,7 @@
     __postamble: (
       statutory-declaration,
       ..if (confidentiality-clause) { (confidentiality-clause-text,) },
-      ai-tools-declaration,
+      ..ai-declarations,
     ),
     ..args,
   )

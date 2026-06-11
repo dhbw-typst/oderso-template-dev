@@ -1,5 +1,6 @@
 // LTeX: enabled=false
 #import "template/lib.typ": caption-with-source, dhbw-ka-adapter
+#import "glossary.typ": abbreviations, glossary
 
 #show: dhbw-ka-adapter.with(
   lang: "en",
@@ -53,8 +54,8 @@
 
   signature-city: "Karlsruhe",
 
-  // Set to specific date with datetime(year: 2026, month: 06, day: 10)
-  submission-date: datetime.today(),
+  // Set to specific date with "24.12.2026"
+  submission-date: datetime.today().display("[day].[month].[year]"),
 
   processing-period-weeks: 12,
 
@@ -103,32 +104,11 @@
     ), // appendix from file
   ),
 
-  // Path to reference - either .yaml or .bib file
-  // * for `.yaml` files see: [hayagriva](https://github.com/typst/hayagriva)
-  library: "refs.bib",
+  // Bibliography
+  library: bibliography("refs.bib"),
 
-  // Specify abbreviations here.
-  // The key is used to reference the acronym.
-  // The short form is used every time and the long form is used
-  // additionally the first time you reference the acronym.
-  abbreviations: (
-    (key: "NN", short: "NN", long: "Neural Network"),
-    (key: "SG", short: "SG", long: "Singular"),
-  ),
-
-  // Specify glossary terms here for term definitions (not abbreviations).
-  // The key is used to reference the term.
-  // The long form is the term and the short form is the abbreviation (only if you need it).
-  // The description is used for the detailed explanation of the term.
-  // Set to empty array () if you don't need a glossary.
-  glossary: (
-    (
-      key: "typ",
-      short: none,
-      long: "Typst",
-      description: "Typst is a new markup-based typesetting system that is designed to be as powerful as LaTeX while being much easier to learn and use.",
-    ),
-  ),
+  abbreviations: abbreviations,
+  glossary: glossary,
 )
 
 // You can now start writing :)

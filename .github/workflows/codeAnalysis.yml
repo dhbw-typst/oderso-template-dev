@@ -67,16 +67,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - name: Install typst
-        run: |
-          curl -L https://github.com/typst/typst/releases/download/v${{ matrix.typst_version }}/typst-x86_64-unknown-linux-musl.tar.xz -o typst.tar.xz
-          mkdir -p typst_bin
-          tar -xf typst.tar.xz -C typst_bin
-          mv typst_bin/typst-x86_64-unknown-linux-musl/typst typst
-          chmod +x typst
+        uses: typst-community/setup-typst@63ac138db421d586de61f7f5ac3bcef6a2e6c78c # v5.1.0
+        with:
+          typst-version: ${{ fromJson(needs.discover_versions.outputs.versions)[0] }}
       - name: Typst version
-        run: ./typst --version
+        run: typst --version
       - name: Build template
-        run: ./typst compile ${{ matrix.file_entry.path }}
+        run: typst compile ${{ matrix.file_entry.path }}
 
   check_build_results:
     name: Check Build Result
@@ -102,17 +99,14 @@ jobs:
         with:
           path: new
       - name: Install typst
-        run: |
-          curl -L https://github.com/typst/typst/releases/download/v${{ fromJson(needs.discover_versions.outputs.versions)[0] }}/typst-x86_64-unknown-linux-musl.tar.xz -o typst.tar.xz
-          mkdir -p typst_bin
-          tar -xf typst.tar.xz -C typst_bin
-          mv typst_bin/typst-x86_64-unknown-linux-musl/typst typst
-          chmod +x typst
+        uses: typst-community/setup-typst@63ac138db421d586de61f7f5ac3bcef6a2e6c78c # v5.1.0
+        with:
+          typst-version: ${{ fromJson(needs.discover_versions.outputs.versions)[0] }}
       - name: Typst version
-        run: ./typst --version
+        run: typst --version
       - name: Build PDF on PR branch
         run: |
-          ./typst compile new/${{ matrix.path }} new.pdf
+          typst compile new/${{ matrix.path }} new.pdf
       - name: Checkout base branch
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
@@ -120,7 +114,7 @@ jobs:
           path: old
       - name: Build PDF on main branch
         run: |
-          ./typst compile old/${{ matrix.path }} old.pdf
+          typst compile old/${{ matrix.path }} old.pdf
       - name: Compare PDFs
         id: diff_check
         uses: nowsprinting/diff-pdf-action@21193e71055e9cd98ae8704bf95590e50fb0d3c3 # v1.2.3

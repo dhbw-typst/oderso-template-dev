@@ -26,7 +26,7 @@
   digital: true,
   /// City name for the signature location. -> str | none
   city: none,
-  /// Date of the signature. -> datetime | none
+  /// Date of the signature. -> str | none
   date: none,
   /// Format string for displaying the date. (see #link("https://typst.app/docs/reference/foundations/datetime/#format")[datetime formats]) -> str
   date-format: "[day].[month].[year]",
@@ -37,10 +37,15 @@
     lastname: none,
   ),
 ) = {
+  // TODO: only for compatibility reasons: Remove with v3.0.0 release
+  if type(date) == datetime {
+    date = date.display(date-format)
+  }
+
   let signature-content = if digital {
     (
       city,
-      date.display(date-format),
+      date,
       [],
       grid.cell(
         if not author.keys().contains("signature") or author.signature == none {
@@ -147,6 +152,8 @@
 ) = {
   // load linguify
   set-database(eval(load-ftl-data("l10n", ("en", "de"))))
+
+  set bibliography(title: __linguify-content("bibliography"))
 
   // page setup
   set document(title: title-long)
@@ -408,10 +415,15 @@
   set page(numbering: "a", footer: auto)
   counter(page).update(1)
 
-  bibliography(
-    "../" + library,
-    title: __linguify-content("bibliography"),
-  )
+  // This is just for supporting the old method of usage, but it is deprecated
+  // TODO: probably rework with Typst 0.15.0
+  if type(library) == str {
+    bibliography(
+      "../" + library,
+    )
+  } else {
+    library
+  }
 
   // lists and declarations (between content and appendix)
   {
