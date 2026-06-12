@@ -1,15 +1,20 @@
-name: Packaged Compile Check
+name: Package Check
 on:
   pull_request:
   workflow_dispatch:
 
 jobs:
   package_check:
-    name: Check compile packaged
+    name: Check package
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Install nix
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: "experimental-features = nix-command flakes"
 
       - name: Install typst
         uses: typst-community/setup-typst@63ac138db421d586de61f7f5ac3bcef6a2e6c78c # v5.1.0
@@ -17,48 +22,8 @@ jobs:
           typst-version: 0.14.2
 
       - name: Install package locally
-        run: |
-          ./scripts/package_template.sh \
-            \
-            -p template/template/assets \
-            -p template/template/base.typ \
-            -p template/template/dhbw-ka.typ \
-            -p template/template/dhbw-ma.typ \
-            -p template/template/ihk.typ \
-            -p template/template/l10n \
-            -p template/template/lib.typ \
-            -p template/template/utils.typ \
-            \
-            -e template/abstracts \
-            -e template/assets \
-            -e template/chapters \
-            -e template/glossary.typ \
-            -e template/main-dhbw-ka.typ \
-            -e template/main-dhbw-ma.typ \
-            -e template/main-ihk.typ \
-            -e template/refs.bib \
-            \
-            -a thumbnail.png \
-            -a typst.toml \
-            -a template/LICENSE \
-            -a template/README.md
+        run: ./scripts/package_template.sh
 
-      - name: Restore template files
-        run: git restore template/
-
-      - name: Replace lib imports with @local
-        run: |
-          ./scripts/replace_imports.sh --local \
-            template/abstracts \
-            template/assets \
-            template/chapters \
-            template/glossary.typ \
-            template/main-dhbw-ka.typ \
-            template/main-dhbw-ma.typ \
-            template/main-ihk.typ
-
-      - name: Check build with newest supported Typst version
-        run: |
-          typst compile template/main-dhbw-ka.typ
-          typst compile template/main-dhbw-ma.typ
-          typst compile template/main-ihk.typ
+      - name: Run package check
+        run: nix run github:typst/package-check -- check
+        working-directory: ${{ env.PACKAGE_DIR }}
