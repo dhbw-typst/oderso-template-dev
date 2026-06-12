@@ -68,4 +68,5 @@ copy_files "$BASE"          "${ADDITIONAL_FILES[@]}"
 
 find "${BASE}/example" \
     -name "*.typ" \
-    -exec sed -i -E 's|#import "[./]*(template/)?lib\.typ"|#import "'"@preview/${PKG_NAME}:${PKG_VERSION}"'"|g' {} +
+    -exec sed -i -E 's|#import "[./]*(template/)?lib\.typ"|#import "'"@preview/${PKG_NAME}:${PKG_VERSION}"'"|g' {} + \
+    -exec sed -i -E 's|#import \\"[./]*(template/)?lib\.typ\\"|#import \\"'"@preview/${PKG_NAME}:${PKG_VERSION}"'\\"|g' {} +
