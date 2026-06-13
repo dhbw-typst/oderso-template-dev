@@ -31,7 +31,7 @@ jobs:
 
       - name: Fetch all @preview packages for package-check
         run: |
-          typst compile --format pdf repo/main-dhbw-ka.typ /dev/null
+          typst compile --format pdf repo/template/main-dhbw-ka.typ /dev/null
 
       - name: Install package locally
         run: ./scripts/package_template.sh -t -p ../package
