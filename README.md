@@ -1,4 +1,4 @@
-<img src="banner.jpeg" width="100%" />
+<img alt="Banner explaining why typst is better than LaTeX" src="banner.jpeg" width="100%" />
 
 # ODERSO Typst Template (Dev)
 

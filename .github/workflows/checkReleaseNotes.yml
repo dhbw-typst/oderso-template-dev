@@ -3,13 +3,17 @@ on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
     branches:
-      - 'main'
+      - "main"
   workflow_dispatch:
     inputs:
       pr_number:
         description: "PR number to check"
         required: true
         type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read

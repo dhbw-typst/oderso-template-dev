@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/dhbw-typst/oderso-template-dev/refs/heads/main/banner.jpeg" width="100%" />
+<img alt="Banner explaining why typst is better than LaTeX" src="https://raw.githubusercontent.com/dhbw-typst/oderso-template-dev/refs/heads/c81d3f24e453e59ed817c8bfc42fd6fffc448581/banner.jpeg" width="100%" />
 
 # ODERSO Typst Template
 
@@ -10,7 +10,7 @@ The template was built for DHBW Karlsruhe, but also has adapters for DHBW Mannhe
 > [!TIP]
 > Want to see how the template looks? Download a preview PDF for [DHBW Karlsruhe](https://github.com/dhbw-typst/oderso-template/releases/latest/download/main-dhbw-ka.pdf), [DHBW Mannheim](https://github.com/dhbw-typst/oderso-template/releases/latest/download/main-dhbw-ma.pdf) or [IHK](https://github.com/dhbw-typst/oderso-template/releases/latest/download/main-ihk.pdf) to inspect the final result.
 >
-> A description of all functions and properties can be found in the [package documentation]((https://github.com/dhbw-typst/oderso-template/releases/latest/download/documentation.pdf)).
+> A description of all functions and properties can be found in the [package documentation](https://github.com/dhbw-typst/oderso-template/releases/latest/download/documentation.pdf).
 
 ## 🏃‍♂️ Getting Started
 
