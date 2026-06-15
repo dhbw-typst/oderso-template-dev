@@ -406,14 +406,18 @@
           line(length: 100%, stroke: (paint: gray))
         }
       },
-      numbering: (..n) => context {
-        if numbering-show-total and not __in-outline.get() {
-          numbering("1 / 1", n.at(0), ..counter(page).at(<__content-end>))
+      numbering: "1",
+      footer: context align(center, {
+        if numbering-show-total {
+          numbering(
+            "1 / 1",
+            counter(page).get().at(0),
+            ..counter(page).at(<__content-end>),
+          )
         } else {
-          numbering("1", n.at(0))
+          numbering("1", counter(page).get().at(0))
         }
-      },
-      footer: auto,
+      }),
     )
     show heading.where(level: 1): it => {
       pagebreak(weak: true)
