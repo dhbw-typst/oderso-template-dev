@@ -322,6 +322,16 @@
   counter(page).update(1)
   set page(numbering: "I")
 
+  // register abbreviations before content so references resolve
+  if abbreviations.len() > 0 {
+    register-glossary(abbreviations)
+  }
+
+  // register glossary entries before content so references resolve
+  if glossary.len() > 0 {
+    register-glossary(glossary)
+  }
+
   // abstracts
   for a in abstracts {
     let (abstract-lang, abstract-lang-long, abstract-body) = a
@@ -362,16 +372,6 @@
         <__appendix-start>,
       ),
     )
-  }
-
-  // register abbreviations before content so references resolve
-  if abbreviations.len() > 0 {
-    register-glossary(abbreviations)
-  }
-
-  // register glossary entries before content so references resolve
-  if glossary.len() > 0 {
-    register-glossary(glossary)
   }
 
   {
