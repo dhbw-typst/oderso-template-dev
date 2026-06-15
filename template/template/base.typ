@@ -143,10 +143,12 @@
   let __logo-right = __opts.named().at("__logo-right", default: none)
   let __submission-info = __opts.named().at("__submission-info", default: none)
   let __metadata = __opts.named().at("__metadata", default: ())
-  let __authors = __opts.named().at(
-    "__authors",
-    default: ((firstname: none, lastname: none),),
-  )
+  let __authors = __opts
+    .named()
+    .at(
+      "__authors",
+      default: ((firstname: none, lastname: none),),
+    )
   let __confidentiality-clause = __opts
     .named()
     .at("__confidentiality-clause", default: false)
