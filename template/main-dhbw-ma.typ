@@ -92,9 +92,17 @@
     exam-type: "Projektarbeit I", // "Projektarbeit I", "Projektarbeit II", "Seminararbeit", "Bachelorarbeit"
   ),
 
+  // acknowledgements: usage: (
+  //   content: [content] || include("front-matter/acknowledgements.typ.typ")
+  // )
+  // remove property to remove appendices
+  acknowledgements: (
+    include "front-matter/acknowledgements.typ"
+  ),
+
   // abstracs: usage: (language, language (displayed), content)
   abstracts: (
-    ("de", "Deutsch", include "abstracts/abstract_german.typ"),
+    ("de", "Deutsch", include "front-matter/abstract-german.typ"),
     (
       "en",
       "English",
