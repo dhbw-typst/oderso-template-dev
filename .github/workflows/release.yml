@@ -136,7 +136,7 @@ jobs:
       - name: Set git user
         run: |
           git config user.name "dhbw-typst-automation[bot]"
-          git config user.email "dhbw-typst-automation[bot] <279977597+dhbw-typst-automation@users.noreply.github.com>"
+          git config user.email "279977597+dhbw-typst-automation@users.noreply.github.com"
       - name: Bump version in typst.toml
         run: |
           # Strip the leading "v" from the tag (typst.toml uses bare semver).
