@@ -1,6 +1,7 @@
 // LTeX: enabled=false
 #import "template/lib.typ": caption-with-source, ihk-adapter
 #import "glossary.typ": abbreviations, glossary
+#import "appendix.typ": appendices
 
 #show: ihk-adapter.with(
   lang: "de",
@@ -39,29 +40,9 @@
     include "misc/acknowledgments.typ"
   ),
 
-  // appendices: usage: (
-  //   title: "Title",
-  //   reference: "reference-label",
-  //   content: [content] || include("appendix.typ")
-  // )
+  // Appendix can be configured in appendix.typ
   // remove property to remove appendices
-  appendices: (
-    (
-      title: "Relevant Stuff",
-      reference: "appendix-relevant-stuff",
-      content: [
-        == This is some more source code
-        #lorem(10)
-
-        You can reference this appendix using `@appendix-relevant-stuff`.
-      ],
-    ), // appendix inline
-    (
-      title: "Table Examples",
-      reference: "appendix-table-examples",
-      content: include "appendix/tables.typ",
-    ), // appendix from file
-  ),
+  appendices: appendices,
 
   // Bibliography
   library: bibliography("refs.bib"),
