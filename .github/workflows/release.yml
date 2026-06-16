@@ -130,7 +130,7 @@ jobs:
       - name: Install typst
         uses: typst-community/setup-typst@63ac138db421d586de61f7f5ac3bcef6a2e6c78c # v5.1.0
         with:
-          typst-version: 0.14.2
+          typst-version: 0.15.0
       - name: Typst version
         run: typst --version
       - name: Build template
