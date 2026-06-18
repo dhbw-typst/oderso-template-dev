@@ -57,5 +57,6 @@ jobs:
           typst init @local/${{ env.PKG_NAME }}:${{ env.PKG_VERSION }}
           cd ${{ env.PKG_NAME }}
           for file in main*.typ; do
-            typst compile "$file"
+            echo "Compile $file"
+            typst compile $file
           done
