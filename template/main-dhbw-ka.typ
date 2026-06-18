@@ -1,6 +1,7 @@
 // LTeX: enabled=false
 #import "template/lib.typ": caption-with-source, dhbw-ka-adapter
 #import "glossary.typ": abbreviations, glossary
+#import "appendix.typ": appendices
 
 #show: dhbw-ka-adapter.with(
   lang: "en",
@@ -42,7 +43,7 @@
       matriculation-number: "0000000",
       course: "TINF24B2",
       // remove if you do not have a signature image
-      signature: image("assets/example-signature.png"),
+      signature: image("assets/signature.png"),
     ), // make sure to keep this comma after the first author if there is only one author!
     (
       firstname: "Erika",
@@ -71,46 +72,18 @@
   // )
   // remove property to remove appendices
   acknowledgements: (
-    include "front-matter/acknowledgements.typ"
+    include "misc/acknowledgments.typ"
   ),
 
   // abstracs: usage: (language, language (displayed), content)
   abstracts: (
-    ("de", "Deutsch", include "front-matter/abstract-german.typ"),
-    (
-      "en",
-      "English",
-      [
-        This is a short abstract to show the formatting and general style of the template
-
-        It is possible to have multiple abstracts in different languages
-      ],
-    ),
+    ("de", "Deutsch", include "misc/abstract-german.typ"),
+    ("en", "English", include "misc/abstract-english.typ"),
   ),
 
-  // appendices: usage: (
-  //   title: "Title",
-  //   reference: "reference-label",
-  //   content: [content] || include("appendix.typ")
-  // )
+  // Appendix can be configured in appendix.typ
   // remove property to remove appendices
-  appendices: (
-    (
-      title: "Relevant Stuff",
-      reference: "appendix-relevant-stuff",
-      content: [
-        == This is some more source code
-        #lorem(10)
-
-        You can reference this appendix using `@appendix-relevant-stuff`.
-      ],
-    ), // appendix inline
-    (
-      title: "Table Examples",
-      reference: "appendix-table-examples",
-      content: include "assets/example-tables.typ",
-    ), // appendix from file
-  ),
+  appendices: appendices,
 
   // Bibliography
   library: bibliography("refs.bib"),

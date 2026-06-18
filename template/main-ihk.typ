@@ -1,6 +1,7 @@
 // LTeX: enabled=false
 #import "template/lib.typ": caption-with-source, ihk-adapter
 #import "glossary.typ": abbreviations, glossary
+#import "appendix.typ": appendices
 
 #show: ihk-adapter.with(
   lang: "de",
@@ -17,7 +18,7 @@
       firstname: "John",
       lastname: "Doe",
       examinee-number: "(000)-0000",
-      signature: image("assets/example-signature.png"),
+      signature: image("assets/signature.png"),
     ), // make sure to keep this comma after the first author if there is only one author!
     (
       firstname: "Erika",
@@ -36,32 +37,12 @@
   // )
   // remove property to remove appendices
   acknowledgements: (
-    include "front-matter/acknowledgements.typ"
+    include "misc/acknowledgments.typ"
   ),
 
-  // appendices: usage: (
-  //   title: "Title",
-  //   reference: "reference-label",
-  //   content: [content] || include("appendix.typ")
-  // )
+  // Appendix can be configured in appendix.typ
   // remove property to remove appendices
-  appendices: (
-    (
-      title: "Relevant Stuff",
-      reference: "appendix-relevant-stuff",
-      content: [
-        == This is some more source code
-        #lorem(10)
-
-        You can reference this appendix using `@appendix-relevant-stuff`.
-      ],
-    ), // appendix inline
-    (
-      title: "Table Examples",
-      reference: "appendix-table-examples",
-      content: include "assets/example-tables.typ",
-    ), // appendix from file
-  ),
+  appendices: appendices,
 
   // Bibliography
   library: bibliography("refs.bib"),
