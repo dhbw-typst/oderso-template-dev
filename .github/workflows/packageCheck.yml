@@ -36,3 +36,26 @@ jobs:
       - name: Run package check
         # TARGET_DIR, PKG_NAME, and PKG_VERSION are set in package_template.sh
         run: docker run -v ${{ env.TARGET_DIR }}:/packages/preview ghcr.io/typst/package-check check "@preview/${{ env.PKG_NAME }}:${{ env.PKG_VERSION }}"
+
+  check_typst_init:
+    name: Check typst init on package
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Install typst
+        uses: typst-community/setup-typst@63ac138db421d586de61f7f5ac3bcef6a2e6c78c # v5.1.0
+        with:
+          typst-version: 0.14.2
+
+      - name: Install package locally
+        run: ./scripts/package_template.sh
+
+      - name: Initialize project
+        run: |
+          typst init @local/${{ env.PKG_NAME }}:${{ env.PKG_VERSION }}
+          cd ${{ env.PKG_NAME }}
+          for file in main*.typ; do
+            typst compile "$file"
+          done
