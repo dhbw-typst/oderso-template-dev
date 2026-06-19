@@ -142,7 +142,7 @@ jobs:
         run: |
           typst compile documentation.typ --input version=${{ needs.prepare_release.outputs.version }}
       - name: Release dev repo
-        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
+        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3.0.1
         with:
           token: ${{ secrets.BOT_PAT }}
           files: |
@@ -151,7 +151,7 @@ jobs:
           tag_name: ${{ needs.prepare_release.outputs.version }}
           body: ${{ needs.extract_release_notes.outputs.release_notes }}
       - name: Release prod repo
-        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
+        uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3.0.1
         with:
           token: ${{ secrets.BOT_PAT }}
           files: |
