@@ -6,7 +6,7 @@ RUN curl -L -o typst.tar.xz https://github.com/typst/typst/releases/download/v0.
     rm typst.tar.xz && \
     rm -rf typst-aarch64-unknown-linux-musl
 
-RUN curl -L -o typstyle https://github.com/typstyle-rs/typstyle/releases/download/v0.14.4/typstyle-aarch64-unknown-linux-gnu && \
+RUN curl -L -o typstyle https://github.com/typstyle-rs/typstyle/releases/download/v0.15.0/typstyle-aarch64-unknown-linux-gnu && \
     mv typstyle /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/typst /usr/local/bin/typstyle
