@@ -1,0 +1,228 @@
+name: Publish to Typst Universe
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing release tag to (re-)publish (e.g. v2.2.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  UPSTREAM_REPO: typst/packages
+  UPSTREAM_BRANCH: main
+  FORK_REPO: dhbw-typst/typst-universe-packages
+  FORK_SYNC_BRANCH: main
+  TEMPLATE_REPO: ${{ github.repository }}
+  CORE_TEAM_ORG: dhbw-typst
+  CORE_TEAM_SLUG: core
+
+jobs:
+  open_universe_pr:
+    name: Open package update PR on typst/packages
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Resolve release tag and metadata
+        id: release
+        env:
+          GH_TOKEN: ${{ secrets.BOT_PAT }}
+          EVENT_NAME: ${{ github.event_name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_BODY: ${{ github.event.release.body }}
+          INPUT_TAG: ${{ inputs.tag }}
+          SOURCE_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          BODY_FILE="${RUNNER_TEMP}/release_body.md"
+
+          if [[ "$EVENT_NAME" == "release" ]]; then
+            TAG="$RELEASE_TAG"
+            # Use printf to avoid any interpretation of the body contents.
+            printf '%s' "$RELEASE_BODY" > "$BODY_FILE"
+          else
+            TAG="$INPUT_TAG"
+            gh release view "$TAG" \
+              --repo "$SOURCE_REPO" \
+              --json body \
+              --jq '.body' > "$BODY_FILE"
+          fi
+
+          if [[ -z "$TAG" ]]; then
+            echo "::error::No release tag could be resolved." >&2
+            exit 1
+          fi
+
+          VERSION="${TAG#v}"
+          echo "tag=$TAG"             >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION"     >> "$GITHUB_OUTPUT"
+          echo "body_file=$BODY_FILE" >> "$GITHUB_OUTPUT"
+          echo "Resolved release tag: $TAG (version $VERSION)"
+
+      - name: Checkout template repo at release tag
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          path: template
+          repository: ${{ env.TEMPLATE_REPO }}
+          ref: ${{ steps.release.outputs.tag }}
+          fetch-depth: 0
+
+      - name: Checkout typst/packages fork
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          path: packages
+          repository: ${{ env.FORK_REPO }}
+          token: ${{ secrets.BOT_PAT }}
+          fetch-depth: 0
+
+      - name: Configure git
+        working-directory: packages
+        run: |
+          git config user.name  "dhbw-typst-automation[bot]"
+          git config user.email "279977597+dhbw-typst-automation@users.noreply.github.com"
+
+      - name: Force-sync fork main to typst/packages main
+        working-directory: packages
+        env:
+          GH_TOKEN: ${{ secrets.BOT_PAT }}
+        run: |
+          set -euo pipefail
+          # Always sync the fork's `main` from the real upstream so the fork
+          # never drifts. The PR is then opened against this synced `main`.
+          git remote add upstream "https://github.com/${UPSTREAM_REPO}.git"
+          git fetch upstream "$UPSTREAM_BRANCH"
+          git checkout -B "$FORK_SYNC_BRANCH" "upstream/${UPSTREAM_BRANCH}"
+          git push --force origin "$FORK_SYNC_BRANCH"
+          echo "Fork ${FORK_REPO}@${FORK_SYNC_BRANCH} synced to ${UPSTREAM_REPO}@${UPSTREAM_BRANCH}."
+
+      - name: Package template into fork
+        working-directory: template
+        run: |
+          set -euo pipefail
+          chmod +x scripts/package_template.sh
+          # `--preview` rewrites example imports to @preview/<name>:<version>.
+          # The typst/packages layout is `packages/<namespace>/<name>/<version>/`,
+          # and the script appends `<name>/<version>` to --target-dir, so we
+          # point it at `<fork>/packages/preview` to land in the right place.
+          scripts/package_template.sh \
+            --preview \
+            --force \
+            --target-dir "${GITHUB_WORKSPACE}/packages/packages/preview"
+
+      - name: Determine branch name
+        id: branch
+        run: |
+          set -euo pipefail
+          BRANCH="${PKG_NAME}-${PKG_VERSION}"
+          echo "name=$BRANCH" >> "$GITHUB_OUTPUT"
+          echo "Branch: $BRANCH"
+
+      - name: Commit and push package update to fork
+        working-directory: packages
+        env:
+          BRANCH: ${{ steps.branch.outputs.name }}
+        run: |
+          set -euo pipefail
+          # Base the feature branch on the freshly synced upstream main so the
+          # diff is exactly the package addition.
+          git fetch origin "$FORK_SYNC_BRANCH"
+          git checkout -B "$BRANCH" "origin/${FORK_SYNC_BRANCH}"
+
+          # Re-stage the working-tree files produced by package_template.sh
+          # in the previous step (they are still present in the workdir).
+          git add -A
+          if git diff --cached --quiet; then
+            echo "::error::No package files were staged. package_template.sh produced no changes."
+            exit 1
+          fi
+
+          git commit -m "${PKG_NAME}:${PKG_VERSION}"
+          git push --force origin "$BRANCH"
+
+      - name: Resolve @dhbw-typst/core members
+        id: team
+        env:
+          GH_TOKEN: ${{ secrets.BOT_PAT }}
+        run: |
+          set -euo pipefail
+          # Fetch members of the `core` team and emit a space-separated
+          # mention string like "@alice @bob @carol".
+          MEMBERS=$(gh api \
+            --paginate \
+            "/orgs/${CORE_TEAM_ORG}/teams/${CORE_TEAM_SLUG}/members" \
+            --jq '.[].login' \
+            | sort -u \
+            | sed 's/^/@/' \
+            | paste -sd ' ' -)
+
+          if [[ -z "$MEMBERS" ]]; then
+            echo "::error::Could not resolve any members of @${CORE_TEAM_ORG}/${CORE_TEAM_SLUG}."
+            exit 1
+          fi
+
+          echo "Members: $MEMBERS"
+          echo "mentions=$MEMBERS" >> "$GITHUB_OUTPUT"
+
+      - name: Build PR body
+        id: body
+        env:
+          RELEASE_BODY_FILE: ${{ steps.release.outputs.body_file }}
+          MENTIONS: ${{ steps.team.outputs.mentions }}
+        run: |
+          set -euo pipefail
+          BODY_FILE="${RUNNER_TEMP}/pr_body.md"
+          {
+            echo "I am submitting"
+            echo "- [ ] a new package"
+            echo "- [x] an update for a package"
+            echo
+            cat "$RELEASE_BODY_FILE"
+            echo
+            echo
+            echo "cc ${MENTIONS} - this is an automated update of \`${PKG_NAME}\` to version \`${PKG_VERSION}\`."
+          } > "$BODY_FILE"
+
+          echo "body_file=$BODY_FILE" >> "$GITHUB_OUTPUT"
+          echo "----- PR body -----"
+          cat "$BODY_FILE"
+          echo "-------------------"
+
+      - name: Create or update PR on upstream
+        env:
+          GH_TOKEN: ${{ secrets.BOT_PAT }}
+          BRANCH: ${{ steps.branch.outputs.name }}
+          BODY_FILE: ${{ steps.body.outputs.body_file }}
+        working-directory: packages
+        run: |
+          set -euo pipefail
+
+          FORK_OWNER="${FORK_REPO%%/*}"
+          HEAD_REF="${FORK_OWNER}:${BRANCH}"
+          TITLE="${PKG_NAME}:${PKG_VERSION}"
+
+          # Look for an existing open PR from our branch on the upstream repo.
+          EXISTING=$(gh pr list \
+            --repo "$UPSTREAM_REPO" \
+            --state open \
+            --head "$HEAD_REF" \
+            --json number \
+            --jq '.[0].number // empty')
+
+          if [[ -n "$EXISTING" ]]; then
+            echo "Updating existing PR #${EXISTING} on ${UPSTREAM_REPO}."
+            gh pr edit "$EXISTING" \
+              --repo "$UPSTREAM_REPO" \
+              --title "$TITLE" \
+              --body-file "$BODY_FILE"
+          else
+            echo "Creating new PR on ${UPSTREAM_REPO} from ${HEAD_REF}."
+            gh pr create \
+              --repo "$UPSTREAM_REPO" \
+              --base "$UPSTREAM_BRANCH" \
+              --head "$HEAD_REF" \
+              --title "$TITLE" \
+              --body-file "$BODY_FILE"
+          fi
