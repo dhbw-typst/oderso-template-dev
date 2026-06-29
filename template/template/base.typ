@@ -3,7 +3,7 @@
 #import "@preview/glossarium:0.5.10": (
   gls, glspl, make-glossary, print-glossary, register-glossary,
 )
-#import "@preview/hydra:0.6.2": hydra
+#import "@preview/hydra:0.6.3": hydra
 #import "@preview/codly:1.3.0": codly, codly-init
 #import "@preview/drafting:0.2.2": note-outline, set-margin-note-defaults
 #import "@preview/linguify:0.5.0": (
@@ -325,6 +325,16 @@
   counter(page).update(1)
   set page(numbering: "I")
 
+  // register abbreviations before content so references resolve
+  if abbreviations.len() > 0 {
+    register-glossary(abbreviations)
+  }
+
+  // register glossary entries before content so references resolve
+  if glossary.len() > 0 {
+    register-glossary(glossary)
+  }
+
   // acknowledgements
   if acknowledgements != none {
     pagebreak(weak: true)
@@ -378,16 +388,6 @@
         <__appendix-start>,
       ),
     )
-  }
-
-  // register abbreviations before content so references resolve
-  if abbreviations.len() > 0 {
-    register-glossary(abbreviations)
-  }
-
-  // register glossary entries before content so references resolve
-  if glossary.len() > 0 {
-    register-glossary(glossary)
   }
 
   {
