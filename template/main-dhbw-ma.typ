@@ -96,7 +96,7 @@
   // acknowledgements: usage: (
   //   content: [content] || include("front-matter/acknowledgements.typ.typ")
   // )
-  // remove property to remove appendices
+  // remove property to remove acknowledgements
   acknowledgements: (
     include "misc/acknowledgments.typ"
   ),

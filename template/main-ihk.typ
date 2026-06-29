@@ -41,7 +41,7 @@
   ),
 
   // Appendix can be configured in appendix.typ
-  // remove property to remove appendices
+  // remove property to remove acknowledgements
   appendices: appendices,
 
   // Bibliography
