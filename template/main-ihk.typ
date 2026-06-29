@@ -32,14 +32,6 @@
   company-supervisor: "Max Mustermann",
   company-logo: image("assets/Company-Logo.svg"),
 
-  // acknowledgements: usage: (
-  //   content: [content] || include("front-matter/acknowledgements.typ.typ")
-  // )
-  // remove property to remove appendices
-  acknowledgements: (
-    include "misc/acknowledgments.typ"
-  ),
-
   // Appendix can be configured in appendix.typ
   // remove property to remove acknowledgements
   appendices: appendices,
