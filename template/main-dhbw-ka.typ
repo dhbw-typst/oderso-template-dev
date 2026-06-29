@@ -68,7 +68,7 @@
   university-supervisor: "Heinrich Braun",
 
   // acknowledgements: usage: (
-  //   content: [content] || include("front-matter/acknowledgements.typ.typ")
+  //   content: [content] || include("front-matter/acknowledgements.typ")
   // )
   // remove property to remove acknowledgements
   acknowledgements: (
