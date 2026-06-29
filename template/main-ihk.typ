@@ -33,7 +33,7 @@
   company-logo: image("assets/Company-Logo.svg"),
 
   // Appendix can be configured in appendix.typ
-  // remove property to remove acknowledgements
+  // remove property to remove appendices
   appendices: appendices,
 
   // Bibliography
