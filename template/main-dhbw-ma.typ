@@ -32,7 +32,7 @@
       matriculation-number: "0000000",
       course: "TINF23B2",
       // remove if you do not have a signature image
-      signature: image("assets/signature.png"),
+      signature: image("assets/placeholder-signature.png"),
       email: "john.doe@dhbw.com",
       address: "Example Street 1, 12345 Example City",
       phone-number: "+49 0000 0000",
@@ -76,7 +76,7 @@
     email: "max.mustermann@examples.com",
     phone-number: "+49 0000 1111",
   ),
-  company-logo: image("assets/Company-Logo.svg"),
+  company-logo: image("assets/placeholder-company-logo.svg"),
 
   university-supervisor: (
     firstname: "Heinrich",

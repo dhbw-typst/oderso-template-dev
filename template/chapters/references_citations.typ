@@ -19,7 +19,7 @@ Add a `<label>` after a figure to reference it using `@label`.
 
 #typst-preview(
   "Figure with Label",
-  "#figure(caption: [Reference me with `reference-figure`], image(\"../assets/Company-Logo.svg\"))<reference-figure>",
+  "#figure(caption: [Reference me with `reference-figure`], image(\"../assets/placeholder-company-logo.svg\"))<reference-figure>",
 )
 
 @reference-figure shows the company logo again.

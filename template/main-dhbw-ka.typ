@@ -43,7 +43,7 @@
       matriculation-number: "0000000",
       course: "TINF24B2",
       // remove if you do not have a signature image
-      signature: image("assets/signature.png"),
+      signature: image("assets/placeholder-signature.png"),
     ), // make sure to keep this comma after the first author if there is only one author!
     (
       firstname: "Erika",
@@ -63,7 +63,7 @@
   // Remove if your thesis is not written without a company
   company-department: "Human Resources",
   company-supervisor: "Max Mustermann",
-  company-logo: image("assets/Company-Logo.svg"),
+  company-logo: image("assets/placeholder-company-logo.svg"),
 
   university-supervisor: "Heinrich Braun",
 
