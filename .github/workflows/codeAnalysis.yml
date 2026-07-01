@@ -2,6 +2,11 @@ name: Code Analysis
 on:
   pull_request:
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   discover_files:
     name: Discover main-*.typ files

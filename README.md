@@ -1,4 +1,4 @@
-<img src="banner.jpeg" width="100%" />
+<img alt="Banner showing some features of this template" src="https://raw.githubusercontent.com/dhbw-typst/oderso-template-dev/c81d3f24e453e59ed817c8bfc42fd6fffc448581/banner.jpeg" width="100%" />
 
 # ODERSO Typst Template (Dev)
 

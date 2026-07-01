@@ -1,0 +1,62 @@
+name: Package Check
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package_check:
+    name: Check package
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          path: "./repo"
+
+      - name: Install typst
+        uses: typst-community/setup-typst@63ac138db421d586de61f7f5ac3bcef6a2e6c78c # v5.1.0
+        with:
+          typst-version: 0.15.0
+
+      - name: Fetch all @preview packages for package-check
+        run: |
+          typst compile --format pdf repo/template/main-dhbw-ka.typ /dev/null
+
+      - name: Install package locally
+        # Install package in preview cache folder
+        run: ./scripts/package_template.sh -p
+        working-directory: ./repo
+
+      - name: Run package check
+        # TARGET_DIR, PKG_NAME, and PKG_VERSION are set in package_template.sh
+        run: docker run -v ${{ env.TARGET_DIR }}:/packages/preview ghcr.io/typst/package-check check "@preview/${{ env.PKG_NAME }}:${{ env.PKG_VERSION }}"
+
+  check_typst_init:
+    name: Check typst init on package
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Install typst
+        uses: typst-community/setup-typst@63ac138db421d586de61f7f5ac3bcef6a2e6c78c # v5.1.0
+        with:
+          typst-version: 0.15.0
+
+      - name: Install package locally
+        run: ./scripts/package_template.sh
+
+      - name: Initialize project
+        run: |
+          typst init @local/${{ env.PKG_NAME }}:${{ env.PKG_VERSION }}
+          cd ${{ env.PKG_NAME }}
+          for file in main*.typ; do
+            echo "Compile $file"
+            typst compile $file
+          done

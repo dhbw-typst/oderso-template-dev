@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/dhbw-typst/oderso-template-dev/refs/heads/main/banner.jpeg" width="100%" />
+<img alt="Banner explaining why typst is better than LaTeX" src="https://raw.githubusercontent.com/dhbw-typst/oderso-template-dev/c81d3f24e453e59ed817c8bfc42fd6fffc448581/banner.jpeg" width="100%" />
 
 # ODERSO Typst Template
 
@@ -7,19 +7,17 @@ based on the ["LaTeX-Vorlage für diverse Ausarbeitungen oder so ähnlich" by Pr
 
 The template was built for DHBW Karlsruhe, but also has adapters for DHBW Mannheim and IHK.
 
-> [!TIP]
-> Want to see how the template looks? Download a preview PDF for [DHBW Karlsruhe](https://github.com/dhbw-typst/oderso-template/releases/latest/download/main-dhbw-ka.pdf), [DHBW Mannheim](https://github.com/dhbw-typst/oderso-template/releases/latest/download/main-dhbw-ma.pdf) or [IHK](https://github.com/dhbw-typst/oderso-template/releases/latest/download/main-ihk.pdf) to inspect the final result.
+> **Tip:** Want to see how the template looks? Download a preview PDF for [DHBW Karlsruhe](https://github.com/dhbw-typst/oderso-template/releases/latest/download/main-dhbw-ka.pdf), [DHBW Mannheim](https://github.com/dhbw-typst/oderso-template/releases/latest/download/main-dhbw-ma.pdf) or [IHK](https://github.com/dhbw-typst/oderso-template/releases/latest/download/main-ihk.pdf) to inspect the final result.
 >
-> A description of all functions and properties can be found in the [package documentation]((https://github.com/dhbw-typst/oderso-template/releases/latest/download/documentation.pdf)).
+> A description of all functions and properties can be found in the [package documentation](https://github.com/dhbw-typst/oderso-template/releases/latest/download/documentation.pdf).
 
 ## 🏃‍♂️ Getting Started
 
-> [!TIP]
-> If you run into any issues, check out the [troubleshooting guide](#%E2%80%8D-troubleshooting).
+> **Tip:** If you run into any issues, check out the [troubleshooting guide](#%E2%80%8D-troubleshooting).
 
 For the following setup guide, make sure you have installed [Visual Studio Code](https://code.visualstudio.com/).
 
-1. Click on [![Generate](https://img.shields.io/badge/Generate_from_template-8A2BE2?logo=github)](https://github.com/dhbw-typst/oderso-template/generate) and give your repository a telling name (e.g. `pa-1`)
+1. Click on [![Generate from template button](https://img.shields.io/badge/Generate_from_template-8A2BE2?logo=github)](https://github.com/dhbw-typst/oderso-template/generate) and give your repository a telling name (e.g. `pa-1`)
 2. Clone your repository to your local machine: `git clone https://github.com/<you>/pa-1.git`
 3. Open this directory using VSCode and install the recommended extensions
    - Tinymist (provides completions, preview and PDF-generation for your template)
@@ -43,8 +41,7 @@ If you have any idea on how to **improve the template**, please check out the
 
 ## 😵‍💫 Troubleshooting
 
->[!TIP]
->Don't hesitate to [open an issue](https://github.com/dhbw-typst/oderso-template-dev/issues/new) if you are puzzled on what is going on.
+>**Tip:** Don't hesitate to [open an issue](https://github.com/dhbw-typst/oderso-template-dev/issues/new) if you are puzzled on what is going on.
 
 Sometimes, Tinymist makes it a bit hard to diagnose the root cause of an issue.
 Then, it can be helpful to use the `typst` program directly!
@@ -59,8 +56,7 @@ To achieve this, open the terminal inside of your VSCode project and:
 
 You can use the typst web editor to edit your typst document. Go to [typst.app](https://typst.app) to find out more.
 
-> [!CAUTION]
-> If writing a thesis at your company, make sure you are allowed to use the online editor, as this might violate a confidentiality clause you signed.
+> **Caution:** If writing a thesis at your company, make sure you are allowed to use the online editor, as this might violate a confidentiality clause you signed.
 
 ## ❓ Why Typst?
 

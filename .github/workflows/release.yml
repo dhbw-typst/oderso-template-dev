@@ -68,6 +68,7 @@ jobs:
         working-directory: template
         run: |
           git push --force
+
   prepare_release:
     name: Prepare release metadata
     needs: synchronize
@@ -114,11 +115,61 @@ jobs:
       pr_number: ${{ needs.prepare_release.outputs.pr_number }}
       fail_if_missing: true
 
+  bump_version:
+    name: Bump version, regenerate thumbnail and tag
+    needs:
+      - prepare_release
+    if: needs.prepare_release.outputs.hasNextVersion == 'true'
+    runs-on: ubuntu-24.04
+    outputs:
+      commit_sha: ${{ steps.commit.outputs.sha }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.BOT_PAT }}
+      - name: Install typst
+        uses: typst-community/setup-typst@63ac138db421d586de61f7f5ac3bcef6a2e6c78c # v5.1.0
+        with:
+          typst-version: 0.14.2
+      - name: Set git user
+        run: |
+          git config user.name "dhbw-typst-automation[bot]"
+          git config user.email "279977597+dhbw-typst-automation@users.noreply.github.com"
+      - name: Bump version in typst.toml
+        run: |
+          # Strip the leading "v" from the tag (typst.toml uses bare semver).
+          VERSION="${{ needs.prepare_release.outputs.version }}"
+          VERSION_STRIPPED="${VERSION#v}"
+          echo "Bumping typst.toml to ${VERSION_STRIPPED}"
+          sed -i -E "s/^version = \".*\"$/version = \"${VERSION_STRIPPED}\"/" typst.toml
+          grep '^version' typst.toml
+      - name: Regenerate thumbnail
+        run: typst compile template/main-dhbw-ka.typ -f png --pages 2 thumbnail.png
+      - name: Commit, tag and push version bump
+        id: commit
+        run: |
+          VERSION="${{ needs.prepare_release.outputs.version }}"
+          git add typst.toml thumbnail.png
+          # If there are no changes (e.g. version was already bumped manually)
+          # we still want the tag to be created on the current HEAD.
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: bump version to ${VERSION}"
+          else
+            echo "No version/thumbnail changes to commit."
+          fi
+          git tag "${VERSION}"
+          git push origin HEAD:main
+          git push origin "${VERSION}"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
   release:
     name: Create Release in Dev and Prod
     needs:
       - prepare_release
       - extract_release_notes
+      - bump_version
     if: needs.prepare_release.outputs.hasNextVersion == 'true'
     runs-on: ubuntu-24.04
     steps:
@@ -126,6 +177,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
+          ref: ${{ needs.bump_version.outputs.commit_sha }}
           token: ${{ secrets.BOT_PAT }}
       - name: Install typst
         uses: typst-community/setup-typst@63ac138db421d586de61f7f5ac3bcef6a2e6c78c # v5.1.0
