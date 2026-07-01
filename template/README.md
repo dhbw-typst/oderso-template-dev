@@ -1,4 +1,4 @@
-<img alt="Banner explaining why typst is better than LaTeX" src="https://raw.githubusercontent.com/dhbw-typst/oderso-template-dev/refs/heads/main/banner.jpeg" width="100%" />
+<img alt="Banner explaining why typst is better than LaTeX" src="https://raw.githubusercontent.com/dhbw-typst/oderso-template-dev/c81d3f24e453e59ed817c8bfc42fd6fffc448581/banner.jpeg" width="100%" />
 
 # ODERSO Typst Template
 
