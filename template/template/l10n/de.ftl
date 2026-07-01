@@ -27,6 +27,7 @@ usage-description = Beschreibung der Nutzung
 
 ### Base template
 by = von
+acknowledgments = Danksagung
 abstract = Zusammenfassung
 
 # lists headers

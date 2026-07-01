@@ -1,6 +1,7 @@
 // LTeX: enabled=false
 #import "template/lib.typ": caption-with-source, dhbw-ma-adapter
 #import "glossary.typ": abbreviations, glossary
+#import "appendix.typ": appendices
 
 #show: dhbw-ma-adapter.with(
   lang: "en",
@@ -31,7 +32,7 @@
       matriculation-number: "0000000",
       course: "TINF23B2",
       // remove if you do not have a signature image
-      signature: image("assets/example-signature.png"),
+      signature: image("assets/placeholder-signature.png"),
       email: "john.doe@dhbw.com",
       address: "Example Street 1, 12345 Example City",
       phone-number: "+49 0000 0000",
@@ -75,7 +76,7 @@
     email: "max.mustermann@examples.com",
     phone-number: "+49 0000 1111",
   ),
-  company-logo: image("assets/Company-Logo.svg"),
+  company-logo: image("assets/placeholder-company-logo.svg"),
 
   university-supervisor: (
     firstname: "Heinrich",
@@ -92,43 +93,23 @@
     exam-type: "Projektarbeit I", // "Projektarbeit I", "Projektarbeit II", "Seminararbeit", "Bachelorarbeit"
   ),
 
+  // acknowledgements: usage: (
+  //   content: [content] || include("front-matter/acknowledgements.typ")
+  // )
+  // remove property to remove acknowledgements
+  acknowledgements: (
+    include "misc/acknowledgments.typ"
+  ),
+
   // abstracs: usage: (language, language (displayed), content)
   abstracts: (
-    ("de", "Deutsch", include "abstracts/abstract_german.typ"),
-    (
-      "en",
-      "English",
-      [
-        This is a short abstract to show the formatting and general style of the template
-
-        It is possible to have multiple abstracts in different languages
-      ],
-    ),
+    ("de", "Deutsch", include "misc/abstract-german.typ"),
+    ("en", "English", include "misc/abstract-english.typ"),
   ),
 
-  // appendices: usage: (
-  //   title: "Title",
-  //   reference: "reference-label",
-  //   content: [content] || include("appendix.typ")
-  // )
+  // Appendix can be configured in appendix.typ
   // remove property to remove appendices
-  appendices: (
-    (
-      title: "Relevant Stuff",
-      reference: "appendix-relevant-stuff",
-      content: [
-        == This is some more source code
-        #lorem(10)
-
-        You can reference this appendix using `@appendix-relevant-stuff`.
-      ],
-    ), // appendix inline
-    (
-      title: "Table Examples",
-      reference: "appendix-table-examples",
-      content: include "assets/example-tables.typ",
-    ), // appendix from file
-  ),
+  appendices: appendices,
 
   // Bibliography
   library: bibliography("refs.bib"),

@@ -96,6 +96,9 @@
   /// Type of thesis (e.g., "Projektarbeit 1", "Bachelorarbeit").
   /// Displayed below the title on the cover. -> str | none
   thesis-type: none,
+  /// Optional acknowledgements page to thank your scientific supervisor,
+  /// company mentor, or family and friends. If `none`, the page is omitted. -> str | content | none
+  acknowledgements: none,
   /// List of abstract tuples. Each tuple contains:
   /// `(language-code, language-name, content)` e.g., `("en", "English", [Abstract text...])`. -> array
   abstracts: (),
@@ -336,6 +339,19 @@
     register-glossary(glossary)
   }
 
+  // acknowledgements
+  if acknowledgements != none {
+    pagebreak(weak: true)
+    align(center + horizon, {
+      heading(outlined: false, numbering: none, [#text(
+        0.85em,
+        smallcaps(__linguify-content("acknowledgments")),
+      )\ ])
+      align(left, acknowledgements)
+      v(20%)
+    })
+  }
+
   // abstracts
   for a in abstracts {
     let (abstract-lang, abstract-lang-long, abstract-body) = a
@@ -394,14 +410,18 @@
           line(length: 100%, stroke: (paint: gray))
         }
       },
-      numbering: (..n) => context {
-        if numbering-show-total and not __in-outline.get() {
-          numbering("1 / 1", n.at(0), ..counter(page).at(<__content-end>))
+      numbering: "1",
+      footer: context align(center, {
+        if numbering-show-total {
+          numbering(
+            "1 / 1",
+            counter(page).get().at(0),
+            ..counter(page).at(<__content-end>),
+          )
         } else {
-          numbering("1", n.at(0))
+          numbering("1", counter(page).get().at(0))
         }
-      },
-      footer: auto,
+      }),
     )
     show heading.where(level: 1): it => {
       pagebreak(weak: true)
