@@ -17,7 +17,7 @@ The template was built for DHBW Karlsruhe, but also has adapters for DHBW Mannhe
 
 For the following setup guides, make sure you have installed [Visual Studio Code](https://code.visualstudio.com/).
 
-Or if you don't want to edit your document locally can use the Typst web editor. Go to [typst.app](https://typst.app) to find out more.
+Or if you don't want to edit your document locally you can use the Typst web editor. Go to [typst.app](https://typst.app) to find out more.
 
 > **Caution:** If writing a thesis at your company, make sure you are allowed to use the online editor, as this might violate a confidentiality clause you signed.
 
