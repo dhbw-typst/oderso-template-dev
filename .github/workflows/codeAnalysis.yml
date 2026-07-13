@@ -183,9 +183,11 @@ jobs:
         with:
           header: pdf-diff
           path: comment-body.md
+          GITHUB_TOKEN: ${{ secrets.BOT_PAT }}
       - name: Delete sticky comment if no diffs
         if: steps.build_comment.outputs.has_diff == 'false'
         uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
         with:
           header: pdf-diff
           delete: true
+          GITHUB_TOKEN: ${{ secrets.BOT_PAT }}
