@@ -172,21 +172,18 @@ jobs:
           RELEASE_BODY_FILE: ${{ steps.release.outputs.body_file }}
           MENTIONS: ${{ steps.team.outputs.mentions }}
           TEMPLATE_REPO: ${{ env.TEMPLATE_REPO }}
-        working-directory: template
         run: |
           set -euo pipefail
           BODY_FILE="${RUNNER_TEMP}/pr_body.md"
           RELEASE_BODY_REWRITTEN="${RUNNER_TEMP}/release_body_rewritten.md"
 
-          # Rewrite `#123` / `GH-123` in the release body to fully qualified
-          # links back to ${TEMPLATE_REPO}. Without this, those short refs
-          # would resolve against typst/packages once the body is embedded in
-          # the upstream PR. See scripts/rewrite_pr_body_links.py for rules.
-          chmod +x scripts/rewrite_pr_body_links.py
-          scripts/rewrite_pr_body_links.py \
-            "$RELEASE_BODY_FILE" \
-            "$RELEASE_BODY_REWRITTEN" \
-            "$TEMPLATE_REPO"
+          # Rewrite `#123` in the release body to fully qualified links back to
+          # ${TEMPLATE_REPO}. Without this, those short refs would resolve
+          # against typst/packages once the body is embedded in the upstream
+          # PR. GitHub auto-redirects `/pull/<n>` <-> `/issues/<n>`, so a
+          # single URL form covers both PRs and issues.
+          sed -E "s|#([0-9]+)|https://github.com/${TEMPLATE_REPO}/pull/\1|g" \
+            "$RELEASE_BODY_FILE" > "$RELEASE_BODY_REWRITTEN"
 
           {
             echo "I am submitting"
