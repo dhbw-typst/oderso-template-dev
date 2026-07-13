@@ -124,6 +124,10 @@
   glossary: (),
   /// Whether the content page numbering should include total pages ("3 / 24") or not ("3"). -> bool
   numbering-show-total: false,
+  /// Whether to display a draft watermark on each page. -> bool
+  draft: false,
+  /// Optional version string to display in the draft watermark. -> str | none
+  draft-version: none,
   /// Adapter-internal options forwarded by the adapters
   /// (`dhbw-ka`, `dhbw-ma`, `ihk`). End users should not set these directly.
   ///
@@ -140,8 +144,6 @@
   /// - `__postamble` (array): content elements appended after the indices.
   ..__opts,
   body,
-  draft: false,
-  draft-version: "",
 ) = {
   // Unpack adapter-supplied internal options.
   let __logo-left = __opts.named().at("__logo-left", default: none)
@@ -166,6 +168,13 @@
 
   // page setup
   set document(title: title-long)
+
+  // set text language (e. g. for smart quotes)
+  set text(lang: lang)
+
+  // font setup (LaTeX Look: 'New Computer Modern')
+  set text(font: "New Computer Modern", size: 12pt)
+
   set page(
     paper: "a4",
     margin: (rest: 2.5cm),
@@ -193,12 +202,6 @@
         .join()
     },
   )
-
-  // set text language (e. g. for smart quotes)
-  set text(lang: lang)
-
-  // font setup (LaTeX Look: 'New Computer Modern')
-  set text(font: "New Computer Modern", size: 12pt)
 
   // justify content.
   // Values researched in https://github.com/dhbw-typst/oderso-template-dev/pull/64 to match Arial 12pt and 1.5 line spacing in Microsoft Word
