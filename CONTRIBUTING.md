@@ -56,3 +56,27 @@ Some information about the PR
 - Added a new function
 - Removed property `x` of `some-function`
 ```
+
+Release notes should follow the following format:
+
+```markdown
+# Changes
+
+<!--- A list of changes -->
+
+- fix: Sentence describing the change. #PR @AUHTOR(s)
+- ...
+
+# Needed Actions
+
+<!--- Breaking changes that require the user to change some stuff
+      if they want to upgrade their document to that version -->
+
+## Renamed Property `test`
+
+Rename all usage of property `test-old` to `test`.
+
+## Another Breaking Change
+
+Perform action **x**.
+```
