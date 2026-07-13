@@ -183,6 +183,7 @@ EXAMPLE_FILES_EXCLUDE=(
     'template/**'
     '.vscode/**'
     'LICENSE'
+    'README.md'
     '.gitignore'
 )
 
