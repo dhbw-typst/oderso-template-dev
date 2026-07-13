@@ -58,8 +58,6 @@ jobs:
       - name: Run formatting check
         run: |
           ./typstyle ./template --check
-      - name: Print installed fonts
-        run: typst fonts
 
   check_build:
     name: Check Build (${{ matrix.file_entry.file }}, typst ${{ matrix.typst_version }})
@@ -81,6 +79,8 @@ jobs:
         run: typst --version
       - name: Build template
         run: typst compile ${{ matrix.file_entry.path }}
+      - name: Print installed fonts
+        run: typst fonts
 
   check_build_results:
     name: Check Build Result
