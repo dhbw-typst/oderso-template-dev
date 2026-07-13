@@ -66,6 +66,12 @@
 
 #show-module(base-docs)
 
+#let options-docs = tidy.parse-module(
+  read("template/template/config.typ"),
+)
+
+#show-module(options-docs)
+
 #let adapters = (
   "dhbw-ka.typ",
   "dhbw-ma.typ",
