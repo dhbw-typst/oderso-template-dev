@@ -140,6 +140,8 @@
   /// - `__postamble` (array): content elements appended after the indices.
   ..__opts,
   body,
+  draft: false,
+  draft-version: "",
 ) = {
   // Unpack adapter-supplied internal options.
   let __logo-left = __opts.named().at("__logo-left", default: none)
@@ -164,7 +166,26 @@
 
   // page setup
   set document(title: title-long)
-  set page(paper: "a4", margin: (rest: 2.5cm))
+  set page(
+    paper: "a4",
+    margin: (rest: 2.5cm),
+    background: if draft {
+      // 1. Conditionally format the text based on variable presence
+      let watermark-text = if draft-version != none and draft-version != "" {
+        [*DRAFT (Version #draft-version)*]
+      } else {
+        [*DRAFT*]
+      }
+
+      let watermark = text(15pt, fill: rgb("#ff00003d"), watermark-text)
+      // 2. Map through both side configurations (left and right border)
+    (
+      (pos: start + horizon, dx:  20pt, rot: -90deg),
+      (pos: end   + horizon, dx: -20pt, rot:  90deg),
+    ).map(side => {
+      place(side.pos, dx: side.dx, rotate(side.rot, reflow: true, watermark))
+    }).join()
+  })
 
   // set text language (e. g. for smart quotes)
   set text(lang: lang)
