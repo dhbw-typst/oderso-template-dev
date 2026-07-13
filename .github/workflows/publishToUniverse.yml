@@ -171,15 +171,22 @@ jobs:
         env:
           RELEASE_BODY_FILE: ${{ steps.release.outputs.body_file }}
           MENTIONS: ${{ steps.team.outputs.mentions }}
+          TEMPLATE_REPO: ${{ env.TEMPLATE_REPO }}
         run: |
           set -euo pipefail
           BODY_FILE="${RUNNER_TEMP}/pr_body.md"
+          RELEASE_BODY_REWRITTEN="${RUNNER_TEMP}/release_body_rewritten.md"
+
+          # Rewrite `#123` in the release body to fully qualified links back to ${TEMPLATE_REPO}.
+          sed -E "s|#([0-9]+)|https://github.com/${TEMPLATE_REPO}/pull/\1|g" \
+            "$RELEASE_BODY_FILE" > "$RELEASE_BODY_REWRITTEN"
+
           {
             echo "I am submitting"
             echo "- [ ] a new package"
             echo "- [x] an update for a package"
             echo
-            cat "$RELEASE_BODY_FILE"
+            cat "$RELEASE_BODY_REWRITTEN"
             echo
             echo
             echo "cc ${MENTIONS} - this is an automated update of \`${PKG_NAME}\` to version \`${PKG_VERSION}\`."
