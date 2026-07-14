@@ -127,14 +127,13 @@ jobs:
         with:
           file1: old.pdf
           file2: new.pdf
-          options: --skip-identical --mark-differences --output-diff=diff-${{ matrix.file }}.pdf
+          options: --skip-identical --mark-differences --output-diff=diff-pdf-${{ matrix.file }}.pdf
           suppress-diff-error: false
       - name: Upload diff.pdf artifact
         if: steps.diff_check.outcome == 'failure'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: diff-pdf-${{ matrix.file }}
-          path: diff-${{ matrix.file }}.pdf
+          path: diff-pdf-${{ matrix.file }}.pdf
           archive: false
 
   upload_pr_number:
