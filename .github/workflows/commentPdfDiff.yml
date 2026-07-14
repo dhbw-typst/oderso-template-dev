@@ -45,9 +45,9 @@ jobs:
               continue
             fi
 
-            file_name=$(basename "$diff" .pdf | sed 's/^diff-//')
+            file_name=$(basename "$diff" .pdf | sed 's/^diff-pdf-//')
             echo "Found diff for ${file_name}"
-            BODY="${BODY}\n> - \`${file_name}\` — download [\`diff-pdf-${file_name}\`](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }})"
+            BODY="${BODY}\n> - \`${file_name}\` — download [\`diff-pdf-${file_name}.pdf\`](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }})"
             HAS_DIFF=true
           done
 
