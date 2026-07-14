@@ -90,11 +90,6 @@
 
   abbreviations: abbreviations,
   glossary: glossary,
-
-  // Watermark for draft versions of the document that are submitted
-  // to supervisors for review, including an optional version number to facilitate change tracking.
-  draft: false,
-  draft-version: "",
 )
 
 // You can now start writing :)

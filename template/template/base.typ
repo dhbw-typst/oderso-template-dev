@@ -124,10 +124,8 @@
   glossary: (),
   /// Whether the content page numbering should include total pages ("3 / 24") or not ("3"). -> bool
   numbering-show-total: false,
-  /// Whether to display a draft watermark on each page. -> bool
-  draft: false,
-  /// Optional version string to display in the draft watermark. -> str | none
-  draft-version: none,
+  /// Optional draft watermark for documents that are submitted to supervisors for review. If `true`, a "DRAFT" watermark is added to each page. If `false`, no watermark is added. Alternatively a content can be passed that will be rendered as DRAFT (_content_) -> bool | content | none
+  draft: none,
   /// Adapter-internal options forwarded by the adapters
   /// (`dhbw-ka`, `dhbw-ma`, `ihk`). End users should not set these directly.
   ///
@@ -178,16 +176,16 @@
   set page(
     paper: "a4",
     margin: (rest: 2.5cm),
-    background: if draft {
-      // 1. Conditionally format the text based on variable presence
-      let watermark-text = if draft-version != none and draft-version != "" {
-        [*DRAFT (Version #draft-version)*]
+    background: if (type(draft) == bool and draft) or type(draft) == content {
+      // conditionally format the text based on variable presence
+      let watermark-text = if type(draft) == content and draft != "" {
+        [*#__linguify-content("draft") (#draft)*]
       } else {
-        [*DRAFT*]
+        [*#__linguify-content("draft")*]
       }
 
       let watermark = text(15pt, fill: rgb("#ff00003d"), watermark-text)
-      // 2. Map through both side configurations (left and right border)
+      // map through both side configurations (left and right border)
       (
         (pos: start + horizon, dx: 20pt, rot: -90deg),
         (pos: end + horizon, dx: -20pt, rot: 90deg),
