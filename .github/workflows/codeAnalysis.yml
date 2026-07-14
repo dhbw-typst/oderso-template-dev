@@ -135,59 +135,16 @@ jobs:
         with:
           name: diff-pdf-${{ matrix.file }}
           path: diff-${{ matrix.file }}.pdf
-          archive: false
 
-  comment_pdf_diff:
-    name: Comment PDF diff results
+  upload_pr_number:
+    name: Upload PR number
     runs-on: ubuntu-24.04
-    needs: check_pdf
     if: github.event_name == 'pull_request'
-    permissions:
-      pull-requests: write
     steps:
-      - name: Download diff PDFs
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        continue-on-error: true
+      - name: Save and upload PR number
+        run: echo "${{ github.event.pull_request.number }}" > pr-number.txt
+      - name: Upload PR number artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          pattern: diff-*
-          path: diffs
-          merge-multiple: true
-      - name: Build comment body
-        id: build_comment
-        run: |
-          HAS_DIFF=false
-          BODY="> [!NOTE]"
-          BODY="${BODY}\n> **PDF Differences Detected**"
-          BODY="${BODY}\n>"
-          BODY="${BODY}\n> The following PDF outputs have changed between the base branch and this PR:"
-          BODY="${BODY}\n>"
-
-          for diff in diffs/diff-*; do
-            if [[ ! -f "$diff" ]]; then
-              continue
-            fi
-
-            file_name=$(basename "$diff" | sed 's/^diff-//')
-            echo "Found diff for ${file_name}"
-            BODY="${BODY}\n> - \`${file_name}\` — download [\`diff-${file_name}\`](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
-            HAS_DIFF=true
-          done
-
-          echo "has_diff=${HAS_DIFF}" >> "$GITHUB_OUTPUT"
-
-          # Write multiline body to file for the comment action
-          echo -e "$BODY" > comment-body.md
-      - name: Create or update sticky comment
-        if: steps.build_comment.outputs.has_diff == 'true'
-        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
-        with:
-          header: pdf-diff
-          path: comment-body.md
-          GITHUB_TOKEN: ${{ secrets.BOT_PAT }}
-      - name: Delete sticky comment if no diffs
-        if: steps.build_comment.outputs.has_diff == 'false'
-        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
-        with:
-          header: pdf-diff
-          delete: true
-          GITHUB_TOKEN: ${{ secrets.BOT_PAT }}
+          name: pr-number
+          path: pr-number.txt
