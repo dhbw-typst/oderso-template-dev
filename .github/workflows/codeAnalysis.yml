@@ -135,6 +135,7 @@ jobs:
         with:
           name: diff-pdf-${{ matrix.file }}
           path: diff-${{ matrix.file }}.pdf
+          archive: false
 
   upload_pr_number:
     name: Upload PR number
