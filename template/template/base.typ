@@ -124,7 +124,7 @@
   glossary: (),
   /// Whether the content page numbering should include total pages ("3 / 24") or not ("3"). -> bool
   numbering-show-total: false,
-  /// Optional draft watermark for documents that are submitted to supervisors for review. If `true`, a "DRAFT" watermark is added to each page. If `false`, no watermark is added. Alternatively a content can be passed that will be rendered as DRAFT (_content_) -> bool | content | none
+  /// Optional draft watermark for documents that are submitted to supervisors for review. If `true`, a "DRAFT" watermark is added to each page. If `false`, no watermark is added. Alternatively a content can be passed that will be rendered as DRAFT (your-content) -> bool | content | none
   draft: none,
   /// Adapter-internal options forwarded by the adapters
   /// (`dhbw-ka`, `dhbw-ma`, `ihk`). End users should not set these directly.
