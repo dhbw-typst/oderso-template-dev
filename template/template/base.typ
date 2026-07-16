@@ -178,7 +178,6 @@
     margin: (rest: 2.5cm),
     background: if watermark != none {
       let watermark-text = text(15pt, fill: rgb("#ff00004b"), watermark)
-      // map through both side configurations (left and right border)
       (
         (pos: start + horizon, dx: 20pt, rot: -90deg),
         (pos: end + horizon, dx: -20pt, rot: 90deg),
