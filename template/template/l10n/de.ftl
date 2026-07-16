@@ -25,8 +25,6 @@ confidentiality-stamp = VERTRAULICH
 tool = Werkzeug
 usage-description = Beschreibung der Nutzung
 
-draft = DRAFT
-
 ### Base template
 by = von
 acknowledgments = Danksagung

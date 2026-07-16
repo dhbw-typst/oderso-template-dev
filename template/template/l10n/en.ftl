@@ -25,8 +25,6 @@ confidentiality-stamp = CONFIDENTIAL
 tool = Tool
 usage-description = Usage Description
 
-draft = DRAFT
-
 ### Base template
 by = by
 acknowledgments = Acknowledgments
