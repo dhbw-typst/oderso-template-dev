@@ -15,7 +15,7 @@ jobs:
       matrix: ${{ steps.find_files.outputs.matrix }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Find main-*.typ files
         id: find_files
         run: |
@@ -36,7 +36,7 @@ jobs:
       versions: ${{ steps.read_versions.outputs.versions }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Read supported-typst-versions.json
         id: read_versions
         run: |
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install typstyle
         run: |
           curl -L https://github.com/typstyle-rs/typstyle/releases/download/v0.15.0/typstyle-x86_64-unknown-linux-gnu -o typstyle
@@ -70,7 +70,7 @@ jobs:
         typst_version: ${{ fromJson(needs.discover_versions.outputs.versions) }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install typst
         uses: typst-community/setup-typst@63ac138db421d586de61f7f5ac3bcef6a2e6c78c # v5.1.0
         with:
@@ -100,7 +100,7 @@ jobs:
         include: ${{ fromJson(needs.discover_files.outputs.matrix) }}
     steps:
       - name: Checkout PR branch
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: new
       - name: Install typst
@@ -113,7 +113,7 @@ jobs:
         run: |
           typst compile new/${{ matrix.path }} new.pdf
       - name: Checkout base branch
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.base_ref || 'main' }}
           path: old
