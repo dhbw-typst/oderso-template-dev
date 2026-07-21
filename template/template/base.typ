@@ -124,6 +124,8 @@
   glossary: (),
   /// Whether the content page numbering should include total pages ("3 / 24") or not ("3"). -> bool
   numbering-show-total: false,
+  /// Watermark places the provided `content` in the left and right page margins. It can be used, for example, to mark a document as a draft when submitting non-final versions to supervisors. -> content | none
+  watermark: none,
   /// Adapter-internal options forwarded by the adapters
   /// (`dhbw-ka`, `dhbw-ma`, `ihk`). End users should not set these directly.
   ///
@@ -164,13 +166,32 @@
 
   // page setup
   set document(title: title-long)
-  set page(paper: "a4", margin: (rest: 2.5cm))
 
   // set text language (e. g. for smart quotes)
   set text(lang: lang)
 
   // font setup (LaTeX Look: 'New Computer Modern')
   set text(font: "New Computer Modern", size: 12pt)
+
+  set page(
+    paper: "a4",
+    margin: (rest: 2.5cm),
+    background: if watermark != none {
+      let watermark-text = text(15pt, fill: rgb("#ff00004b"), watermark)
+      (
+        (pos: start + horizon, dx: 20pt, rot: -90deg),
+        (pos: end + horizon, dx: -20pt, rot: 90deg),
+      )
+        .map(side => {
+          place(side.pos, dx: side.dx, rotate(
+            side.rot,
+            reflow: true,
+            watermark-text,
+          ))
+        })
+        .join()
+    },
+  )
 
   // justify content.
   // Values researched in https://github.com/dhbw-typst/oderso-template-dev/pull/64 to match Arial 12pt and 1.5 line spacing in Microsoft Word
