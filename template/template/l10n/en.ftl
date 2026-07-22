@@ -54,7 +54,7 @@ in-field-of-study = in { $study }
 matriculation-number = Matriculation Number
 supervisor-at-university = Supervisor at University
 course-director = Course Director
-<#-- As the examination regulations quote it directly, we kept the declaration note German in the German and English version. -->
+### As the examination regulations quote it directly, we kept the declaration note German in the German and English version.
 statutory-declaration-note-dhbw = { $author-count ->
     [one] Ich versichere hiermit, dass ich die vorliegende Arbeit selbstständig verfasst und keine anderen als die angegebenen Quellen und Hilfsmittel verwendet habe und diese Arbeit bei keiner anderen Prüfung mit gleichem oder vergleichbarem Inhalt vorgelegt habe und diese bislang nicht veröffentlicht wurde.
    *[other] Wir versichern hiermit, dass wir die vorliegende Arbeit selbstständig verfasst und keine anderen als die angegebenen Quellen und Hilfsmittel verwendet haben und diese Arbeit bei keiner anderen Prüfung mit gleichem oder vergleichbarem Inhalt vorgelegt haben und diese bislang nicht veröffentlicht wurde.
