@@ -72,7 +72,8 @@
   set par(leading: 0.2cm, spacing: 0.4cm)
   set v(weak: true)
   set grid(inset: (top: 0.1cm, bottom: 0.1cm))
-  set text(size: font-size-normal, font: "Arial")
+  // Use Arial as primary font (installed on MacOs and Windows) or Inter as fallback (installed on typst.app).
+  set text(size: font-size-normal, font: ("Arial", "Inter"))
 
   show heading: it => {
     text(it.body) // Disable previous styling
