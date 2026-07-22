@@ -161,7 +161,7 @@
 
     // TODO: The statutory declaration changed for courses starting in 2024. This complicated edge case for courses from 2023
     // and earlier can safely be removed by September 2026
-    // As the examination regulations quote it directly, we kept the declaration note german in the german and english version.
+    // As the examination regulations quote it directly, we kept the declaration note German in the German and English version.
     let statuatory-declaration = if course-year < 24 {
       __linguify-content("statutory-declaration-note-dhbw-old", args: (
         author-count: authors.len(),
