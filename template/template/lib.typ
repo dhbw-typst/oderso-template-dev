@@ -9,4 +9,7 @@
   caption-with-source, inline-glossary, styled-table, table-hline-spaced,
   tablefigure, tablefigure-raw,
 )
+#import "config.typ": (
+  configure-page
+)
 #import "base.typ": project

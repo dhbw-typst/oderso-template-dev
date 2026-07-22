@@ -10,6 +10,7 @@
   linguify, linguify-raw, load-ftl-data, set-database,
 )
 #import "utils.typ": __in-outline, __linguify-content
+#import "config.typ": __merge-config
 
 /// Default heading numbering pattern.
 /// -> str
@@ -74,6 +75,38 @@
     grid.cell(__linguify-content("signature"), align: center),
   ))
 }
+
+#let __base-config = (
+  page: (
+    margin: (
+      rest: 2.5cm
+    ),
+  ),
+  acknowledgements: (
+    position: "frontmatter",
+    order: 100,
+  ),
+  abstracts: (
+    position: "frontmatter",
+    order: 200
+  ),
+  abbreviations: (
+    position: "backmatter",
+    order: 500,
+  ),
+  glossary: (
+    position: "backmatter",
+    order: 600
+  ),
+  bibliography: (
+    position: "backmatter",
+    order: 400
+  ),
+  listings: (
+    position: "backmatter",
+    order: 700
+  )
+)
 
 
 /// Base template for thesis documents.
@@ -159,6 +192,14 @@
     .at("__confidentiality-clause", default: false)
   let __postamble = __opts.named().at("__postamble", default: ())
 
+  // create config dictionary
+  let config = __base-config
+  for addition in  __opts.pos() {
+    assert.eq(type(addition), dictionary, message: "Only configurations are allowed as positional arguments. See [future link for configuration] for more information.")
+
+    config = __merge-config(config, addition)
+  }
+
   // load linguify
   set-database(eval(load-ftl-data("l10n", ("en", "de"))))
 
@@ -175,7 +216,7 @@
 
   set page(
     paper: "a4",
-    margin: (rest: 2.5cm),
+    margin: config.page.margin,
     background: if watermark != none {
       let watermark-text = text(15pt, fill: rgb("#ff00004b"), watermark)
       (

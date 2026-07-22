@@ -1,5 +1,5 @@
 // LTeX: enabled=false
-#import "template/lib.typ": caption-with-source, dhbw-ka-adapter
+#import "template/lib.typ": caption-with-source, dhbw-ka-adapter, configure-page
 #import "glossary.typ": abbreviations, glossary
 #import "appendix.typ": appendices
 
@@ -91,7 +91,6 @@
   abbreviations: abbreviations,
   glossary: glossary,
 )
-
 // You can now start writing :)
 
 #include "chapters/introduction.typ"
