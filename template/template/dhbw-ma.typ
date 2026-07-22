@@ -217,10 +217,14 @@
       ))
     }
 
-    align(center, heading(
-      __linguify-content("statutory-declaration"),
-      level: 1,
-    ))
+    let lang = args.named().at("lang", default: "en")
+    align(center, heading(level: 1, {
+      __linguify-content("statutory-declaration")
+      if lang != "de" {
+        linebreak()
+        text(0.75em, weight: "light", style: "italic", [\- Deutsch -])
+      }
+    }))
 
     statuatory-declaration
     if not digital-only {
