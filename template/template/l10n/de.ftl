@@ -69,8 +69,8 @@ statutory-declaration-note-dhbw-ai = { $author-count ->
 }
 
 statutory-declaration-note-dhbw-old = { $author-count ->
-    [one] Ich versichere hiermit, dass ich die vorliegende Arbeit mit dem Titel: "{ $title }" selbstständig verfasst und keine anderen als die angegebenen Quellen und Hilfsmittel benutzt habe.
-   *[other] Wir versichern hiermit, dass wir die vorliegende Arbeit mit dem Titel: "{ $title }" selbstständig verfasst und keine anderen als die angegebenen Quellen und Hilfsmittel benutzt haben.
+    [one] Ich versichere hiermit, dass ich meine { $type } mit dem Thema: "{ $title }" selbstständig verfasst und keine anderen als die angegebenen Quellen und Hilfsmittel benutzt habe.
+   *[other] Wir versichern hiermit, dass wir unsere { $type } mit dem Thema: "{ $title }" selbstständig verfasst und keine anderen als die angegebenen Quellen und Hilfsmittel benutzt haben.
 }
 
 statutory-declaration-note-dhbw-old-printed = { $author-count ->
