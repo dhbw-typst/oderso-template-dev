@@ -1,16 +1,12 @@
 // LTeX: enabled=false
 
-#import "@preview/glossarium:0.5.10": (
-  gls, glspl, make-glossary, print-glossary, register-glossary,
-)
+#import "@preview/glossarium:0.5.10": gls, glspl, make-glossary, print-glossary, register-glossary
 #import "@preview/hydra:0.6.3": hydra
 #import "@preview/codly:1.3.0": codly, codly-init
 #import "@preview/drafting:0.2.2": note-outline, set-margin-note-defaults
-#import "@preview/linguify:0.5.0": (
-  linguify, linguify-raw, load-ftl-data, set-database,
-)
+#import "@preview/linguify:0.5.0": linguify, linguify-raw, load-ftl-data, set-database
 #import "utils.typ": __in-outline, __linguify-content
-#import "config.typ": __merge-config
+#import "config.typ": *
 
 /// Default heading numbering pattern.
 /// -> str
@@ -76,37 +72,43 @@
   ))
 }
 
-#let __base-config = (
-  page: (
-    margin: (
-      rest: 2.5cm
+#let __base-config() = {
+  __merge-configs(
+    (:),
+    configure-page(margin: (
+      rest: 2.5cm,
+    )),
+    configure-appendices(appendices: ()),
+    configure-acknowledgements(text: none, position: "frontmatter", order: 100),
+    configure-abstracts(abstracts: (), position: "frontmatter", order: 200),
+    configure-toc(position: "frontmatter", order: 300),
+    configure-bibliography(position: "backmatter", order: 400),
+    configure-abbreviations(
+      abbreviations: (),
+      print-options: (
+        deduplicate-back-references: true,
+        minimum-refs: 2,
+      ),
+      position: "backmatter",
+      order: 500,
     ),
-  ),
-  acknowledgements: (
-    position: "frontmatter",
-    order: 100,
-  ),
-  abstracts: (
-    position: "frontmatter",
-    order: 200
-  ),
-  abbreviations: (
-    position: "backmatter",
-    order: 500,
-  ),
-  glossary: (
-    position: "backmatter",
-    order: 600
-  ),
-  bibliography: (
-    position: "backmatter",
-    order: 400
-  ),
-  listings: (
-    position: "backmatter",
-    order: 700
+    configure-glossary(
+      glossary: (),
+      print-options: (
+        deduplicate-back-references: true,
+      ),
+      position: "backmatter",
+      order: 600,
+    ),
+    configure-figure-listings(
+      code-listing: true,
+      figure-listing: true,
+      table-listing: true,
+      position: "backmatter",
+      order: 700,
+    ),
   )
-)
+}
 
 
 /// Base template for thesis documents.
@@ -187,15 +189,17 @@
       "__authors",
       default: ((firstname: none, lastname: none),),
     )
-  let __confidentiality-clause = __opts
-    .named()
-    .at("__confidentiality-clause", default: false)
+  let __confidentiality-clause = __opts.named().at("__confidentiality-clause", default: false)
   let __postamble = __opts.named().at("__postamble", default: ())
 
   // create config dictionary
-  let config = __base-config
-  for addition in  __opts.pos() {
-    assert.eq(type(addition), dictionary, message: "Only configurations are allowed as positional arguments. See [future link for configuration] for more information.")
+  let config = __base-config()
+  for addition in __opts.pos() {
+    assert.eq(
+      type(addition),
+      dictionary,
+      message: "Only configurations are allowed as positional arguments. See [future link for configuration] for more information.",
+    )
 
     config = __merge-config(config, addition)
   }
@@ -267,6 +271,13 @@
   // if you don't like them, just remove this section.
   show: codly-init.with()
 
+  // captions with caption_with_source shouldn't show source in outline
+  show outline: it => {
+    __in-outline.update(true)
+    it
+    __in-outline.update(false)
+  }
+
   codly(
     zebra-fill: none,
     display-icon: false,
@@ -303,7 +314,128 @@
   let caution-rect = rect.with(radius: 0.5em)
   set-margin-note-defaults(rect: caution-rect, fill: orange.lighten(80%))
 
+  // register abbreviations before content so references resolve
+  if abbreviations.len() > 0 {
+    register-glossary(abbreviations)
+  }
+
+  // register glossary entries before content so references resolve
+  if glossary.len() > 0 {
+    register-glossary(glossary)
+  }
+
+  // ----------------------------------
+  // Construct front- and backmatter
+  // ----------------------------------
+
+  // Acknowledgements
+  if config.front-back-matter.acknowledgements.text != none {
+    config.front-back-matter.acknowledgements.content = {
+      align(center + horizon, {
+        heading(outlined: false, numbering: none, [#text(
+          0.85em,
+          smallcaps(__linguify-content("acknowledgments")),
+        )\ ])
+        align(left, config.front-back-matter.acknowledgements.text)
+        v(20%)
+      })
+    }
+  }
+
+  // Abstracts
+  if config.front-back-matter.abstracts.entries.len() > 0 {
+    config.front-back-matter.abstracts.content = {
+      for a in config.front-back-matter.abstracts.entries {
+        pagebreak(weak: true)
+        align(center + horizon, {
+          heading(outlined: false, numbering: none, [#text(
+              0.85em,
+              smallcaps(__linguify-content("abstract")),
+            )\ #text(
+              0.75em,
+              weight: "light",
+              style: "italic",
+              [\- #a.lang-display -],
+            )])
+          align(left, text(lang: a.lang, a.text))
+          v(20%)
+        })
+      }
+    }
+  }
+
+  // TOC
+  config.front-back-matter.toc.content = {
+    // table of contents
+    // show level 1 headings in outline in a fancier way
+    show outline.entry.where(level: 1): strong
+    set par(leading: 0.65em)
+    outline(
+      title: __linguify-content("table-of-contents"),
+      depth: 3,
+      indent: auto,
+      target: selector(heading).before(
+        <__appendix-start>,
+      ),
+    )
+  }
+
+  // Bibliography
+  config.front-back-matter.bibliography.content = { library }
+
+  // Glossary
+  if config.front-back-matter.glossary.entries.len() > 0 {
+    config.front-back-matter.glossary.content = {
+      heading(__linguify-content("glossary"))
+      print-glossary(glossary, ..config.front-back-matter.glossary.print-options)
+    }
+  }
+
+  // Abbreviations
+  if config.front-back-matter.abbreviations.entries.len() > 0 {
+    config.front-back-matter.abbreviations.content = {
+      heading(__linguify-content("abbreviations"))
+      print-glossary(abbreviations, ..config.front-back-matter.abbreviations.print-options)
+    }
+  }
+
+  // Figure listings
+  config.front-back-matter.listings.content = context {
+    // list of figures
+    if config.front-back-matter.listings.figure-listing and query(figure.where(kind: image)).len() > 0 {
+      pagebreak(weak: true)
+      heading(__linguify-content("list-of-figures"))
+      outline(
+        target: figure.where(kind: image).before(<__appendix-start>),
+        title: none,
+      )
+    }
+
+    // list of tables
+    if config.front-back-matter.listings.table-listing and query(figure.where(kind: table)).len() > 0 {
+      pagebreak(weak: true)
+      heading(__linguify-content("list-of-tables"))
+      outline(
+        target: figure.where(kind: table).before(<__appendix-start>),
+        title: none,
+      )
+    }
+
+    // list of source code
+    if config.front-back-matter.listings.code-listing and query(figure.where(kind: raw)).len() > 0 {
+      pagebreak(weak: true)
+      heading(__linguify-content("list-of-code"))
+      outline(
+        target: figure.where(kind: raw).before(<__appendix-start>),
+        title: none,
+      )
+    }
+  }
+
+  // ----------------------------------
   // Coversheet
+  // ----------------------------------
+
   // Show notes before everything else, so you don't miss them
   context {
     // Check wether there are any notes in the document
@@ -387,74 +519,30 @@
 
   pagebreak()
 
-  // start page count on second page
-  counter(page).update(1)
-  set page(numbering: "I")
+  // ----------------------------------
+  // Frontmatter
+  // ----------------------------------
 
-  // register abbreviations before content so references resolve
-  if abbreviations.len() > 0 {
-    register-glossary(abbreviations)
-  }
-
-  // register glossary entries before content so references resolve
-  if glossary.len() > 0 {
-    register-glossary(glossary)
-  }
-
-  // acknowledgements
-  if acknowledgements != none {
-    pagebreak(weak: true)
-    align(center + horizon, {
-      heading(outlined: false, numbering: none, [#text(
-        0.85em,
-        smallcaps(__linguify-content("acknowledgments")),
-      )\ ])
-      align(left, acknowledgements)
-      v(20%)
-    })
-  }
-
-  // abstracts
-  for a in abstracts {
-    let (abstract-lang, abstract-lang-long, abstract-body) = a
-    pagebreak(weak: true)
-    align(center + horizon, {
-      heading(outlined: false, numbering: none, [#text(
-          0.85em,
-          smallcaps(__linguify-content("abstract")),
-        )\ #text(
-          0.75em,
-          weight: "light",
-          style: "italic",
-          [\- #abstract-lang-long -],
-        )])
-      align(left, text(lang: abstract-lang, abstract-body))
-      v(20%)
-    })
-  }
-
-  // captions with caption_with_source shouldn't show source in outline
-  show outline: it => {
-    __in-outline.update(true)
-    it
-    __in-outline.update(false)
-  }
-
-  // table of contents
-  // show level 1 headings in outline in a fancier way, if not desired feel free to remove it
-  pagebreak(weak: true)
   {
-    show outline.entry.where(level: 1): strong
-    set par(leading: 0.65em)
-    outline(
-      title: __linguify-content("table-of-contents"),
-      depth: 3,
-      indent: auto,
-      target: selector(heading).before(
-        <__appendix-start>,
-      ),
-    )
+    counter(page).update(1)
+    set page(numbering: "I")
+    set heading(numbering: none)
+    // Filter by "frontmatter" and order by order
+    let frontmatters = config
+      .front-back-matter
+      .values()
+      .filter(entry => entry.position == "frontmatter" and ("content" in entry.keys()) and entry.content != none)
+      .sorted(key: entry => entry.order, by: (l, r) => l < r)
+
+    for frontmatter in frontmatters {
+      pagebreak(weak: true)
+      frontmatter.content
+    }
   }
+
+  // ----------------------------------
+  // Content
+  // ----------------------------------
 
   {
     // display header
@@ -497,82 +585,28 @@
     [#[] <__content-end>]
   }
 
-  // display bibliography
-  set page(numbering: "a", footer: auto)
-  counter(page).update(1)
-
-  // This is just for supporting the old method of usage, but it is deprecated
-  // TODO: probably rework with Typst 0.15.0
-  if type(library) == str {
-    bibliography(
-      "../" + library,
-    )
-  } else {
-    library
-  }
-
-  // lists and declarations (between content and appendix)
+  // ----------------------------------
+  // Backmatter
+  // ----------------------------------
   {
+    counter(page).update(1)
+    set page(numbering: "a")
     set heading(numbering: none)
+    // Filter by "backmatter" and order by order
+    let backmatters = config
+      .front-back-matter
+      .values()
+      .filter(entry => entry.position == "backmatter" and ("content" in entry.keys()) and entry.content != none)
+      .sorted(key: entry => entry.order, by: (l, r) => l < r)
 
-    // index of abbreviations
-    if abbreviations.len() > 0 {
-      pagebreak()
-      heading(__linguify-content("abbreviations"))
-      print-glossary(abbreviations, deduplicate-back-references: true)
-    }
-
-    // index of glossary terms
-    if glossary.len() > 0 {
-      pagebreak()
-      heading(__linguify-content("glossary"))
-      print-glossary(glossary, deduplicate-back-references: true)
-    }
-
-    // only display certain outlines if elements for it exist
-    context {
-      // list of figures
-      if query(figure.where(kind: image)).len() > 0 {
-        pagebreak()
-        heading(__linguify-content("list-of-figures"))
-        outline(
-          target: figure.where(kind: image).before(<__appendix-start>),
-          title: none,
-        )
-      }
-
-      // list of tables
-      if query(figure.where(kind: table)).len() > 0 {
-        pagebreak()
-        heading(__linguify-content("list-of-tables"))
-        outline(
-          target: figure.where(kind: table).before(<__appendix-start>),
-          title: none,
-        )
-      }
-
-      // list of source code
-      if query(figure.where(kind: raw)).len() > 0 {
-        pagebreak()
-        heading(__linguify-content("list-of-code"))
-        outline(
-          target: figure.where(kind: raw).before(<__appendix-start>),
-          title: none,
-        )
-      }
-    }
-
-    // postamble (statutory declaration, confidentiality, AI declaration)
-    for p in __postamble {
-      p
+    for backmatter in backmatters {
+      pagebreak(weak: true)
+      backmatter.content
     }
   }
 
   // display appendix
-  appendices = appendices.filter(item => (
-    item.title != none and item.content != none
-  ))
-  if appendices.len() > 0 {
+  if config.appendices.entries.len() > 0 {
     set heading(
       outlined: true,
       numbering: (..nums) => {
@@ -600,7 +634,7 @@
     pagebreak(weak: true)
     [#[] <__appendix-start>]
 
-    for appendix in appendices {
+    for appendix in config.appendices.entries {
       pagebreak(weak: true)
       [#heading(appendix.title) #label(appendix.reference)]
 
@@ -608,3 +642,42 @@
     }
   }
 }
+
+// Call project for testing purposes
+#show: project.with(
+  library: bibliography("../refs.bib"),
+  configure-acknowledgements(text: "This is an acknowledgement"),
+  configure-abstracts(abstracts: (
+    (
+      lang: "de",
+      lang-display: "Deutsch",
+      text: "This is an abstract",
+    ),
+  )),
+  configure-appendices(appendices: (
+    (
+      title: "A test appendix",
+      content: "A test content",
+      reference: "ref",
+    ),
+  )),
+)
+
+#lorem(999)
+
+#figure(
+  ```py
+  print("Hello World")
+  ```,
+  caption: "A code figure",
+)
+
+#figure(box(fill: red, width: 3cm, height: 3cm), caption: "A figure")
+
+#figure(
+  table(
+    "A",
+    "table",
+  ),
+  caption: "A table figure",
+)
