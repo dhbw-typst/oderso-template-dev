@@ -638,7 +638,7 @@
       pagebreak(weak: true)
       [#heading(appendix.title) #label(appendix.reference)]
 
-      appendix.content
+      appendix.text
     }
   }
 }
@@ -646,7 +646,7 @@
 // Call project for testing purposes
 #show: project.with(
   library: bibliography("../refs.bib"),
-  configure-acknowledgements(text: "This is an acknowledgement"),
+  configure-acknowledgements(text: "This is an acknowledgement", position: "testmatter"),
   configure-abstracts(abstracts: (
     (
       lang: "de",
@@ -657,7 +657,7 @@
   configure-appendices(appendices: (
     (
       title: "A test appendix",
-      content: "A test content",
+      text: "A test content",
       reference: "ref",
     ),
   )),
