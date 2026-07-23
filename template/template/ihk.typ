@@ -1,23 +1,35 @@
 // LTeX: enabled=false
 
 #import "base.typ": __signature-line, project
+#import "config.typ": *
 #import "@preview/linguify:0.5.0": linguify
 #import "utils.typ": __linguify-content
+
+// Default IHK adapter config: sets position/order/enable defaults and IHK
+// signature defaults for the front/back matter sections owned by this adapter.
+// Content is generated at call site by the adapter function body.
+#let __ihk-config = __merge-configs(
+  (:),
+  configure-statutory-declaration(
+    enable: true,
+    position: "backmatter",
+    order: 80,
+    digital-submission: true,
+    digital-only: true,
+    signature-city: "Karlsruhe",
+  ),
+  configure-confidentiality-clause(enable: true, position: "backmatter", order: 90),
+)
 
 /// Template adapter for IHK thesis documents.
 ///
 /// This function configures the base `project` template for vocational training documentations.
 ///
-/// In addition to the parameters listed below, this adapter accepts all parameters
-/// from the base `project` template (e.g., `title-long`, `title-short`, `thesis-type`,
-/// `abstracts`, `appendices`, `library`, `abbreviations`, `lang`).
+/// Section-specific settings (submission mode, signature city, enable flags)
+/// live in `configure-statutory-declaration(...)` and
+/// `configure-confidentiality-clause(enable: ...)`.
 /// -> content
 #let ihk-adapter(
-  /// Whether the thesis is submitted digitally. Affects the signature line
-  /// display in the statutory declaration. -> bool
-  digital-submission: true,
-  /// Whether to include a confidentiality clause page. -> bool
-  confidentiality-clause: true,
   /// The examination type (e.g., "Abschlussprüfung Teil 2"). -> str | none
   examination: none,
   /// The training occupation (Ausbildungsberuf),
@@ -33,8 +45,6 @@
       signature: none,
     ),
   ),
-  /// City shown on the signature line. -> str
-  signature-city: "Karlsruhe",
   /// Submission date of the thesis. -> str
   submission-date: datetime.today().display("[day].[month].[year]"),
   /// Format string for displaying the submission date. (see #link("https://typst.app/docs/reference/foundations/datetime/#format")[datetime formats]) -> str
@@ -51,7 +61,8 @@
   company-department: none,
   /// Name of the company supervisor. -> str | none
   company-supervisor: none,
-  /// Additional arguments passed to the base template.
+  /// Additional arguments passed to the base template plus positional
+  /// `configure-*` configurations.
   ..args,
   /// The main document body content. -> content
   body,
@@ -84,53 +95,86 @@
     __linguify-content("supervisor-at-training-company"),
     company-supervisor,
   )
-  let statutory-declaration = {
-    pagebreak(weak: true)
-    align(center, heading(
-      __linguify-content("statutory-declaration"),
-      level: 1,
-    ))
 
-    // Using the statutory declaration of the dhbw, as there is no template for the IHK
-    __linguify-content("statutory-declaration-note-dhbw", args: (
-      author-count: authors.len(),
-    ))
+  if authors == none or type(authors) != array or authors.len() == 0 {
+    panic("At least one author has to be specified!")
+  }
 
-    set grid.cell(align: left, inset: (x: 1em, y: 0.3em))
+  // ----------------------------------
+  // 1. Construct default config
+  // ----------------------------------
+  let config = __ihk-config
 
-    for a in authors {
-      __signature-line(
-        author: a,
-        date: submission-date,
-        digital: digital-submission,
-        city: signature-city,
-      )
+  // ----------------------------------
+  // 2. Apply provided configs from user's positional args
+  // ----------------------------------
+  for addition in args.pos() {
+    assert.eq(
+      type(addition),
+      dictionary,
+      message: "Only configurations are allowed as positional arguments in ihk-adapter.",
+    )
+    config = __merge-config(config, addition)
+  }
+
+  // ----------------------------------
+  // 3. Generate content into the config dictionary
+  // ----------------------------------
+
+  // Statutory declaration
+  if config.front-back-matter.statutory-declaration.enable {
+    let sd-cfg = config.front-back-matter.statutory-declaration
+    config.front-back-matter.statutory-declaration.content = {
+      pagebreak(weak: true)
+      align(center, heading(
+        __linguify-content("statutory-declaration"),
+        level: 1,
+      ))
+
+      // Using the statutory declaration of the dhbw, as there is no template for the IHK
+      __linguify-content("statutory-declaration-note-dhbw", args: (
+        author-count: authors.len(),
+      ))
+
+      set grid.cell(align: left, inset: (x: 1em, y: 0.3em))
+
+      for a in authors {
+        __signature-line(
+          author: a,
+          date: submission-date,
+          digital: sd-cfg.digital-submission,
+          city: sd-cfg.signature-city,
+        )
+      }
     }
   }
 
-  let confidentiality-clause-text = {
-    pagebreak(weak: true)
-    [#[] <__confidentiality-clause>]
-    align(center, heading(
-      __linguify-content("confidentiality-agreement"),
-      level: 1,
-    ))
+  // Confidentiality clause
+  if config.front-back-matter.confidentiality-clause.enable {
+    config.front-back-matter.confidentiality-clause.content = {
+      pagebreak(weak: true)
+      [#[] <__confidentiality-clause>]
+      align(center, heading(
+        __linguify-content("confidentiality-agreement"),
+        level: 1,
+      ))
 
-    __linguify-content("confidentiality-agreement-note-ihk")
+      __linguify-content("confidentiality-agreement-note-ihk")
+    }
   }
 
+  // ----------------------------------
+  // 4. Pass resulting config down to base
+  // ----------------------------------
   show: project.with(
     __logo-left: company-logo,
     __logo-right: image("assets/IHK-Logo.svg"),
     __authors: authors,
     __submission-info: submission-info,
     __metadata: metadata,
-    __confidentiality-clause: confidentiality-clause,
-    __postamble: (
-      statutory-declaration,
-      ..if (confidentiality-clause) { (confidentiality-clause-text,) },
-    ),
-    ..args,
+    __confidentiality-clause: config.front-back-matter.confidentiality-clause.enable,
+    config,
+    ..args.named(),
   )
   body
 }

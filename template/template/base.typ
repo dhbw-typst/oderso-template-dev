@@ -72,17 +72,16 @@
   ))
 }
 
-#let __base-config() = {
-  __merge-configs(
+#let __base-config = __merge-configs(
     (:),
     configure-page(margin: (
       rest: 2.5cm,
     )),
     configure-appendices(appendices: ()),
-    configure-acknowledgements(text: none, position: "frontmatter", order: 100),
-    configure-abstracts(abstracts: (), position: "frontmatter", order: 200),
-    configure-toc(position: "frontmatter", order: 300),
-    configure-bibliography(position: "backmatter", order: 400),
+    configure-acknowledgements(text: none, position: "frontmatter", order: 10),
+    configure-abstracts(abstracts: (), position: "frontmatter", order: 20),
+    configure-toc(position: "frontmatter", order: 30),
+    configure-bibliography(position: "backmatter", order: 40),
     configure-abbreviations(
       abbreviations: (),
       print-options: (
@@ -90,7 +89,7 @@
         minimum-refs: 2,
       ),
       position: "backmatter",
-      order: 500,
+      order: 50,
     ),
     configure-glossary(
       glossary: (),
@@ -98,17 +97,16 @@
         deduplicate-back-references: true,
       ),
       position: "backmatter",
-      order: 600,
+      order: 60,
     ),
     configure-figure-listings(
       code-listing: true,
       figure-listing: true,
       table-listing: true,
       position: "backmatter",
-      order: 700,
+      order: 70,
     ),
   )
-}
 
 
 /// Base template for thesis documents.
@@ -131,32 +129,6 @@
   /// Type of thesis (e.g., "Projektarbeit 1", "Bachelorarbeit").
   /// Displayed below the title on the cover. -> str | none
   thesis-type: none,
-  /// Optional acknowledgements page to thank your scientific supervisor,
-  /// company mentor, or family and friends. If `none`, the page is omitted. -> str | content | none
-  acknowledgements: none,
-  /// List of abstract tuples. Each tuple contains:
-  /// `(language-code, language-name, content)` e.g., `("en", "English", [Abstract text...])`. -> array
-  abstracts: (),
-  /// List of appendix dictionaries. Each should have `title` (str)
-  /// and `content`, optionally `reference` (label string). Set to `none` to disable appendices. -> array | none
-  appendices: (
-    (
-      title: none,
-      reference: none,
-      content: none,
-    ),
-  ),
-  /// Path to the bibliography file (`.bib` or `.yaml`), relative to the
-  /// template directory. -> str
-  library: (),
-  /// List of abbreviation entries for the glossary. See the
-  /// #link("https://typst.app/universe/package/glossarium/")[glossarium package]
-  /// for the expected format. -> array
-  abbreviations: (),
-  /// List of glossary entries for term explanations (not abbreviations). See the
-  /// #link("https://typst.app/universe/package/glossarium/")[glossarium package]
-  /// for the expected format. -> array
-  glossary: (),
   /// Whether the content page numbering should include total pages ("3 / 24") or not ("3"). -> bool
   numbering-show-total: false,
   /// Watermark places the provided `content` in the left and right page margins. It can be used, for example, to mark a document as a draft when submitting non-final versions to supervisors. -> content | none
@@ -174,7 +146,6 @@
   /// - `__confidentiality-clause` (bool): whether to print the confidentiality
   ///   stamp on the title page. Adapters enabling this must create a
   ///   `<__confidentiality-clause>` label somewhere in the document.
-  /// - `__postamble` (array): content elements appended after the indices.
   ..__opts,
   body,
 ) = {
@@ -190,10 +161,9 @@
       default: ((firstname: none, lastname: none),),
     )
   let __confidentiality-clause = __opts.named().at("__confidentiality-clause", default: false)
-  let __postamble = __opts.named().at("__postamble", default: ())
 
   // create config dictionary
-  let config = __base-config()
+  let config = __base-config
   for addition in __opts.pos() {
     assert.eq(
       type(addition),
@@ -315,13 +285,13 @@
   set-margin-note-defaults(rect: caution-rect, fill: orange.lighten(80%))
 
   // register abbreviations before content so references resolve
-  if abbreviations.len() > 0 {
-    register-glossary(abbreviations)
+  if config.front-back-matter.abbreviations.entries.len() > 0 {
+    register-glossary(config.front-back-matter.abbreviations.entries)
   }
 
   // register glossary entries before content so references resolve
-  if glossary.len() > 0 {
-    register-glossary(glossary)
+  if config.front-back-matter.glossary.entries.len() > 0 {
+    register-glossary(config.front-back-matter.glossary.entries)
   }
 
   // ----------------------------------
@@ -381,13 +351,20 @@
   }
 
   // Bibliography
-  config.front-back-matter.bibliography.content = { library }
+  if config.front-back-matter.bibliography.at("library", default: none) != none {
+    config.front-back-matter.bibliography.content = {
+      config.front-back-matter.bibliography.library
+    }
+  }
 
   // Glossary
   if config.front-back-matter.glossary.entries.len() > 0 {
     config.front-back-matter.glossary.content = {
       heading(__linguify-content("glossary"))
-      print-glossary(glossary, ..config.front-back-matter.glossary.print-options)
+      print-glossary(
+        config.front-back-matter.glossary.entries,
+        ..config.front-back-matter.glossary.print-options,
+      )
     }
   }
 
@@ -395,7 +372,10 @@
   if config.front-back-matter.abbreviations.entries.len() > 0 {
     config.front-back-matter.abbreviations.content = {
       heading(__linguify-content("abbreviations"))
-      print-glossary(abbreviations, ..config.front-back-matter.abbreviations.print-options)
+      print-glossary(
+        config.front-back-matter.abbreviations.entries,
+        ..config.front-back-matter.abbreviations.print-options,
+      )
     }
   }
 
@@ -531,7 +511,12 @@
     let frontmatters = config
       .front-back-matter
       .values()
-      .filter(entry => entry.position == "frontmatter" and ("content" in entry.keys()) and entry.content != none)
+      .filter(entry => (
+        entry.position == "frontmatter"
+          and entry.at("enable", default: true)
+          and ("content" in entry.keys())
+          and entry.content != none
+      ))
       .sorted(key: entry => entry.order, by: (l, r) => l < r)
 
     for frontmatter in frontmatters {
@@ -596,7 +581,12 @@
     let backmatters = config
       .front-back-matter
       .values()
-      .filter(entry => entry.position == "backmatter" and ("content" in entry.keys()) and entry.content != none)
+      .filter(entry => (
+        entry.position == "backmatter"
+          and entry.at("enable", default: true)
+          and ("content" in entry.keys())
+          and entry.content != none
+      ))
       .sorted(key: entry => entry.order, by: (l, r) => l < r)
 
     for backmatter in backmatters {
@@ -645,8 +635,8 @@
 
 // Call project for testing purposes
 #show: project.with(
-  library: bibliography("../refs.bib"),
-  configure-acknowledgements(text: "This is an acknowledgement", position: "testmatter"),
+  configure-bibliography(library: bibliography("../refs.bib")),
+  configure-acknowledgements(text: "This is an acknowledgement", position: "frontmatter"),
   configure-abstracts(abstracts: (
     (
       lang: "de",

@@ -2,8 +2,27 @@
 
 #import "@preview/linguify:0.5.0": linguify, linguify-raw
 #import "base.typ": __signature-line, project
+#import "config.typ": *
 #import "assets/ai-declaration-form_dhbw-ma.typ": ai-declaration-form
 #import "utils.typ": __linguify-content
+
+// Default DHBW Mannheim adapter config: sets position/order/enable defaults
+// and DHBW-MA-specific defaults (signature city, submission mode) for the
+// front/back matter sections owned by this adapter. Content is generated at
+// call site by the adapter function body.
+#let __dhbw-ma-config = __merge-configs(
+  (:),
+  configure-statutory-declaration(
+    enable: true,
+    position: "backmatter",
+    order: 80,
+    digital-submission: true,
+    digital-only: true,
+    signature-city: "Mannheim",
+  ),
+  configure-confidentiality-clause(enable: true, position: "backmatter", order: 90),
+  configure-dhbw-ma-ai-declaration-form(position: "backmatter", order: 100),
+)
 
 /// Template adapter for DHBW Mannheim thesis documents.
 ///
@@ -11,26 +30,20 @@
 /// settings, including statutory declarations, confidentiality clauses,
 /// and the official AI declaration form.
 ///
-/// In addition to the parameters listed below, this adapter accepts all parameters
-/// from the base `project` template (e.g., `title-long`, `title-short`, `thesis-type`,
-/// `abstracts`, `appendices`, `library`, `abbreviations`, `lang`).
+/// Section-specific settings (submission mode, signature city, enable flags)
+/// live in `configure-statutory-declaration(...)`,
+/// `configure-confidentiality-clause(enable: ...)`, and
+/// `configure-dhbw-ma-ai-declaration-form(...)`.
 /// -> content
 #let dhbw-ma-adapter(
-  /// Whether the thesis is submitted digitally. Affects the signature line
-  /// display in the statutory declaration. -> bool
-  digital-submission: true,
-  /// Whether the thesis is submitted digitally only (no printed copy).
-  /// Affects the wording of the statutory declaration. -> bool
-  digital-only: true,
-  /// Whether to include a confidentiality clause page. -> bool
-  confidentiality-clause: true,
   /// The examination degree, e.g., "Bachelor of Science (B.Sc.)". -> str
   examination: "Bachelor of Science (B.Sc.)",
   /// The field of study, e.g., "Computer Science". -> str
   study: "Computer Science",
   /// List of author dictionaries. Each author should have: `firstname`,
   /// `lastname`, `matriculation-number`, `course`, `signature` (optional),
-  /// `email`, `address`, and `phone-number`. -> array
+  /// `email`, `address`, and `phone-number`. AI declaration data per author
+  /// is passed separately via `configure-dhbw-ma-ai-declaration-form(authors: ...)`. -> array
   authors: (
     (
       firstname: none,
@@ -41,19 +54,10 @@
       email: none,
       address: none,
       phone-number: none,
-      ai-dec-product-name: none,
-      ai-dec-topic: none,
-      ai-dec-topic-editing: none,
-      ai-dec-research: none,
-      ai-dec-design: none,
     ),
   ),
-  /// City shown on the signature line. -> str
-  signature-city: "Mannheim",
   /// Submission date of the thesis. -> str
   submission-date: datetime.today().display("[day].[month].[year]"),
-  /// Submission date for the module (used in AI declaration form). -> str
-  module-submission-date: datetime.today().display("[day].[month].[year]"),
   /// Format string for displaying dates. (see #link("https://typst.app/docs/reference/foundations/datetime/#format")[datetime formats]) -> str
   submission-date-format: "[day].[month].[year]",
   /// Duration of the thesis processing period in weeks. -> int | none
@@ -84,21 +88,8 @@
   ),
   /// Name of the course director. -> str | none
   course-director: none,
-  /// AI declaration form data dictionary. Contains: `module-name`, `exam-type`
-  /// ("Projektarbeit I", "Projektarbeit II", "Seminararbeit", "Bachelorarbeit"),
-  /// `product-name`, `topic`, `topic-editing`, `research`, `design`, and
-  /// `position` ("preamble", "postamble", or "after-confidentiality-clause"). -> dictionary
-  ai-declaration-form-data: (
-    module-name: none,
-    semester: none,
-    exam-type: none,
-    product-name: none,
-    topic: none,
-    topic-editing: none,
-    research: none,
-    design: none,
-  ),
-  /// Additional arguments passed to the base template.
+  /// Additional arguments passed to the base template plus positional
+  /// `configure-*` configurations.
   ..args,
   /// The main document body content. -> content
   body,
@@ -119,12 +110,6 @@
   // TODO: only for compatibility reasons: Remove with v3.0.0 release
   if type(submission-date) == datetime {
     submission-date = submission-date.display(submission-date-format)
-  }
-  // TODO: only for compatibility reasons: Remove with v3.0.0 release
-  if type(module-submission-date) == datetime {
-    module-submission-date = module-submission-date.display(
-      submission-date-format,
-    )
   }
 
   let company-supervisor-data = [
@@ -184,112 +169,151 @@
     __linguify-content("supervisor-at-university"),
     university-supervisor-data,
   )
-  let statutory-declaration = {
-    pagebreak(weak: true)
-    // Get course year of first author
-    if authors == none or type(authors) != array or authors.len() == 0 {
-      panic("At least one author has to be specified!")
-    }
 
-    let course-year = int(authors.at(0).course.find(regex("\d+")))
-
-    // TODO: The statutory declaration changed for courses starting in 2024. This complicated edge case for courses from 2023
-    // and earlier can safely be removed by September 2026
-    let statuatory-declaration = if course-year < 24 {
-      __linguify-content("statutory-declaration-note-dhbw-old", args: (
-        author-count: authors.len(),
-        title: args.at("title-long"),
-        type: args.at("thesis-type"),
-      ))
-    } else {
-      __linguify-content("statutory-declaration-note-dhbw", args: (
-        author-count: authors.len(),
-      ))
-    }
-
-    let statuatory-declaration-printed = if course-year < 24 {
-      __linguify-content("statutory-declaration-note-dhbw-old-printed", args: (
-        author-count: authors.len(),
-      ))
-    } else {
-      __linguify-content("statutory-declaration-note-dhbw-printed", args: (
-        author-count: authors.len(),
-      ))
-    }
-
-    align(center, heading(
-      __linguify-content("statutory-declaration"),
-      level: 1,
-    ))
-
-    statuatory-declaration
-    if not digital-only {
-      (
-        " " + statuatory-declaration-printed
-      )
-    }
-
-    set grid.cell(align: left, inset: (x: 1em, y: 0.3em))
-
-    for a in authors {
-      __signature-line(
-        author: a,
-        date: submission-date,
-        digital: digital-submission,
-        city: signature-city,
-      )
-    }
+  if authors == none or type(authors) != array or authors.len() == 0 {
+    panic("At least one author has to be specified!")
   }
 
-  let confidentiality-clause-text = {
-    pagebreak(weak: true)
-    [#[] <__confidentiality-clause>]
-    align(center, heading(
-      __linguify-content("confidentiality-agreement"),
-      level: 1,
-    ))
+  // ----------------------------------
+  // 1. Construct default config
+  // ----------------------------------
+  let config = __dhbw-ma-config
 
-    __linguify-content("confidentiality-agreement-note-dhbw")
-  }
-
-  let ai-declarations = ()
-  for a in authors {
-    let ai-declaration = ai-declaration-form(
-      digital: digital-only,
-      name: a.lastname + ", " + a.firstname,
-      identification-number: a.matriculation-number,
-      address: a.address,
-      course: a.course,
-      email: a.email,
-      mobile-number: a.phone-number,
-      module-name: ai-declaration-form-data.module-name,
-      semester: ai-declaration-form-data.semester,
-      module-submission-date: module-submission-date,
-      exam-type: ai-declaration-form-data.exam-type,
-      product-name: a.ai-dec-product-name,
-      topic: a.ai-dec-topic,
-      topic-editing: a.ai-dec-topic-editing,
-      research: a.ai-dec-research,
-      design: a.ai-dec-design,
-      signature-city: signature-city,
-      signature-date: submission-date,
-      signature-image: a.signature,
+  // ----------------------------------
+  // 2. Apply provided configs from user's positional args
+  // ----------------------------------
+  for addition in args.pos() {
+    assert.eq(
+      type(addition),
+      dictionary,
+      message: "Only configurations are allowed as positional arguments in dhbw-ma-adapter.",
     )
-    ai-declarations.push(ai-declaration)
+    config = __merge-config(config, addition)
   }
+
+  // ----------------------------------
+  // 3. Generate content into the config dictionary
+  // ----------------------------------
+
+  // Statutory declaration
+  if config.front-back-matter.statutory-declaration.enable {
+    let sd-cfg = config.front-back-matter.statutory-declaration
+    let course-year = int(authors.at(0).course.find(regex("\d+")))
+    config.front-back-matter.statutory-declaration.content = {
+      pagebreak(weak: true)
+
+      // TODO: The statutory declaration changed for courses starting in 2024.
+      // This complicated edge case for courses from 2023 and earlier can safely
+      // be removed by September 2026.
+      let statuatory-declaration = if course-year < 24 {
+        __linguify-content("statutory-declaration-note-dhbw-old", args: (
+          author-count: authors.len(),
+          title: args.at("title-long"),
+          type: args.at("thesis-type"),
+        ))
+      } else {
+        __linguify-content("statutory-declaration-note-dhbw", args: (
+          author-count: authors.len(),
+        ))
+      }
+
+      let statuatory-declaration-printed = if course-year < 24 {
+        __linguify-content("statutory-declaration-note-dhbw-old-printed", args: (
+          author-count: authors.len(),
+        ))
+      } else {
+        __linguify-content("statutory-declaration-note-dhbw-printed", args: (
+          author-count: authors.len(),
+        ))
+      }
+
+      align(center, heading(
+        __linguify-content("statutory-declaration"),
+        level: 1,
+      ))
+
+      statuatory-declaration
+      if not sd-cfg.digital-only {
+        " " + statuatory-declaration-printed
+      }
+
+      set grid.cell(align: left, inset: (x: 1em, y: 0.3em))
+
+      for a in authors {
+        __signature-line(
+          author: a,
+          date: submission-date,
+          digital: sd-cfg.digital-submission,
+          city: sd-cfg.signature-city,
+        )
+      }
+    }
+  }
+
+  // Confidentiality clause
+  if config.front-back-matter.confidentiality-clause.enable {
+    config.front-back-matter.confidentiality-clause.content = {
+      pagebreak(weak: true)
+      [#[] <__confidentiality-clause>]
+      align(center, heading(
+        __linguify-content("confidentiality-agreement"),
+        level: 1,
+      ))
+
+      __linguify-content("confidentiality-agreement-note-dhbw")
+    }
+  }
+
+  // AI declaration form
+  let ai-cfg = config.front-back-matter.ai-declaration-form
+  let ai-authors = ai-cfg.at("authors", default: ())
+  if ai-authors.len() > 0 {
+    let sd-cfg = config.front-back-matter.statutory-declaration
+    // TODO: only for compatibility reasons: Remove with v3.0.0 release
+    let module-submission-date = ai-cfg.at("module-submission-date", default: none)
+    if type(module-submission-date) == datetime {
+      module-submission-date = module-submission-date.display(submission-date-format)
+    }
+    config.front-back-matter.ai-declaration-form.content = {
+      for (i, a) in authors.enumerate() {
+        let ai-author = ai-authors.at(i, default: (:))
+        ai-declaration-form(
+          digital: sd-cfg.digital-only,
+          name: a.lastname + ", " + a.firstname,
+          identification-number: a.matriculation-number,
+          address: a.address,
+          course: a.course,
+          email: a.email,
+          mobile-number: a.phone-number,
+          module-name: ai-cfg.at("module-name", default: none),
+          semester: ai-cfg.at("semester", default: none),
+          module-submission-date: module-submission-date,
+          exam-type: ai-cfg.at("exam-type", default: none),
+          product-name: ai-author.at("product-name", default: none),
+          topic: ai-author.at("topic", default: none),
+          topic-editing: ai-author.at("topic-editing", default: none),
+          research: ai-author.at("research", default: none),
+          design: ai-author.at("design", default: none),
+          signature-city: sd-cfg.signature-city,
+          signature-date: submission-date,
+          signature-image: a.signature,
+        )
+      }
+    }
+  }
+
+  // ----------------------------------
+  // 4. Pass resulting config down to base
+  // ----------------------------------
   show: project.with(
     __logo-left: company-logo,
     __logo-right: image("assets/DHBW-Logo.svg"),
     __authors: authors,
     __submission-info: submission-info,
     __metadata: metadata,
-    __confidentiality-clause: confidentiality-clause,
-    __postamble: (
-      statutory-declaration,
-      ..if (confidentiality-clause) { (confidentiality-clause-text,) },
-      ..ai-declarations,
-    ),
-    ..args,
+    __confidentiality-clause: config.front-back-matter.confidentiality-clause.enable,
+    config,
+    ..args.named(),
   )
   body
 }

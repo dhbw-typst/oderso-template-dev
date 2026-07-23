@@ -2,7 +2,26 @@
 
 #import "@preview/linguify:0.5.0": linguify, linguify-raw
 #import "base.typ": __signature-line, project
+#import "config.typ": *
 #import "utils.typ": __linguify-content, styled-table
+
+// Default DHBW Karlsruhe adapter config: sets position/order/enable defaults
+// and DHBW-KA-specific defaults (signature city, submission mode) for the
+// front/back matter sections owned by this adapter. Content is generated at
+// call site by the adapter function body.
+#let __dhbw-ka-config = __merge-configs(
+  (:),
+  configure-statutory-declaration(
+    enable: true,
+    position: "backmatter",
+    order: 80,
+    digital-submission: true,
+    digital-only: true,
+    signature-city: "Karlsruhe",
+  ),
+  configure-confidentiality-clause(enable: true, position: "backmatter", order: 90),
+  configure-dhbw-ka-ai-acknowledgement(position: "backmatter", order: 100),
+)
 
 /// Template adapter for DHBW Karlsruhe thesis documents.
 ///
@@ -10,28 +29,12 @@
 /// settings, including statutory declarations, confidentiality clauses,
 /// and AI tool acknowledgements according to DHBW guidelines.
 ///
-/// In addition to the parameters listed below, this adapter accepts all parameters
-/// from the base `project` template (e.g., `title-long`, `title-short`, `thesis-type`,
-/// `abstracts`, `appendices`, `library`, `abbreviations`, `lang`).
+/// Section-specific settings (submission mode, signature city, enable flags)
+/// live in `configure-statutory-declaration(...)`,
+/// `configure-confidentiality-clause(enable: ...)`, and
+/// `configure-dhbw-ka-ai-acknowledgement(entries: ...)`.
 /// -> content
 #let dhbw-ka-adapter(
-  /// Whether the thesis is submitted digitally. Affects the signature line
-  /// display in the statutory declaration. -> bool
-  digital-submission: true,
-  /// Whether the thesis is submitted digitally only (no printed copy).
-  /// Affects the wording of the statutory declaration. -> bool
-  digital-only: true,
-  /// Whether to include a confidentiality clause page. -> bool
-  confidentiality-clause: true,
-  /// List of AI tools used in the thesis, according to section 4.6 of
-  /// #link("https://www.karlsruhe.dhbw.de/fileadmin/user_upload/documents/content-de/Studiengaenge-Technik/Informatik/191212_Leitlinien_Praxismodule_Studien_Bachelorarbeiten.pdf")[Leitlinien für Wissenschaftliche Arbeiten]. Each entry should have
-  /// `tool` (name) and `usage` (description of how it was used). -> array
-  ai-acknowledgement: (
-    (
-      tool: none,
-      usage: none,
-    ),
-  ),
   /// The examination degree, e.g., "Bachelor of Science (B.Sc.)". -> str
   examination: "Bachelor of Science (B.Sc.)",
   /// The field of study, e.g., "Computer Science". -> str
@@ -48,8 +51,6 @@
       signature: none,
     ),
   ),
-  /// City shown on the signature line. -> str
-  signature-city: "Karlsruhe",
   /// Submission date of the thesis. -> str
   submission-date: datetime.today().display("[day].[month].[year]"),
   /// Format string for displaying the submission date. (see #link("https://typst.app/docs/reference/foundations/datetime/#format")[datetime formats]) -> str
@@ -68,9 +69,8 @@
   company-department: none,
   /// Name of the company supervisor. -> str | none
   company-supervisor: none,
-  /// Additional arguments passed to the base template (e.g., `title-long`,
-  /// `title-short`, `thesis-type`, `abstracts`, `appendices`, `library`,
-  /// `abbreviations`, `lang`).
+  /// Additional arguments passed to the base template plus positional
+  /// `configure-*` configurations.
   ..args,
   /// The main document body content. -> content
   body,
@@ -122,124 +122,154 @@
     university-supervisor,
   )
 
-  // AI-Declaration
-  let ai-acknowledgement = ai-acknowledgement.filter(ack => (
-    ack.tool != none and ack.usage != none
-  ))
-  let ai-acknowledgement-text = {
-    pagebreak(weak: true)
-    align(center, heading(
-      __linguify-content("ai-acknowledgement-heading-dhbw"),
-      level: 1,
-    ))
-
-    let table-cells = ai-acknowledgement.fold((), (acc, (tool, usage)) => (
-      acc + (tool, usage)
-    ))
-
-    align(center, styled-table(
-      columns: (auto, 1fr),
-      table-content: (
-        table.header(
-          __linguify-content("tool"),
-          __linguify-content("usage-description"),
-        ),
-        ..table-cells,
-      ),
-    ))
+  if authors == none or type(authors) != array or authors.len() == 0 {
+    panic("At least one author has to be specified!")
   }
 
-  // Statutory Declaration
-  let statutory-declaration = {
-    pagebreak(weak: true)
-    // Get course year of first author
-    if authors == none or type(authors) != array or authors.len() == 0 {
-      panic("At least one author has to be specified!")
-    }
+  // ----------------------------------
+  // 1. Construct default config
+  // ----------------------------------
+  let config = __dhbw-ka-config
 
-    let course-year = int(authors.at(0).course.find(regex("\d+")))
+  // ----------------------------------
+  // 2. Apply provided configs from user's positional args
+  // ----------------------------------
+  for addition in args.pos() {
+    assert.eq(
+      type(addition),
+      dictionary,
+      message: "Only configurations are allowed as positional arguments in dhbw-ka-adapter.",
+    )
+    config = __merge-config(config, addition)
+  }
 
-    // TODO: The statutory declaration changed for courses starting in 2024. This complicated edge case for courses from 2023
-    // and earlier can safely be removed by September 2026
-    let statuatory-declaration = if course-year < 24 {
-      __linguify-content("statutory-declaration-note-dhbw-old", args: (
-        author-count: authors.len(),
-        title: args.at("title-long"),
-        type: args.at("thesis-type"),
+  // ----------------------------------
+  // 3. Generate content into the config dictionary
+  // ----------------------------------
+
+  // AI acknowledgement: filter to valid entries; if none remain, the section
+  // gets no content and is skipped by the base filter.
+  let ai-entries = config
+    .front-back-matter
+    .ai-acknowledgement
+    .at("entries", default: ())
+    .filter(ack => ack.tool != none and ack.usage != none)
+
+  let course-year = int(authors.at(0).course.find(regex("\d+")))
+
+  // Statutory declaration
+  if config.front-back-matter.statutory-declaration.enable {
+    let sd-cfg = config.front-back-matter.statutory-declaration
+    config.front-back-matter.statutory-declaration.content = {
+      pagebreak(weak: true)
+
+      // TODO: The statutory declaration changed for courses starting in 2024.
+      // This complicated edge case for courses from 2023 and earlier can safely
+      // be removed by September 2026.
+      let statuatory-declaration = if course-year < 24 {
+        __linguify-content("statutory-declaration-note-dhbw-old", args: (
+          author-count: authors.len(),
+          title: args.at("title-long"),
+          type: args.at("thesis-type"),
+        ))
+      } else {
+        __linguify-content("statutory-declaration-note-dhbw", args: (
+          author-count: authors.len(),
+        ))
+      }
+
+      let statuatory-declaration-printed = if course-year < 24 {
+        __linguify-content("statutory-declaration-note-dhbw-old-printed", args: (
+          author-count: authors.len(),
+        ))
+      } else {
+        __linguify-content("statutory-declaration-note-dhbw-printed", args: (
+          author-count: authors.len(),
+        ))
+      }
+
+      align(center, heading(
+        __linguify-content("statutory-declaration"),
+        level: 1,
       ))
-    } else {
-      __linguify-content("statutory-declaration-note-dhbw", args: (
-        author-count: authors.len(),
-      ))
-    }
 
-    let statuatory-declaration-printed = if course-year < 24 {
-      __linguify-content("statutory-declaration-note-dhbw-old-printed", args: (
-        author-count: authors.len(),
-      ))
-    } else {
-      __linguify-content("statutory-declaration-note-dhbw-printed", args: (
-        author-count: authors.len(),
-      ))
-    }
-
-    align(center, heading(
-      __linguify-content("statutory-declaration"),
-      level: 1,
-    ))
-
-    statuatory-declaration
-    if not digital-only {
-      (
+      statuatory-declaration
+      if not sd-cfg.digital-only {
         " " + statuatory-declaration-printed
-      )
-    }
+      }
 
-    // TODO: Just like above, this check for course-year >= 24 can be removed after September 2026 as all courses will use that statutory declaration.
-    if course-year >= 24 and ai-acknowledgement.len() > 0 {
-      linebreak()
-      __linguify-content("statutory-declaration-note-dhbw-ai")
-    }
+      // TODO: Just like above, this check for course-year >= 24 can be removed
+      // after September 2026 as all courses will use that statutory declaration.
+      if course-year >= 24 and ai-entries.len() > 0 {
+        linebreak()
+        __linguify-content("statutory-declaration-note-dhbw-ai")
+      }
 
-    set grid.cell(align: left, inset: (x: 1em, y: 0.3em))
+      set grid.cell(align: left, inset: (x: 1em, y: 0.3em))
 
-    for a in authors {
-      __signature-line(
-        author: a,
-        date: submission-date,
-        digital: digital-submission,
-        city: signature-city,
-      )
+      for a in authors {
+        __signature-line(
+          author: a,
+          date: submission-date,
+          digital: sd-cfg.digital-submission,
+          city: sd-cfg.signature-city,
+        )
+      }
     }
   }
 
-  // Confidentiality Clause
-  let confidentiality-clause-text = {
-    pagebreak()
-    [#[] <__confidentiality-clause>]
-    align(center, heading(
-      __linguify-content("confidentiality-agreement"),
-      level: 1,
-    ))
+  // Confidentiality clause
+  if config.front-back-matter.confidentiality-clause.enable {
+    config.front-back-matter.confidentiality-clause.content = {
+      pagebreak()
+      [#[] <__confidentiality-clause>]
+      align(center, heading(
+        __linguify-content("confidentiality-agreement"),
+        level: 1,
+      ))
 
-    __linguify-content("confidentiality-agreement-note-dhbw")
+      __linguify-content("confidentiality-agreement-note-dhbw")
+    }
   }
 
+  // AI acknowledgement
+  if ai-entries.len() > 0 {
+    config.front-back-matter.ai-acknowledgement.content = {
+      pagebreak(weak: true)
+      align(center, heading(
+        __linguify-content("ai-acknowledgement-heading-dhbw"),
+        level: 1,
+      ))
+
+      let table-cells = ai-entries.fold((), (acc, (tool, usage)) => (
+        acc + (tool, usage)
+      ))
+
+      align(center, styled-table(
+        columns: (auto, 1fr),
+        table-content: (
+          table.header(
+            __linguify-content("tool"),
+            __linguify-content("usage-description"),
+          ),
+          ..table-cells,
+        ),
+      ))
+    }
+  }
+
+  // ----------------------------------
+  // 4. Pass resulting config down to base
+  // ----------------------------------
   show: project.with(
     __logo-left: company-logo,
     __logo-right: image("assets/DHBW-Logo.svg"),
     __authors: authors,
     __submission-info: submission-info,
     __metadata: metadata,
-    __confidentiality-clause: confidentiality-clause,
-    __postamble: (
-      statutory-declaration,
-      ..if (confidentiality-clause) { (confidentiality-clause-text,) },
-      ..if (ai-acknowledgement.len() > 0) {
-        (ai-acknowledgement-text,)
-      },
-    ),
-    ..args,
+    __confidentiality-clause: config.front-back-matter.confidentiality-clause.enable,
+    config,
+    ..args.named(),
   )
   body
 }
