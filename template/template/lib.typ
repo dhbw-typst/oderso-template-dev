@@ -9,4 +9,12 @@
   caption-with-source, inline-glossary, styled-table, table-hline-spaced,
   tablefigure, tablefigure-raw,
 )
+#import "config.typ": (
+  configure-abbreviations, configure-abstracts, configure-acknowledgements,
+  configure-dhbw-ka-ai-acknowledgement, configure-dhbw-ma-ai-declaration-form,
+  configure-appendices, configure-bibliography,
+  configure-confidentiality-clause, configure-figure-listings,
+  configure-glossary, configure-page, configure-statutory-declaration,
+  configure-toc,
+)
 #import "base.typ": project

@@ -1,30 +1,14 @@
 // LTeX: enabled=false
-#import "template/lib.typ": caption-with-source, dhbw-ka-adapter
+#import "template/lib.typ": (
+  caption-with-source, configure-abbreviations, configure-abstracts,
+  configure-acknowledgements, configure-appendices, configure-bibliography,
+  configure-dhbw-ka-ai-acknowledgement, configure-glossary, dhbw-ka-adapter,
+)
 #import "glossary.typ": abbreviations, glossary
 #import "appendix.typ": appendices
 
 #show: dhbw-ka-adapter.with(
   lang: "en",
-
-  // Wether to display a signature line for the statutory declaration
-  digital-submission: true,
-
-  // Set to false if you also submit a printed copy of your thesis. Important for the statutory declaration
-  digital-only: true,
-
-  // Set to false if you do not need a confidentiality clause
-  confidentiality-clause: true,
-
-  // Add AI tools used for this thesis here, according to 4.6 of "Leitlinien für Wissenschaftliche Arbeiten in Bachelorstudiengängen Studienbereich Technik"
-  ai-acknowledgement: (
-    (
-      tool: "ChatGPT",
-      usage: [
-        + Vibed chapter 1 - 6
-        + Grammer correction
-      ],
-    ), // This last comma is important, keep it!
-  ),
 
   // Long title, displayed on cover slide
   title-long: "Writing in Typst about a long, very scientific topic",
@@ -53,8 +37,6 @@
     ),
   ),
 
-  signature-city: "Karlsruhe",
-
   // Set to specific date with "24.12.2026"
   submission-date: datetime.today().display("[day].[month].[year]"),
 
@@ -67,31 +49,36 @@
 
   university-supervisor: "Heinrich Braun",
 
-  // acknowledgements: usage: (
-  //   content: [content] || include("front-matter/acknowledgements.typ")
-  // )
-  // remove property to remove acknowledgements
-  acknowledgements: (
-    include "misc/acknowledgments.typ"
-  ),
+  // Add AI tools used for this thesis here, according to 4.6 of "Leitlinien für
+  // Wissenschaftliche Arbeiten in Bachelorstudiengängen Studienbereich Technik"
+  configure-dhbw-ka-ai-acknowledgement(entries: (
+    (
+      tool: "ChatGPT",
+      usage: [
+        + Vibed chapter 1 - 6
+        + Grammer correction
+      ],
+    ), // This last comma is important, keep it!
+  )),
 
-  // abstracs: usage: (language, language (displayed), content)
-  abstracts: (
-    ("de", "Deutsch", include "misc/abstract-german.typ"),
-    ("en", "English", include "misc/abstract-english.typ"),
-  ),
+  // remove this call to remove acknowledgements
+  configure-acknowledgements(text: include "misc/acknowledgments.typ"),
 
-  // Appendix can be configured in appendix.typ
-  // remove property to remove appendices
-  appendices: appendices,
+  // Abstracts are dictionaries with `lang`, `lang-display`, `text` keys.
+  configure-abstracts(abstracts: (
+    (lang: "de", lang-display: "Deutsch", text: include "misc/abstract-german.typ"),
+    (lang: "en", lang-display: "English", text: include "misc/abstract-english.typ"),
+  )),
+
+  // Appendix can be configured in appendix.typ; remove this call to remove appendices
+  configure-appendices(appendices: appendices),
 
   // Bibliography
-  library: bibliography("refs.bib"),
+  configure-bibliography(library: bibliography("refs.bib")),
 
-  abbreviations: abbreviations,
-  glossary: glossary,
+  configure-abbreviations(abbreviations: abbreviations),
+  configure-glossary(glossary: glossary),
 )
-
 // You can now start writing :)
 
 #include "chapters/introduction.typ"

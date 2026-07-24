@@ -1,13 +1,13 @@
 // LTeX: enabled=false
-#import "template/lib.typ": caption-with-source, ihk-adapter
+#import "template/lib.typ": (
+  caption-with-source, configure-abbreviations, configure-appendices,
+  configure-bibliography, configure-glossary, ihk-adapter,
+)
 #import "glossary.typ": abbreviations, glossary
 #import "appendix.typ": appendices
 
 #show: ihk-adapter.with(
   lang: "de",
-
-  // Set to false if you do not need a confidentiality clause
-  confidentiality-clause: true,
 
   title-long: "Writing in Typst about a long, very scientific topic",
   title-short: "Writing in Typst",
@@ -26,21 +26,19 @@
       examinee-number: "(123)-4567",
     ),
   ),
-  signature-city: "Karlsruhe",
   processing-period-weeks: 12,
   company-department: "Human Resources",
   company-supervisor: "Max Mustermann",
   company-logo: image("assets/placeholder-company-logo.svg"),
 
-  // Appendix can be configured in appendix.typ
-  // remove property to remove appendices
-  appendices: appendices,
+  // Appendix can be configured in appendix.typ; remove this call to remove appendices
+  configure-appendices(appendices: appendices),
 
   // Bibliography
-  library: bibliography("refs.bib"),
+  configure-bibliography(library: bibliography("refs.bib")),
 
-  abbreviations: abbreviations,
-  glossary: glossary,
+  configure-abbreviations(abbreviations: abbreviations),
+  configure-glossary(glossary: glossary),
 )
 
 // You can now start writing :)
