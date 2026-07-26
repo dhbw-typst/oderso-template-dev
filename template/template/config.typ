@@ -3,7 +3,7 @@
 //                        INTERNALS
 // ============================================================
 
-/// Recusively adds `addition` to `base`. Largely copied from #link(https://github.com/touying-typ/touying/blob/a8abe0d832024038c4174d9bb8182f202bde1209/src/utils.typ#L42-L61)[touying]. Base is modified and returned. -> dictionary
+/// Recusively adds `addition` to `base`. Largely copied from #link("https://github.com/touying-typ/touying/blob/a8abe0d832024038c4174d9bb8182f202bde1209/src/utils.typ#L42-L61")[touying]. Base is modified and returned. -> dictionary
 #let __merge-config(
   /// The base dictionary. Will be modified -> dictionary
   base,
@@ -12,7 +12,9 @@
 ) = {
   for key in addition.keys() {
     if (
-      key in base and type(base.at(key)) == dictionary and type(addition.at(key)) == dictionary
+      key in base
+        and type(base.at(key)) == dictionary
+        and type(addition.at(key)) == dictionary
     ) {
       base.insert(key, __merge-config(base.at(key), addition.at(key)))
     } else {
@@ -23,7 +25,7 @@
   return base
 }
 
-/// Recusively adds `additions` to `base`. Largely copied from #link(https://github.com/touying-typ/touying/blob/a8abe0d832024038c4174d9bb8182f202bde1209/src/utils.typ#L42-L61)[touying]. Base is modified and returned. -> dictionary
+/// Recusively adds `additions` to `base`. Largely copied from #link("https://github.com/touying-typ/touying/blob/a8abe0d832024038c4174d9bb8182f202bde1209/src/utils.typ#L42-L61")[touying]. Base is modified and returned. -> dictionary
 #let __merge-configs(
   /// The base dictionary. -> dictionary
   base,
@@ -42,12 +44,18 @@
 /// and that `order` is either the default sentinel or an integer.
 #let __validate-position-order(position, order) = {
   assert(
-    position == __default or position == "frontmatter" or position == "backmatter",
-    message: "`position` must be either \"frontmatter\" or \"backmatter\", got: " + repr(position),
+    position == __default
+      or position == "frontmatter"
+      or position == "backmatter",
+    message: "`position` must be either \"frontmatter\" or \"backmatter\", got: "
+      + repr(position),
   )
   assert(
     order == __default or type(order) == int,
-    message: "`order` must be an integer, got " + repr(order) + " of type " + str(type(order)),
+    message: "`order` must be an integer, got "
+      + repr(order)
+      + " of type "
+      + str(type(order)),
   )
 }
 
@@ -55,11 +63,14 @@
 #let __validate-enable(enable) = {
   assert(
     enable == __default or type(enable) == bool,
-    message: "`enable` must be a boolean, got " + repr(enable) + " of type " + str(type(enable)),
+    message: "`enable` must be a boolean, got "
+      + repr(enable)
+      + " of type "
+      + str(type(enable)),
   )
 }
 
-/// Returns a copy of the provided dict but only with entries that do not have the value of `__default`. Largely copied from #link(https://github.com/touying-typ/touying/blob/a8abe0d832024038c4174d9bb8182f202bde1209/src/utils.typ#L42-L61)[touying]. -> dictionary
+/// Returns a copy of the provided dict but only with entries that do not have the value of `__default`. Largely copied from #link("https://github.com/touying-typ/touying/blob/a8abe0d832024038c4174d9bb8182f202bde1209/src/utils.typ#L42-L61")[touying]. -> dictionary
 #let __get-dict-without-default(dict) = {
   let new-dict = (:)
   for (key, value) in dict.pairs() {
@@ -98,7 +109,7 @@
 
 /// Configure general page settings -> dictionary
 #let configure-page(
-  /// Page margins. See #link(https://typst.app/docs/reference/layout/page/#parameters-margin)[the typst documentation] for more information -> auto | relative | dictionary
+  /// Page margins. See #link("https://typst.app/docs/reference/layout/page/#parameters-margin")[the typst documentation] for more information -> auto | relative | dictionary
   margin: __default,
 ) = {
   assert(
@@ -120,11 +131,11 @@
   )
 }
 
-/// Configure abbreviations. Using #link(https://typst.app/universe/package/glossarium/)[glossarium] as underlying library. -> dicitionary
+/// Configure abbreviations. Using #link("https://typst.app/universe/package/glossarium/")[glossarium] as underlying library. -> dicitionary
 #let configure-abbreviations(
-  /// The abbreviation entries. See #link(https://typst.app/universe/package/glossarium/)[glossarium] for more information on entry format. -> array
+  /// The abbreviation entries. See #link("https://typst.app/universe/package/glossarium/")[glossarium] for more information on entry format. -> array
   abbreviations: __default,
-  /// Print options passed to `print-glossary`. See #link(https://typst.app/universe/package/glossarium/)[glossarium] available options.
+  /// Print options passed to `print-glossary`. See #link("https://typst.app/universe/package/glossarium/")[glossarium] available options.
   print-options: __default,
   /// Where the abbreviation listing should be displayed. -> "frontmatter" | "backmatter"
   position: __default,
@@ -151,11 +162,11 @@
   )
 }
 
-/// Configure glossary. Using #link(https://typst.app/universe/package/glossarium/)[glossarium] as underlying library. -> dicitionary
+/// Configure glossary. Using #link("https://typst.app/universe/package/glossarium/")[glossarium] as underlying library. -> dicitionary
 #let configure-glossary(
-  /// The glossary entries. See #link(https://typst.app/universe/package/glossarium/)[glossarium] for more information on entry format. -> array
+  /// The glossary entries. See #link("https://typst.app/universe/package/glossarium/")[glossarium] for more information on entry format. -> array
   glossary: __default,
-  /// Print options passed to `print-glossary`. See #link(https://typst.app/universe/package/glossarium/)[glossarium] available options.
+  /// Print options passed to `print-glossary`. See #link("https://typst.app/universe/package/glossarium/")[glossarium] available options.
   print-options: __default,
   /// Where the glossary listing should be displayed. -> "frontmatter". | "backmatter"
   position: __default,
@@ -205,7 +216,7 @@
 
 /// Configures one or more abstracts. -> dictionary
 #let configure-abstracts(
-  /// List of abstracts. Entries must have `lang` (string), the language of the text as #link(https://en.wikipedia.org/wiki/ISO_639)[ISO 639] code, `lang-display` (content | none), the language name to display above the text, `text` (content), the abstracts text. -> array
+  /// List of abstracts. Entries must have `lang` (string), the language of the text as #link("https://en.wikipedia.org/wiki/ISO_639")[ISO 639] code, `lang-display` (content | none), the language name to display above the text, `text` (content), the abstracts text. -> array
   abstracts: __default,
   /// Where the abstracts should be displayed. -> "frontmatter" | "backmatter"
   position: __default,
@@ -215,21 +226,39 @@
   if abstracts != __default {
     assert(
       type(abstracts) == array,
-      message: "`abstracts` must be an array, got " + repr(abstracts) + " of type " + str(type(abstracts)),
+      message: "`abstracts` must be an array, got "
+        + repr(abstracts)
+        + " of type "
+        + str(type(abstracts)),
     )
     for (i, entry) in abstracts.enumerate() {
       assert(
         type(entry) == dictionary,
-        message: "`abstracts` entry at index " + str(i) + " must be a dictionary, got " + repr(entry),
+        message: "`abstracts` entry at index "
+          + str(i)
+          + " must be a dictionary, got "
+          + repr(entry),
       )
       if "lang" not in entry {
-        panic("`abstracts` entry at index " + str(i) + " is missing required key `lang`")
+        panic(
+          "`abstracts` entry at index "
+            + str(i)
+            + " is missing required key `lang`",
+        )
       }
       if "lang-display" not in entry {
-        panic("`abstracts` entry at index " + str(i) + " is missing required key `lang-display`")
+        panic(
+          "`abstracts` entry at index "
+            + str(i)
+            + " is missing required key `lang-display`",
+        )
       }
       if "text" not in entry {
-        panic("`abstracts` entry at index " + str(i) + " is missing required key `text`")
+        panic(
+          "`abstracts` entry at index "
+            + str(i)
+            + " is missing required key `text`",
+        )
       }
       assert(
         type(entry.lang) == str,
@@ -296,11 +325,17 @@
   )
   assert(
     table-listing == __default or type(table-listing) == bool,
-    message: "`table-listing` must be a boolean, got " + repr(table-listing) + " of type " + str(type(table-listing)),
+    message: "`table-listing` must be a boolean, got "
+      + repr(table-listing)
+      + " of type "
+      + str(type(table-listing)),
   )
   assert(
     code-listing == __default or type(code-listing) == bool,
-    message: "`code-listing` must be a boolean, got " + repr(code-listing) + " of type " + str(type(code-listing)),
+    message: "`code-listing` must be a boolean, got "
+      + repr(code-listing)
+      + " of type "
+      + str(type(code-listing)),
   )
   __validate-position-order(position, order)
   return (
@@ -342,19 +377,33 @@
   if appendices != __default {
     assert(
       type(appendices) == array,
-      message: "`appendices` must be an array, got " + repr(appendices) + " of type " + str(type(appendices)),
+      message: "`appendices` must be an array, got "
+        + repr(appendices)
+        + " of type "
+        + str(type(appendices)),
     )
     let validated = ()
     for (i, entry) in appendices.enumerate() {
       assert(
         type(entry) == dictionary,
-        message: "`appendices` entry at index " + str(i) + " must be a dictionary, got " + repr(entry),
+        message: "`appendices` entry at index "
+          + str(i)
+          + " must be a dictionary, got "
+          + repr(entry),
       )
       if "title" not in entry {
-        panic("`appendices` entry at index " + str(i) + " is missing required key `title`")
+        panic(
+          "`appendices` entry at index "
+            + str(i)
+            + " is missing required key `title`",
+        )
       }
       if "text" not in entry {
-        panic("`appendices` entry at index " + str(i) + " is missing required key `text`")
+        panic(
+          "`appendices` entry at index "
+            + str(i)
+            + " is missing required key `text`",
+        )
       }
       let normalized = entry
       if "reference" not in normalized {
@@ -386,16 +435,19 @@
 ) = {
   assert(
     metadata == __default or type(metadata) == dictionary,
-    message: "`metadata` must be a dictionary, got " + repr(metadata) + " of type " + str(type(metadata)),
+    message: "`metadata` must be a dictionary, got "
+      + repr(metadata)
+      + " of type "
+      + str(type(metadata)),
   )
 
   if metadata == __default {
     return (
-      metadata: (:)
+      metadata: (:),
     )
   } else {
     return (
-      metadata: metadata
+      metadata: metadata,
     )
   }
 }

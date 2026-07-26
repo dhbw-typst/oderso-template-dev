@@ -21,7 +21,11 @@
     digital-only: true,
     signature-city: "Mannheim",
   ),
-  configure-confidentiality-clause(enable: true, position: "backmatter", order: 90),
+  configure-confidentiality-clause(
+    enable: true,
+    position: "backmatter",
+    order: 90,
+  ),
   configure-dhbw-ma-ai-declaration-form(position: "backmatter", order: 100),
 )
 
@@ -219,9 +223,12 @@
       }
 
       let statuatory-declaration-printed = if course-year < 24 {
-        __linguify-content("statutory-declaration-note-dhbw-old-printed", args: (
-          author-count: authors.len(),
-        ))
+        __linguify-content(
+          "statutory-declaration-note-dhbw-old-printed",
+          args: (
+            author-count: authors.len(),
+          ),
+        )
       } else {
         __linguify-content("statutory-declaration-note-dhbw-printed", args: (
           author-count: authors.len(),
@@ -283,7 +290,10 @@
           mobile-number: a.phone-number,
           module-name: ai-cfg.at("module-name", default: none),
           semester: ai-cfg.at("semester", default: none),
-          module-submission-date: ai-cfg.at("module-submission-date", default: none),
+          module-submission-date: ai-cfg.at(
+            "module-submission-date",
+            default: none,
+          ),
           exam-type: ai-cfg.at("exam-type", default: none),
           product-name: ai-author.at("product-name", default: none),
           topic: ai-author.at("topic", default: none),

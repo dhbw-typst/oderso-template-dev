@@ -66,8 +66,16 @@
 
   // Abstracts are dictionaries with `lang`, `lang-display`, `text` keys.
   configure-abstracts(abstracts: (
-    (lang: "de", lang-display: "Deutsch", text: include "misc/abstract-german.typ"),
-    (lang: "en", lang-display: "English", text: include "misc/abstract-english.typ"),
+    (
+      lang: "de",
+      lang-display: "Deutsch",
+      text: include "misc/abstract-german.typ",
+    ),
+    (
+      lang: "en",
+      lang-display: "English",
+      text: include "misc/abstract-english.typ",
+    ),
   )),
 
   // Appendix can be configured in appendix.typ; remove this call to remove appendices

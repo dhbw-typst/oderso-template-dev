@@ -1,4 +1,7 @@
-#import "../config.typ": __default, __validate-enable, __validate-position-order, __get-dict-without-default
+#import "../config.typ": (
+  __default, __get-dict-without-default, __validate-enable,
+  __validate-position-order,
+)
 
 // ============================================================
 //                    SHARED ADAPTERS
@@ -110,7 +113,10 @@
   for (i, entry) in entries.enumerate() {
     assert(
       type(entry) == dictionary,
-      message: "`entries` at index " + str(i) + " must be a dictionary, got " + repr(entry),
+      message: "`entries` at index "
+        + str(i)
+        + " must be a dictionary, got "
+        + repr(entry),
     )
     if "tool" not in entry {
       panic("`entries` at index " + str(i) + " is missing required key `tool`")
@@ -166,12 +172,25 @@
   for (i, entry) in authors.enumerate() {
     assert(
       type(entry) == dictionary,
-      message: "`authors` entry at index " + str(i) + " must be a dictionary, got " + repr(entry),
+      message: "`authors` entry at index "
+        + str(i)
+        + " must be a dictionary, got "
+        + repr(entry),
     )
-    for key in ("product-name", "topic", "topic-editing", "research", "design") {
+    for key in (
+      "product-name",
+      "topic",
+      "topic-editing",
+      "research",
+      "design",
+    ) {
       if key not in entry {
         panic(
-          "`authors` entry at index " + str(i) + " is missing required key `" + key + "`",
+          "`authors` entry at index "
+            + str(i)
+            + " is missing required key `"
+            + key
+            + "`",
         )
       }
     }

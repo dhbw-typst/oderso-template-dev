@@ -1,10 +1,14 @@
 // LTeX: enabled=false
 
-#import "@preview/glossarium:0.5.10": gls, glspl, make-glossary, print-glossary, register-glossary
+#import "@preview/glossarium:0.5.10": (
+  gls, glspl, make-glossary, print-glossary, register-glossary,
+)
 #import "@preview/hydra:0.6.3": hydra
 #import "@preview/codly:1.3.0": codly, codly-init
 #import "@preview/drafting:0.2.2": note-outline, set-margin-note-defaults
-#import "@preview/linguify:0.5.0": linguify, linguify-raw, load-ftl-data, set-database
+#import "@preview/linguify:0.5.0": (
+  linguify, linguify-raw, load-ftl-data, set-database,
+)
 #import "utils.typ": __in-outline, __linguify-content
 #import "config.typ": *
 #import "components/coversheet.typ": configure-coversheet-spotless
@@ -117,7 +121,6 @@
 /// specific requirements. However the parameters shown here can be used with all adapters.
 /// -> content
 #let project(
-
   /// Whether the content page numbering should include total pages ("3 / 24") or not ("3"). -> bool
   numbering-show-total: false,
   /// Watermark places the provided `content` in the left and right page margins. It can be used, for example, to mark a document as a draft when submitting non-final versions to supervisors. -> content | none
@@ -343,7 +346,9 @@
   }
 
   // Bibliography
-  if config.front-back-matter.bibliography.at("library", default: none) != none {
+  if (
+    config.front-back-matter.bibliography.at("library", default: none) != none
+  ) {
     config.front-back-matter.bibliography.content = {
       config.front-back-matter.bibliography.library
     }
@@ -374,7 +379,10 @@
   // Figure listings
   config.front-back-matter.listings.content = context {
     // list of figures
-    if config.front-back-matter.listings.figure-listing and query(figure.where(kind: image)).len() > 0 {
+    if (
+      config.front-back-matter.listings.figure-listing
+        and query(figure.where(kind: image)).len() > 0
+    ) {
       pagebreak(weak: true)
       heading(__linguify-content("list-of-figures"))
       outline(
@@ -384,7 +392,10 @@
     }
 
     // list of tables
-    if config.front-back-matter.listings.table-listing and query(figure.where(kind: table)).len() > 0 {
+    if (
+      config.front-back-matter.listings.table-listing
+        and query(figure.where(kind: table)).len() > 0
+    ) {
       pagebreak(weak: true)
       heading(__linguify-content("list-of-tables"))
       outline(
@@ -394,7 +405,10 @@
     }
 
     // list of source code
-    if config.front-back-matter.listings.code-listing and query(figure.where(kind: raw)).len() > 0 {
+    if (
+      config.front-back-matter.listings.code-listing
+        and query(figure.where(kind: raw)).len() > 0
+    ) {
       pagebreak(weak: true)
       heading(__linguify-content("list-of-code"))
       outline(

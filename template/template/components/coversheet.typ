@@ -44,7 +44,10 @@
 
         #text(20pt)[*#config.metadata.title-long*]
 
-        #smallcaps(text(1.25em, weight: "semibold")[#config.metadata.thesis-type])
+        #smallcaps(text(
+          1.25em,
+          weight: "semibold",
+        )[#config.metadata.thesis-type])
 
         #config.metadata.submission-info
 

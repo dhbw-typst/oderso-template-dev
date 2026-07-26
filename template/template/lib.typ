@@ -6,10 +6,8 @@
 #import "adapters/dhbw-ma.typ": dhbw-ma-adapter
 #import "adapters/ihk.typ": ihk-adapter
 #import "adapters/config.typ": (
-configure-statutory-declaration,
-configure-confidentiality-clause,
-configure-dhbw-ka-ai-acknowledgement,
-configure-dhbw-ma-ai-declaration-form
+  configure-confidentiality-clause, configure-dhbw-ka-ai-acknowledgement,
+  configure-dhbw-ma-ai-declaration-form, configure-statutory-declaration,
 )
 #import "utils.typ": (
   caption-with-source, inline-glossary, styled-table, table-hline-spaced,
@@ -18,7 +16,6 @@ configure-dhbw-ma-ai-declaration-form
 #import "config.typ": (
   configure-abbreviations, configure-abstracts, configure-acknowledgements,
   configure-appendices, configure-bibliography, configure-figure-listings,
-  configure-glossary, configure-page,
-  configure-toc,
+  configure-glossary, configure-page, configure-toc,
 )
 #import "base.typ": project

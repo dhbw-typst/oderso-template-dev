@@ -20,7 +20,11 @@
     digital-only: true,
     signature-city: "Karlsruhe",
   ),
-  configure-confidentiality-clause(enable: true, position: "backmatter", order: 90),
+  configure-confidentiality-clause(
+    enable: true,
+    position: "backmatter",
+    order: 90,
+  ),
   configure-dhbw-ka-ai-acknowledgement(position: "backmatter", order: 100),
 )
 
@@ -114,8 +118,12 @@
     submission-date,
     __linguify-content("processing-duration"),
     __linguify-content("weeks", args: (count: processing-period-weeks)),
-    __linguify-content("matriculation-number") + ", " + __linguify-content("course"),
-    authors.map(a => a.matriculation-number + ", " + a.course).join(linebreak()),
+    __linguify-content("matriculation-number")
+      + ", "
+      + __linguify-content("course"),
+    authors
+      .map(a => a.matriculation-number + ", " + a.course)
+      .join(linebreak()),
     ..if company-name != none and company-city != none {
       (
         __linguify-content("training-company"),
@@ -198,9 +206,12 @@
       }
 
       let statuatory-declaration-printed = if course-year < 24 {
-        __linguify-content("statutory-declaration-note-dhbw-old-printed", args: (
-          author-count: authors.len(),
-        ))
+        __linguify-content(
+          "statutory-declaration-note-dhbw-old-printed",
+          args: (
+            author-count: authors.len(),
+          ),
+        )
       } else {
         __linguify-content("statutory-declaration-note-dhbw-printed", args: (
           author-count: authors.len(),

@@ -19,7 +19,11 @@
     digital-only: true,
     signature-city: "Karlsruhe",
   ),
-  configure-confidentiality-clause(enable: true, position: "backmatter", order: 90),
+  configure-confidentiality-clause(
+    enable: true,
+    position: "backmatter",
+    order: 90,
+  ),
 )
 
 /// Template adapter for IHK thesis documents.
