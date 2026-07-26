@@ -7,6 +7,7 @@
 #import "@preview/linguify:0.5.0": linguify, linguify-raw, load-ftl-data, set-database
 #import "utils.typ": __in-outline, __linguify-content
 #import "config.typ": *
+#import "components/coversheet.typ": configure-coversheet-spotless
 
 /// Default heading numbering pattern.
 /// -> str
@@ -34,11 +35,6 @@
     lastname: none,
   ),
 ) = {
-  // TODO: only for compatibility reasons: Remove with v3.0.0 release
-  if type(date) == datetime {
-    date = date.display(date-format)
-  }
-
   let signature-content = if digital {
     (
       city,
@@ -73,40 +69,42 @@
 }
 
 #let __base-config = __merge-configs(
-    (:),
-    configure-page(margin: (
-      rest: 2.5cm,
-    )),
-    configure-appendices(appendices: ()),
-    configure-acknowledgements(text: none, position: "frontmatter", order: 10),
-    configure-abstracts(abstracts: (), position: "frontmatter", order: 20),
-    configure-toc(position: "frontmatter", order: 30),
-    configure-bibliography(position: "backmatter", order: 40),
-    configure-abbreviations(
-      abbreviations: (),
-      print-options: (
-        deduplicate-back-references: true,
-        minimum-refs: 2,
-      ),
-      position: "backmatter",
-      order: 50,
+  (:),
+  configure-page(margin: (
+    rest: 2.5cm,
+  )),
+  configure-appendices(appendices: ()),
+  configure-acknowledgements(text: none, position: "frontmatter", order: 10),
+  configure-abstracts(abstracts: (), position: "frontmatter", order: 20),
+  configure-toc(position: "frontmatter", order: 30),
+  configure-bibliography(position: "backmatter", order: 40),
+  configure-abbreviations(
+    abbreviations: (),
+    print-options: (
+      deduplicate-back-references: true,
+      minimum-refs: 2,
     ),
-    configure-glossary(
-      glossary: (),
-      print-options: (
-        deduplicate-back-references: true,
-      ),
-      position: "backmatter",
-      order: 60,
+    position: "backmatter",
+    order: 50,
+  ),
+  configure-glossary(
+    glossary: (),
+    print-options: (
+      deduplicate-back-references: true,
     ),
-    configure-figure-listings(
-      code-listing: true,
-      figure-listing: true,
-      table-listing: true,
-      position: "backmatter",
-      order: 70,
-    ),
-  )
+    position: "backmatter",
+    order: 60,
+  ),
+  configure-figure-listings(
+    code-listing: true,
+    figure-listing: true,
+    table-listing: true,
+    position: "backmatter",
+    order: 70,
+  ),
+  configure-metadata(),
+  configure-coversheet-spotless(),
+)
 
 
 /// Base template for thesis documents.
@@ -119,16 +117,7 @@
 /// specific requirements. However the parameters shown here can be used with all adapters.
 /// -> content
 #let project(
-  /// The primary language of the document. Affects hyphenation, quotes,
-  /// and localized strings. Supported: `"en"`, `"de"`. -> str
-  lang: "en",
-  /// Full thesis title displayed on the cover page. -> str | none
-  title-long: none,
-  /// Shortened title displayed in the page header. -> str | none
-  title-short: none,
-  /// Type of thesis (e.g., "Projektarbeit 1", "Bachelorarbeit").
-  /// Displayed below the title on the cover. -> str | none
-  thesis-type: none,
+
   /// Whether the content page numbering should include total pages ("3 / 24") or not ("3"). -> bool
   numbering-show-total: false,
   /// Watermark places the provided `content` in the left and right page margins. It can be used, for example, to mark a document as a draft when submitting non-final versions to supervisors. -> content | none
@@ -149,19 +138,6 @@
   ..__opts,
   body,
 ) = {
-  // Unpack adapter-supplied internal options.
-  let __logo-left = __opts.named().at("__logo-left", default: none)
-  let __logo-right = __opts.named().at("__logo-right", default: none)
-  let __submission-info = __opts.named().at("__submission-info", default: none)
-  let __metadata = __opts.named().at("__metadata", default: ())
-  let __authors = __opts
-    .named()
-    .at(
-      "__authors",
-      default: ((firstname: none, lastname: none),),
-    )
-  let __confidentiality-clause = __opts.named().at("__confidentiality-clause", default: false)
-
   // create config dictionary
   let config = __base-config
   for addition in __opts.pos() {
@@ -180,10 +156,12 @@
   set bibliography(title: __linguify-content("bibliography"))
 
   // page setup
-  set document(title: title-long)
+  set document(title: config.metadata.at("title-long", default: none))
 
   // set text language (e. g. for smart quotes)
-  set text(lang: lang)
+  if "lang" in config.metadata {
+    set text(lang: config.metadata.lang)
+  }
 
   // font setup (LaTeX Look: 'New Computer Modern')
   set text(font: "New Computer Modern", size: 12pt)
@@ -279,6 +257,20 @@
 
   // Block quotes
   set quote(block: true)
+
+  // Allow code blocks to span multiple pages
+  show figure.where(kind: raw): set block(breakable: true)
+
+  // Equation figures
+  set math.equation(numbering: "(1)")
+  // follow IEEE style for equation references: `(1)` instead of `equation 1`
+  show ref: it => {
+    if it.element != none and it.element.func() == math.equation {
+      numbering("(1)", ..counter(math.equation).at(it.target))
+    } else {
+      it
+    }
+  }
 
   // Configure inline notes
   let caution-rect = rect.with(radius: 0.5em)
@@ -426,76 +418,7 @@
     }
   }
 
-  // Allow code blocks to span multiple pages
-  show figure.where(kind: raw): set block(breakable: true)
-
-  // Equation figures
-  set math.equation(numbering: "(1)")
-  // follow IEEE style for equation references: `(1)` instead of `equation 1`
-  show ref: it => {
-    if it.element != none and it.element.func() == math.equation {
-      numbering("(1)", ..counter(math.equation).at(it.target))
-    } else {
-      it
-    }
-  }
-
-  // Coversheet
-  grid(
-    rows: (1fr, auto, 1fr),
-    align: (_, row) => (center + top, center + top, center + bottom).at(row),
-    // Left and right logo
-    {
-      set image(height: 2.5cm)
-
-      grid(
-        columns: (1fr, 1fr),
-        align(left, __logo-left), align(right, __logo-right),
-      )
-    },
-
-    // Title
-    align(center)[
-      #set par(justify: false)
-
-      #text(20pt)[*#title-long*]
-
-      #smallcaps(text(1.25em, weight: "semibold")[#thesis-type])
-
-      #__submission-info
-
-      #__linguify-content("by")
-
-      #for author in __authors {
-        [*#author.firstname #author.lastname*\ ]
-      }
-    ],
-
-    // Meta
-    place(center + bottom, {
-      show table.cell.where(x: 0): set text(weight: "semibold")
-
-      set par(leading: .6em)
-
-      table(
-        columns: (1fr, 1fr),
-        align: (right + top, left + top),
-        stroke: none,
-        ..__metadata
-      )
-    }),
-  )
-
-  if __confidentiality-clause {
-    place(top + center, dy: 5cm, link(<__confidentiality-clause>)[
-      #text(
-        size: 12pt,
-        weight: "bold",
-        fill: gray,
-        linguify("confidentiality-stamp"),
-      )
-    ])
-  }
+  (config.coversheet.generator)(config)
 
   pagebreak()
 
@@ -537,7 +460,7 @@
         context {
           grid(
             columns: (auto, 1fr),
-            align(left, text(title-short)),
+            align(left, text(config.metadata.title-short)),
             align(right, emph(hydra(1, display: (_, it) => {
               it.body
             }))),
@@ -632,42 +555,3 @@
     }
   }
 }
-
-// Call project for testing purposes
-#show: project.with(
-  configure-bibliography(library: bibliography("../refs.bib")),
-  configure-acknowledgements(text: "This is an acknowledgement", position: "frontmatter"),
-  configure-abstracts(abstracts: (
-    (
-      lang: "de",
-      lang-display: "Deutsch",
-      text: "This is an abstract",
-    ),
-  )),
-  configure-appendices(appendices: (
-    (
-      title: "A test appendix",
-      text: "A test content",
-      reference: "ref",
-    ),
-  )),
-)
-
-#lorem(999)
-
-#figure(
-  ```py
-  print("Hello World")
-  ```,
-  caption: "A code figure",
-)
-
-#figure(box(fill: red, width: 3cm, height: 3cm), caption: "A figure")
-
-#figure(
-  table(
-    "A",
-    "table",
-  ),
-  caption: "A table figure",
-)

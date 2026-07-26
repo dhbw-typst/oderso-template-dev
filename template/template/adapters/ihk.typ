@@ -1,13 +1,14 @@
 // LTeX: enabled=false
 
-#import "base.typ": __signature-line, project
+#import "../base.typ": __signature-line, project
+#import "../config.typ": *
 #import "config.typ": *
 #import "@preview/linguify:0.5.0": linguify
-#import "utils.typ": __linguify-content
+#import "../utils.typ": __linguify-content
 
-// Default IHK adapter config: sets position/order/enable defaults and IHK
-// signature defaults for the front/back matter sections owned by this adapter.
-// Content is generated at call site by the adapter function body.
+/// Default IHK adapter config: sets position/order/enable defaults and IHK
+/// signature defaults for the front/back matter sections owned by this adapter.
+/// Content is generated at call site by the adapter function body.
 #let __ihk-config = __merge-configs(
   (:),
   configure-statutory-declaration(
@@ -101,7 +102,7 @@
   }
 
   // ----------------------------------
-  // 1. Construct default config
+  // Construct default config
   // ----------------------------------
   let config = __ihk-config
 
@@ -118,7 +119,7 @@
   }
 
   // ----------------------------------
-  // 3. Generate content into the config dictionary
+  // Generate content into the config dictionary
   // ----------------------------------
 
   // Statutory declaration
@@ -163,16 +164,12 @@
     }
   }
 
-  // ----------------------------------
-  // 4. Pass resulting config down to base
-  // ----------------------------------
   show: project.with(
     __logo-left: company-logo,
-    __logo-right: image("assets/IHK-Logo.svg"),
+    __logo-right: image("../assets/IHK-Logo.svg"),
     __authors: authors,
     __submission-info: submission-info,
     __metadata: metadata,
-    __confidentiality-clause: config.front-back-matter.confidentiality-clause.enable,
     config,
     ..args.named(),
   )

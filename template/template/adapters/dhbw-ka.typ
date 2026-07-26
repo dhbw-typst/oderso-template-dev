@@ -1,14 +1,15 @@
 // LTeX: enabled=false
 
 #import "@preview/linguify:0.5.0": linguify, linguify-raw
-#import "base.typ": __signature-line, project
+#import "../base.typ": __signature-line, project
+#import "../config.typ": *
 #import "config.typ": *
-#import "utils.typ": __linguify-content, styled-table
+#import "../utils.typ": __linguify-content, styled-table
 
-// Default DHBW Karlsruhe adapter config: sets position/order/enable defaults
-// and DHBW-KA-specific defaults (signature city, submission mode) for the
-// front/back matter sections owned by this adapter. Content is generated at
-// call site by the adapter function body.
+/// Default DHBW Karlsruhe adapter config: sets position/order/enable defaults
+/// and DHBW-KA-specific defaults (signature city, submission mode) for the
+/// front/back matter sections owned by this adapter. Content is generated at
+/// call site by the adapter function body.
 #let __dhbw-ka-config = __merge-configs(
   (:),
   configure-statutory-declaration(
@@ -35,6 +36,16 @@
 /// `configure-dhbw-ka-ai-acknowledgement(entries: ...)`.
 /// -> content
 #let dhbw-ka-adapter(
+  /// The primary language of the document. Affects hyphenation, quotes,
+  /// and localized strings. Supported: `"en"`, `"de"`. -> str
+  lang: "en",
+  /// Full thesis title displayed on the cover page. -> str | none
+  title-long: none,
+  /// Shortened title displayed in the page header. -> str | none
+  title-short: none,
+  /// Type of thesis (e.g., "Projektarbeit 1", "Bachelorarbeit").
+  /// Displayed below the title on the cover. -> str | none
+  thesis-type: none,
   /// The examination degree, e.g., "Bachelor of Science (B.Sc.)". -> str
   examination: "Bachelor of Science (B.Sc.)",
   /// The field of study, e.g., "Computer Science". -> str
@@ -75,7 +86,15 @@
   /// The main document body content. -> content
   body,
 ) = {
-  // Submission Information
+  // ----------------------------------
+  // Construct default config
+  // ----------------------------------
+  let config = __dhbw-ka-config
+
+  // ----------------------------------
+  // Fill metadata config
+  // ----------------------------------
+  // Submission information (for coversheet)
   let submission-info = [
     #__linguify-content("as-part-of-examination-dhbw")
 
@@ -89,23 +108,14 @@
     ))
   ]
 
-  // TODO: only for compatibility reasons: Remove with v3.0.0 release
-  if type(submission-date) == datetime {
-    submission-date = submission-date.display(submission-date-format)
-  }
-
-  // Metadata
-  let metadata = (
+  // Misc data (for coversheet)
+  let misc-key-value = (
     __linguify-content("submission-date"),
     submission-date,
     __linguify-content("processing-duration"),
     __linguify-content("weeks", args: (count: processing-period-weeks)),
-    __linguify-content("matriculation-number")
-      + ", "
-      + __linguify-content("course"),
-    authors
-      .map(a => a.matriculation-number + ", " + a.course)
-      .join(linebreak()),
+    __linguify-content("matriculation-number") + ", " + __linguify-content("course"),
+    authors.map(a => a.matriculation-number + ", " + a.course).join(linebreak()),
     ..if company-name != none and company-city != none {
       (
         __linguify-content("training-company"),
@@ -126,13 +136,22 @@
     panic("At least one author has to be specified!")
   }
 
-  // ----------------------------------
-  // 1. Construct default config
-  // ----------------------------------
-  let config = __dhbw-ka-config
+  config = __merge-configs(config, configure-metadata(
+    metadata: (
+      lang: lang,
+      title-long: title-long,
+      title-short: title-short,
+      thesis-type: thesis-type,
+      logo-left: company-logo,
+      logo-right: image("../assets/DHBW-Logo.svg"),
+      submission-info: submission-info,
+      misc-key-value: misc-key-value,
+      authors: authors,
+    ),
+  ))
 
   // ----------------------------------
-  // 2. Apply provided configs from user's positional args
+  // Apply provided configs from user's positional args
   // ----------------------------------
   for addition in args.pos() {
     assert.eq(
@@ -144,7 +163,7 @@
   }
 
   // ----------------------------------
-  // 3. Generate content into the config dictionary
+  // Generate content into the config dictionary
   // ----------------------------------
 
   // AI acknowledgement: filter to valid entries; if none remain, the section
@@ -258,18 +277,8 @@
     }
   }
 
-  // ----------------------------------
-  // 4. Pass resulting config down to base
-  // ----------------------------------
   show: project.with(
-    __logo-left: company-logo,
-    __logo-right: image("assets/DHBW-Logo.svg"),
-    __authors: authors,
-    __submission-info: submission-info,
-    __metadata: metadata,
-    __confidentiality-clause: config.front-back-matter.confidentiality-clause.enable,
     config,
-    ..args.named(),
   )
   body
 }

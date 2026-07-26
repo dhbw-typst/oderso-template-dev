@@ -1,15 +1,16 @@
 // LTeX: enabled=false
 
 #import "@preview/linguify:0.5.0": linguify, linguify-raw
-#import "base.typ": __signature-line, project
+#import "../base.typ": __signature-line, project
+#import "../config.typ": *
 #import "config.typ": *
-#import "assets/ai-declaration-form_dhbw-ma.typ": ai-declaration-form
-#import "utils.typ": __linguify-content
+#import "../assets/ai-declaration-form_dhbw-ma.typ": ai-declaration-form
+#import "../utils.typ": __linguify-content
 
-// Default DHBW Mannheim adapter config: sets position/order/enable defaults
-// and DHBW-MA-specific defaults (signature city, submission mode) for the
-// front/back matter sections owned by this adapter. Content is generated at
-// call site by the adapter function body.
+/// Default DHBW Mannheim adapter config: sets position/order/enable defaults
+/// and DHBW-MA-specific defaults (signature city, submission mode) for the
+/// front/back matter sections owned by this adapter. Content is generated at
+/// call site by the adapter function body.
 #let __dhbw-ma-config = __merge-configs(
   (:),
   configure-statutory-declaration(
@@ -175,12 +176,12 @@
   }
 
   // ----------------------------------
-  // 1. Construct default config
+  // Construct default config
   // ----------------------------------
   let config = __dhbw-ma-config
 
   // ----------------------------------
-  // 2. Apply provided configs from user's positional args
+  // Apply provided configs from user's positional args
   // ----------------------------------
   for addition in args.pos() {
     assert.eq(
@@ -192,7 +193,7 @@
   }
 
   // ----------------------------------
-  // 3. Generate content into the config dictionary
+  // Generate content into the config dictionary
   // ----------------------------------
 
   // Statutory declaration
@@ -269,11 +270,6 @@
   let ai-authors = ai-cfg.at("authors", default: ())
   if ai-authors.len() > 0 {
     let sd-cfg = config.front-back-matter.statutory-declaration
-    // TODO: only for compatibility reasons: Remove with v3.0.0 release
-    let module-submission-date = ai-cfg.at("module-submission-date", default: none)
-    if type(module-submission-date) == datetime {
-      module-submission-date = module-submission-date.display(submission-date-format)
-    }
     config.front-back-matter.ai-declaration-form.content = {
       for (i, a) in authors.enumerate() {
         let ai-author = ai-authors.at(i, default: (:))
@@ -287,7 +283,7 @@
           mobile-number: a.phone-number,
           module-name: ai-cfg.at("module-name", default: none),
           semester: ai-cfg.at("semester", default: none),
-          module-submission-date: module-submission-date,
+          module-submission-date: ai-cfg.at("module-submission-date", default: none),
           exam-type: ai-cfg.at("exam-type", default: none),
           product-name: ai-author.at("product-name", default: none),
           topic: ai-author.at("topic", default: none),
@@ -302,16 +298,12 @@
     }
   }
 
-  // ----------------------------------
-  // 4. Pass resulting config down to base
-  // ----------------------------------
   show: project.with(
     __logo-left: company-logo,
-    __logo-right: image("assets/DHBW-Logo.svg"),
+    __logo-right: image("../assets/DHBW-Logo.svg"),
     __authors: authors,
     __submission-info: submission-info,
     __metadata: metadata,
-    __confidentiality-clause: config.front-back-matter.confidentiality-clause.enable,
     config,
     ..args.named(),
   )
