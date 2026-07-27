@@ -54,7 +54,7 @@ in-field-of-study = des Studiengangs { $study }
 matriculation-number = Matrikelnummer
 supervisor-at-university = Gutachter der Studienakademie
 course-director = Studiengangsleiter
-
+### As the examination regulations quote it directly, we kept the declaration note German in the German and English version.
 statutory-declaration-note-dhbw = { $author-count ->
     [one] Ich versichere hiermit, dass ich die vorliegende Arbeit selbstständig verfasst und keine anderen als die angegebenen Quellen und Hilfsmittel verwendet habe und diese Arbeit bei keiner anderen Prüfung mit gleichem oder vergleichbarem Inhalt vorgelegt habe und diese bislang nicht veröffentlicht wurde.
    *[other] Wir versichern hiermit, dass wir die vorliegende Arbeit selbstständig verfasst und keine anderen als die angegebenen Quellen und Hilfsmittel verwendet haben und diese Arbeit bei keiner anderen Prüfung mit gleichem oder vergleichbarem Inhalt vorgelegt haben und diese bislang nicht veröffentlicht wurde.
@@ -69,8 +69,8 @@ statutory-declaration-note-dhbw-ai = { $author-count ->
 }
 
 statutory-declaration-note-dhbw-old = { $author-count ->
-    [one] Ich versichere hiermit, dass ich meine { $type } dem Thema: "{ $title }" selbstständig verfasst und keine anderen als die angegebenen Quellen und Hilfsmittel benutzt habe.
-   *[other] Wir versichern hiermit, dass wir unsere { $type } dem Thema: "{ $title }" selbstständig verfasst und keine anderen als die angegebenen Quellen und Hilfsmittel benutzt haben.
+    [one] Ich versichere hiermit, dass ich meine { $type } mit dem Thema: "{ $title }" selbstständig verfasst und keine anderen als die angegebenen Quellen und Hilfsmittel benutzt habe.
+   *[other] Wir versichern hiermit, dass wir unsere { $type } mit dem Thema: "{ $title }" selbstständig verfasst und keine anderen als die angegebenen Quellen und Hilfsmittel benutzt haben.
 }
 
 statutory-declaration-note-dhbw-old-printed = { $author-count ->
