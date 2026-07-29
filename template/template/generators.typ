@@ -70,7 +70,10 @@
 /// `library` content (typically produced via `bibliography("refs.bib")`), or
 /// `none` if no library was provided. -> content | none
 #let __bibliography-default-generator(config) = {
-  let library = config.front-back-matter.bibliography.at("library", default: none)
+  let library = config.front-back-matter.bibliography.at(
+    "library",
+    default: none,
+  )
   if library == none {
     return none
   }
@@ -112,7 +115,8 @@
 
   // list of figures
   if (
-    listings.at("figure-listing", default: false) and query(figure.where(kind: image)).len() > 0
+    listings.at("figure-listing", default: false)
+      and query(figure.where(kind: image)).len() > 0
   ) {
     pagebreak(weak: true)
     heading(__linguify-content("list-of-figures"))
@@ -124,7 +128,8 @@
 
   // list of tables
   if (
-    listings.at("table-listing", default: false) and query(figure.where(kind: table)).len() > 0
+    listings.at("table-listing", default: false)
+      and query(figure.where(kind: table)).len() > 0
   ) {
     pagebreak(weak: true)
     heading(__linguify-content("list-of-tables"))
@@ -136,7 +141,8 @@
 
   // list of source code
   if (
-    listings.at("code-listing", default: false) and query(figure.where(kind: raw)).len() > 0
+    listings.at("code-listing", default: false)
+      and query(figure.where(kind: raw)).len() > 0
   ) {
     pagebreak(weak: true)
     heading(__linguify-content("list-of-code"))

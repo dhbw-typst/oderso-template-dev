@@ -14,7 +14,9 @@
 ) = {
   for key in addition.keys() {
     if (
-      key in base and type(base.at(key)) == dictionary and type(addition.at(key)) == dictionary
+      key in base
+        and type(base.at(key)) == dictionary
+        and type(addition.at(key)) == dictionary
     ) {
       base.insert(key, __merge-config(base.at(key), addition.at(key)))
     } else {
@@ -44,12 +46,18 @@
 /// and that `order` is either the default sentinel or an integer.
 #let __validate-position-order(position, order) = {
   assert(
-    position == __default or position == "frontmatter" or position == "backmatter",
-    message: "`position` must be either \"frontmatter\" or \"backmatter\", got: " + repr(position),
+    position == __default
+      or position == "frontmatter"
+      or position == "backmatter",
+    message: "`position` must be either \"frontmatter\" or \"backmatter\", got: "
+      + repr(position),
   )
   assert(
     order == __default or type(order) == int,
-    message: "`order` must be an integer, got " + repr(order) + " of type " + str(type(order)),
+    message: "`order` must be an integer, got "
+      + repr(order)
+      + " of type "
+      + str(type(order)),
   )
 }
 
@@ -57,7 +65,10 @@
 #let __validate-enable(enable) = {
   assert(
     enable == __default or type(enable) == bool,
-    message: "`enable` must be a boolean, got " + repr(enable) + " of type " + str(type(enable)),
+    message: "`enable` must be a boolean, got "
+      + repr(enable)
+      + " of type "
+      + str(type(enable)),
   )
 }
 
@@ -242,26 +253,38 @@
   if abstracts != __default {
     assert(
       type(abstracts) == array,
-      message: "`abstracts` must be an array, got " + repr(abstracts) + " of type " + str(type(abstracts)),
+      message: "`abstracts` must be an array, got "
+        + repr(abstracts)
+        + " of type "
+        + str(type(abstracts)),
     )
     for (i, entry) in abstracts.enumerate() {
       assert(
         type(entry) == dictionary,
-        message: "`abstracts` entry at index " + str(i) + " must be a dictionary, got " + repr(entry),
+        message: "`abstracts` entry at index "
+          + str(i)
+          + " must be a dictionary, got "
+          + repr(entry),
       )
       if "lang" not in entry {
         panic(
-          "`abstracts` entry at index " + str(i) + " is missing required key `lang`",
+          "`abstracts` entry at index "
+            + str(i)
+            + " is missing required key `lang`",
         )
       }
       if "lang-display" not in entry {
         panic(
-          "`abstracts` entry at index " + str(i) + " is missing required key `lang-display`",
+          "`abstracts` entry at index "
+            + str(i)
+            + " is missing required key `lang-display`",
         )
       }
       if "text" not in entry {
         panic(
-          "`abstracts` entry at index " + str(i) + " is missing required key `text`",
+          "`abstracts` entry at index "
+            + str(i)
+            + " is missing required key `text`",
         )
       }
       assert(
@@ -337,11 +360,17 @@
   )
   assert(
     table-listing == __default or type(table-listing) == bool,
-    message: "`table-listing` must be a boolean, got " + repr(table-listing) + " of type " + str(type(table-listing)),
+    message: "`table-listing` must be a boolean, got "
+      + repr(table-listing)
+      + " of type "
+      + str(type(table-listing)),
   )
   assert(
     code-listing == __default or type(code-listing) == bool,
-    message: "`code-listing` must be a boolean, got " + repr(code-listing) + " of type " + str(type(code-listing)),
+    message: "`code-listing` must be a boolean, got "
+      + repr(code-listing)
+      + " of type "
+      + str(type(code-listing)),
   )
   __validate-position-order(position, order)
   __validate-generator(generator-function)
@@ -389,22 +418,32 @@
   if appendices != __default {
     assert(
       type(appendices) == array,
-      message: "`appendices` must be an array, got " + repr(appendices) + " of type " + str(type(appendices)),
+      message: "`appendices` must be an array, got "
+        + repr(appendices)
+        + " of type "
+        + str(type(appendices)),
     )
     let validated = ()
     for (i, entry) in appendices.enumerate() {
       assert(
         type(entry) == dictionary,
-        message: "`appendices` entry at index " + str(i) + " must be a dictionary, got " + repr(entry),
+        message: "`appendices` entry at index "
+          + str(i)
+          + " must be a dictionary, got "
+          + repr(entry),
       )
       if "title" not in entry {
         panic(
-          "`appendices` entry at index " + str(i) + " is missing required key `title`",
+          "`appendices` entry at index "
+            + str(i)
+            + " is missing required key `title`",
         )
       }
       if "text" not in entry {
         panic(
-          "`appendices` entry at index " + str(i) + " is missing required key `text`",
+          "`appendices` entry at index "
+            + str(i)
+            + " is missing required key `text`",
         )
       }
       let normalized = entry
@@ -458,7 +497,10 @@
 ) = {
   assert(
     metadata == __default or type(metadata) == dictionary,
-    message: "`metadata` must be a dictionary, got " + repr(metadata) + " of type " + str(type(metadata)),
+    message: "`metadata` must be a dictionary, got "
+      + repr(metadata)
+      + " of type "
+      + str(type(metadata)),
   )
 
   if metadata == __default {

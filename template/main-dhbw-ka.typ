@@ -2,7 +2,8 @@
 #import "template/lib.typ": (
   caption-with-source, configure-abbreviations, configure-abstracts,
   configure-acknowledgements, configure-appendices, configure-bibliography,
-  configure-dhbw-ka-ai-acknowledgement, configure-glossary, dhbw-ka-adapter, configure-drafting,
+  configure-dhbw-ka-ai-acknowledgement, configure-drafting, configure-glossary,
+  dhbw-ka-adapter,
 )
 #import "glossary.typ": abbreviations, glossary
 #import "appendix.typ": appendices
@@ -86,7 +87,7 @@
 
   configure-abbreviations(abbreviations: abbreviations),
   configure-glossary(glossary: glossary),
-  configure-drafting(notes-listing: false, watermark: "DRAFT")
+  configure-drafting(notes-listing: false, watermark: "DRAFT"),
 )
 // You can now start writing :)
 

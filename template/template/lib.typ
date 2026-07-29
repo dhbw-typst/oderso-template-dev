@@ -15,8 +15,7 @@
 )
 #import "config.typ": (
   configure-abbreviations, configure-abstracts, configure-acknowledgements,
-  configure-appendices, configure-bibliography, configure-figure-listings,
-  configure-glossary, configure-page, configure-toc,
-  configure-drafting,
+  configure-appendices, configure-bibliography, configure-drafting,
+  configure-figure-listings, configure-glossary, configure-page, configure-toc,
 )
 #import "base.typ": project

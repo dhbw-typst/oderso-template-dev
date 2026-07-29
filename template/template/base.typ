@@ -1,10 +1,14 @@
 // LTeX: enabled=false
 
-#import "@preview/glossarium:0.5.10": gls, glspl, make-glossary, print-glossary, register-glossary
+#import "@preview/glossarium:0.5.10": (
+  gls, glspl, make-glossary, print-glossary, register-glossary,
+)
 #import "@preview/hydra:0.6.3": hydra
 #import "@preview/codly:1.3.0": codly, codly-init
 #import "@preview/drafting:0.2.2": note-outline, set-margin-note-defaults
-#import "@preview/linguify:0.5.0": linguify, linguify-raw, load-ftl-data, set-database
+#import "@preview/linguify:0.5.0": (
+  linguify, linguify-raw, load-ftl-data, set-database,
+)
 #import "utils.typ": __in-outline, __linguify-content
 #import "config.typ": *
 #import "generators.typ": *
@@ -315,7 +319,10 @@
   // Show notes before everything else, so you don't miss them
   context {
     // Check wether there are any notes in the document and whether notes-listing is enabled
-    if config.drafting.notes-listing and (query(selector(<margin-note>).or(<inline-note>)).len() > 0) {
+    if (
+      config.drafting.notes-listing
+        and (query(selector(<margin-note>).or(<inline-note>)).len() > 0)
+    ) {
       set heading(numbering: none, outlined: false)
       note-outline(title: __linguify-content("list-of-notes"))
       pagebreak()
@@ -339,7 +346,9 @@
       .front-back-matter
       .values()
       .filter(entry => (
-        entry.position == "frontmatter" and entry.at("enable", default: true) and ("generator" in entry.keys())
+        entry.position == "frontmatter"
+          and entry.at("enable", default: true)
+          and ("generator" in entry.keys())
       ))
       .sorted(key: entry => entry.order, by: (l, r) => l < r)
 
@@ -409,7 +418,9 @@
       .front-back-matter
       .values()
       .filter(entry => (
-        entry.position == "backmatter" and entry.at("enable", default: true) and ("generator" in entry.keys())
+        entry.position == "backmatter"
+          and entry.at("enable", default: true)
+          and ("generator" in entry.keys())
       ))
       .sorted(key: entry => entry.order, by: (l, r) => l < r)
 
