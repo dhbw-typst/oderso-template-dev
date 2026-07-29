@@ -7,6 +7,7 @@
 #import "@preview/linguify:0.5.0": linguify, linguify-raw, load-ftl-data, set-database
 #import "utils.typ": __in-outline, __linguify-content
 #import "config.typ": *
+#import "generators.typ": *
 #import "components/coversheet.typ": configure-coversheet-spotless
 
 /// Default heading numbering pattern.
