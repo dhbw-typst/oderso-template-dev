@@ -1,14 +1,10 @@
 // LTeX: enabled=false
 
-#import "@preview/glossarium:0.5.10": (
-  gls, glspl, make-glossary, print-glossary, register-glossary,
-)
+#import "@preview/glossarium:0.5.10": gls, glspl, make-glossary, print-glossary, register-glossary
 #import "@preview/hydra:0.6.3": hydra
 #import "@preview/codly:1.3.0": codly, codly-init
 #import "@preview/drafting:0.2.2": note-outline, set-margin-note-defaults
-#import "@preview/linguify:0.5.0": (
-  linguify, linguify-raw, load-ftl-data, set-database,
-)
+#import "@preview/linguify:0.5.0": linguify, linguify-raw, load-ftl-data, set-database
 #import "utils.typ": __in-outline, __linguify-content
 #import "config.typ": *
 #import "components/coversheet.typ": configure-coversheet-spotless
@@ -78,10 +74,28 @@
     rest: 2.5cm,
   )),
   configure-appendices(appendices: ()),
-  configure-acknowledgements(text: none, position: "frontmatter", order: 10),
-  configure-abstracts(abstracts: (), position: "frontmatter", order: 20),
-  configure-toc(position: "frontmatter", order: 30),
-  configure-bibliography(position: "backmatter", order: 40),
+  configure-acknowledgements(
+    text: none,
+    position: "frontmatter",
+    order: 10,
+    generator-function: __acknowledgements-default-generator,
+  ),
+  configure-abstracts(
+    abstracts: (),
+    position: "frontmatter",
+    order: 20,
+    generator-function: __abstracts-default-generator,
+  ),
+  configure-toc(
+    position: "frontmatter",
+    order: 30,
+    generator-function: __toc-default-generator,
+  ),
+  configure-bibliography(
+    position: "backmatter",
+    order: 40,
+    generator-function: __bibliography-default-generator,
+  ),
   configure-abbreviations(
     abbreviations: (),
     print-options: (
@@ -90,6 +104,7 @@
     ),
     position: "backmatter",
     order: 50,
+    generator-function: __abbreviations-default-generator,
   ),
   configure-glossary(
     glossary: (),
@@ -98,6 +113,7 @@
     ),
     position: "backmatter",
     order: 60,
+    generator-function: __glossary-default-generator,
   ),
   configure-figure-listings(
     code-listing: true,
@@ -105,8 +121,10 @@
     table-listing: true,
     position: "backmatter",
     order: 70,
+    generator-function: __listings-default-generator,
   ),
   configure-metadata(),
+  configure-drafting(notes-listing: true),
   configure-coversheet-spotless(),
 )
 
@@ -290,142 +308,13 @@
   }
 
   // ----------------------------------
-  // Construct front- and backmatter
-  // ----------------------------------
-
-  // Acknowledgements
-  if config.front-back-matter.acknowledgements.text != none {
-    config.front-back-matter.acknowledgements.content = {
-      align(center + horizon, {
-        heading(outlined: false, numbering: none, [#text(
-          0.85em,
-          smallcaps(__linguify-content("acknowledgments")),
-        )\ ])
-        align(left, config.front-back-matter.acknowledgements.text)
-        v(20%)
-      })
-    }
-  }
-
-  // Abstracts
-  if config.front-back-matter.abstracts.entries.len() > 0 {
-    config.front-back-matter.abstracts.content = {
-      for a in config.front-back-matter.abstracts.entries {
-        pagebreak(weak: true)
-        align(center + horizon, {
-          heading(outlined: false, numbering: none, [#text(
-              0.85em,
-              smallcaps(__linguify-content("abstract")),
-            )\ #text(
-              0.75em,
-              weight: "light",
-              style: "italic",
-              [\- #a.lang-display -],
-            )])
-          align(left, text(lang: a.lang, a.text))
-          v(20%)
-        })
-      }
-    }
-  }
-
-  // TOC
-  config.front-back-matter.toc.content = {
-    // table of contents
-    // show level 1 headings in outline in a fancier way
-    show outline.entry.where(level: 1): strong
-    set par(leading: 0.65em)
-    outline(
-      title: __linguify-content("table-of-contents"),
-      depth: 3,
-      indent: auto,
-      target: selector(heading).before(
-        <__appendix-start>,
-      ),
-    )
-  }
-
-  // Bibliography
-  if (
-    config.front-back-matter.bibliography.at("library", default: none) != none
-  ) {
-    config.front-back-matter.bibliography.content = {
-      config.front-back-matter.bibliography.library
-    }
-  }
-
-  // Glossary
-  if config.front-back-matter.glossary.entries.len() > 0 {
-    config.front-back-matter.glossary.content = {
-      heading(__linguify-content("glossary"))
-      print-glossary(
-        config.front-back-matter.glossary.entries,
-        ..config.front-back-matter.glossary.print-options,
-      )
-    }
-  }
-
-  // Abbreviations
-  if config.front-back-matter.abbreviations.entries.len() > 0 {
-    config.front-back-matter.abbreviations.content = {
-      heading(__linguify-content("abbreviations"))
-      print-glossary(
-        config.front-back-matter.abbreviations.entries,
-        ..config.front-back-matter.abbreviations.print-options,
-      )
-    }
-  }
-
-  // Figure listings
-  config.front-back-matter.listings.content = context {
-    // list of figures
-    if (
-      config.front-back-matter.listings.figure-listing
-        and query(figure.where(kind: image)).len() > 0
-    ) {
-      pagebreak(weak: true)
-      heading(__linguify-content("list-of-figures"))
-      outline(
-        target: figure.where(kind: image).before(<__appendix-start>),
-        title: none,
-      )
-    }
-
-    // list of tables
-    if (
-      config.front-back-matter.listings.table-listing
-        and query(figure.where(kind: table)).len() > 0
-    ) {
-      pagebreak(weak: true)
-      heading(__linguify-content("list-of-tables"))
-      outline(
-        target: figure.where(kind: table).before(<__appendix-start>),
-        title: none,
-      )
-    }
-
-    // list of source code
-    if (
-      config.front-back-matter.listings.code-listing
-        and query(figure.where(kind: raw)).len() > 0
-    ) {
-      pagebreak(weak: true)
-      heading(__linguify-content("list-of-code"))
-      outline(
-        target: figure.where(kind: raw).before(<__appendix-start>),
-        title: none,
-      )
-    }
-  }
-
-  // ----------------------------------
   // Coversheet
   // ----------------------------------
 
   // Show notes before everything else, so you don't miss them
   context {
-    // Check wether there are any notes in the document
-    if (query(selector(<margin-note>).or(<inline-note>)).len() > 0) {
+    // Check wether there are any notes in the document and whether notes-listing is enabled
+    if config.drafting.notes-listing and (query(selector(<margin-note>).or(<inline-note>)).len() > 0) {
       set heading(numbering: none, outlined: false)
       note-outline(title: __linguify-content("list-of-notes"))
       pagebreak()
@@ -449,16 +338,16 @@
       .front-back-matter
       .values()
       .filter(entry => (
-        entry.position == "frontmatter"
-          and entry.at("enable", default: true)
-          and ("content" in entry.keys())
-          and entry.content != none
+        entry.position == "frontmatter" and entry.at("enable", default: true) and ("generator" in entry.keys())
       ))
       .sorted(key: entry => entry.order, by: (l, r) => l < r)
 
     for frontmatter in frontmatters {
-      pagebreak(weak: true)
-      frontmatter.content
+      let rendered = (frontmatter.generator)(config)
+      if rendered != none {
+        pagebreak(weak: true)
+        rendered
+      }
     }
   }
 
@@ -519,16 +408,16 @@
       .front-back-matter
       .values()
       .filter(entry => (
-        entry.position == "backmatter"
-          and entry.at("enable", default: true)
-          and ("content" in entry.keys())
-          and entry.content != none
+        entry.position == "backmatter" and entry.at("enable", default: true) and ("generator" in entry.keys())
       ))
       .sorted(key: entry => entry.order, by: (l, r) => l < r)
 
     for backmatter in backmatters {
-      pagebreak(weak: true)
-      backmatter.content
+      let rendered = (backmatter.generator)(config)
+      if rendered != none {
+        pagebreak(weak: true)
+        rendered
+      }
     }
   }
 

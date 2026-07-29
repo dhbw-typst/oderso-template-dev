@@ -1,6 +1,6 @@
 #import "../config.typ": (
   __default, __get-dict-without-default, __validate-enable,
-  __validate-position-order,
+  __validate-generator, __validate-position-order,
 )
 
 // ============================================================
@@ -26,9 +26,12 @@
   digital-only: __default,
   /// City shown on every signature line in this section. -> str
   signature-city: __default,
+  /// A function receiving a single positional argument `config` holding the configuration dictionary and returning the statutory declaration section `content` (or `none` to skip). -> function
+  generator-function: __default,
 ) = {
   __validate-enable(enable)
   __validate-position-order(position, order)
+  __validate-generator(generator-function)
   assert(
     digital-submission == __default or type(digital-submission) == bool,
     message: "`digital-submission` must be a boolean, got "
@@ -59,6 +62,7 @@
         signature-city: signature-city,
         position: position,
         order: order,
+        generator: generator-function,
       )),
     ),
   )
@@ -72,15 +76,19 @@
   position: __default,
   /// What order the confidentiality clause should have. -> int
   order: __default,
+  /// A function receiving a single positional argument `config` holding the configuration dictionary and returning the confidentiality clause section `content` (or `none` to skip). -> function
+  generator-function: __default,
 ) = {
   __validate-enable(enable)
   __validate-position-order(position, order)
+  __validate-generator(generator-function)
   return (
     front-back-matter: (
       confidentiality-clause: __get-dict-without-default((
         enable: enable,
         position: position,
         order: order,
+        generator: generator-function,
       )),
     ),
   )
@@ -101,8 +109,11 @@
   /// List of AI tool entries. Each entry must have `tool` (str) and `usage`
   /// (content). Empty array disables the section. -> array
   entries: (),
+  /// A function receiving a single positional argument `config` holding the configuration dictionary and returning the AI acknowledgement section `content` (or `none` to skip). -> function
+  generator-function: __default,
 ) = {
   __validate-position-order(position, order)
+  __validate-generator(generator-function)
   assert(
     type(entries) == array,
     message: "`entries` must be an array of AI tool dicts, got "
@@ -131,6 +142,7 @@
         entries: entries,
         position: position,
         order: order,
+        generator: generator-function,
       )),
     ),
   )
@@ -160,8 +172,11 @@
   /// Each entry must be a dictionary with keys `product-name`, `topic`,
   /// `topic-editing`, `research`, `design`. Empty array disables the section. -> array
   authors: (),
+  /// A function receiving a single positional argument `config` holding the configuration dictionary and returning the AI declaration form section `content` (or `none` to skip). -> function
+  generator-function: __default,
 ) = {
   __validate-position-order(position, order)
+  __validate-generator(generator-function)
   assert(
     type(authors) == array,
     message: "`authors` must be an array of per-author AI declaration dicts, got "
@@ -205,6 +220,7 @@
         authors: authors,
         position: position,
         order: order,
+        generator: generator-function,
       )),
     ),
   )

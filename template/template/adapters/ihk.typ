@@ -111,7 +111,63 @@
   let config = __ihk-config
 
   // ----------------------------------
-  // 2. Apply provided configs from user's positional args
+  // Install section generators
+  // ----------------------------------
+  // Generators are installed BEFORE user positional args so that user overrides
+  // can override section data without clobbering the adapter's generator. If a
+  // user wants to replace a generator, they can pass `generator-function: ...`
+  // in their own positional configuration call.
+
+  // Statutory declaration generator
+  let statutory-declaration-generator(config) = {
+    let sd-cfg = config.front-back-matter.statutory-declaration
+    pagebreak(weak: true)
+    align(center, heading(
+      __linguify-content("statutory-declaration"),
+      level: 1,
+    ))
+
+    // Using the statutory declaration of the dhbw, as there is no template for the IHK
+    __linguify-content("statutory-declaration-note-dhbw", args: (
+      author-count: authors.len(),
+    ))
+
+    set grid.cell(align: left, inset: (x: 1em, y: 0.3em))
+
+    for a in authors {
+      __signature-line(
+        author: a,
+        date: submission-date,
+        digital: sd-cfg.digital-submission,
+        city: sd-cfg.signature-city,
+      )
+    }
+  }
+
+  // Confidentiality clause generator
+  let confidentiality-clause-generator(config) = {
+    pagebreak(weak: true)
+    [#[] <__confidentiality-clause>]
+    align(center, heading(
+      __linguify-content("confidentiality-agreement"),
+      level: 1,
+    ))
+
+    __linguify-content("confidentiality-agreement-note-ihk")
+  }
+
+  config = __merge-configs(
+    config,
+    configure-statutory-declaration(
+      generator-function: statutory-declaration-generator,
+    ),
+    configure-confidentiality-clause(
+      generator-function: confidentiality-clause-generator,
+    ),
+  )
+
+  // ----------------------------------
+  // Apply provided configs from user's positional args
   // ----------------------------------
   for addition in args.pos() {
     assert.eq(
@@ -120,52 +176,6 @@
       message: "Only configurations are allowed as positional arguments in ihk-adapter.",
     )
     config = __merge-config(config, addition)
-  }
-
-  // ----------------------------------
-  // Generate content into the config dictionary
-  // ----------------------------------
-
-  // Statutory declaration
-  if config.front-back-matter.statutory-declaration.enable {
-    let sd-cfg = config.front-back-matter.statutory-declaration
-    config.front-back-matter.statutory-declaration.content = {
-      pagebreak(weak: true)
-      align(center, heading(
-        __linguify-content("statutory-declaration"),
-        level: 1,
-      ))
-
-      // Using the statutory declaration of the dhbw, as there is no template for the IHK
-      __linguify-content("statutory-declaration-note-dhbw", args: (
-        author-count: authors.len(),
-      ))
-
-      set grid.cell(align: left, inset: (x: 1em, y: 0.3em))
-
-      for a in authors {
-        __signature-line(
-          author: a,
-          date: submission-date,
-          digital: sd-cfg.digital-submission,
-          city: sd-cfg.signature-city,
-        )
-      }
-    }
-  }
-
-  // Confidentiality clause
-  if config.front-back-matter.confidentiality-clause.enable {
-    config.front-back-matter.confidentiality-clause.content = {
-      pagebreak(weak: true)
-      [#[] <__confidentiality-clause>]
-      align(center, heading(
-        __linguify-content("confidentiality-agreement"),
-        level: 1,
-      ))
-
-      __linguify-content("confidentiality-agreement-note-ihk")
-    }
   }
 
   show: project.with(

@@ -159,6 +159,148 @@
   ))
 
   // ----------------------------------
+  // Install section generators
+  // ----------------------------------
+  // Generators are installed BEFORE user positional args so that user calls
+  // (e.g. `configure-dhbw-ka-ai-acknowledgement(entries: (...))`) can override
+  // section data without clobbering the adapter's generator. If a user wants
+  // to replace a generator, they can pass `generator-function: ...` in their
+  // own positional configuration call.
+
+  let course-year = int(authors.at(0).course.find(regex("\d+")))
+
+  // Statutory declaration generator: reads configured flags and (for course
+  // year >= 24) the AI acknowledgement entries from the final config so user
+  // overrides applied after the adapter (e.g. custom AI entries) are honored.
+  let statutory-declaration-generator(config) = {
+    let sd-cfg = config.front-back-matter.statutory-declaration
+    let ai-entries = config
+      .front-back-matter
+      .ai-acknowledgement
+      .at("entries", default: ())
+      .filter(ack => ack.tool != none and ack.usage != none)
+
+    pagebreak(weak: true)
+
+    // TODO: The statutory declaration changed for courses starting in 2024.
+    // This complicated edge case for courses from 2023 and earlier can safely
+    // be removed by September 2026.
+    let statuatory-declaration = if course-year < 24 {
+      __linguify-content("statutory-declaration-note-dhbw-old", args: (
+        author-count: authors.len(),
+        title: title-long,
+        type: thesis-type,
+      ))
+    } else {
+      __linguify-content("statutory-declaration-note-dhbw", args: (
+        author-count: authors.len(),
+      ))
+    }
+
+    let statuatory-declaration-printed = if course-year < 24 {
+      __linguify-content(
+        "statutory-declaration-note-dhbw-old-printed",
+        args: (
+          author-count: authors.len(),
+        ),
+      )
+    } else {
+      __linguify-content("statutory-declaration-note-dhbw-printed", args: (
+        author-count: authors.len(),
+      ))
+    }
+
+    align(center, heading(
+      __linguify-content("statutory-declaration"),
+      level: 1,
+    ))
+
+    statuatory-declaration
+    if not sd-cfg.digital-only {
+      " " + statuatory-declaration-printed
+    }
+
+    // TODO: Just like above, this check for course-year >= 24 can be removed
+    // after September 2026 as all courses will use that statutory declaration.
+    if course-year >= 24 and ai-entries.len() > 0 {
+      linebreak()
+      __linguify-content("statutory-declaration-note-dhbw-ai")
+    }
+
+    set grid.cell(align: left, inset: (x: 1em, y: 0.3em))
+
+    for a in authors {
+      __signature-line(
+        author: a,
+        date: submission-date,
+        digital: sd-cfg.digital-submission,
+        city: sd-cfg.signature-city,
+      )
+    }
+  }
+
+  // Confidentiality clause generator
+  let confidentiality-clause-generator(config) = {
+    pagebreak()
+    [#[] <__confidentiality-clause>]
+    align(center, heading(
+      __linguify-content("confidentiality-agreement"),
+      level: 1,
+    ))
+
+    __linguify-content("confidentiality-agreement-note-dhbw")
+  }
+
+  // AI acknowledgement generator: filters entries at render time so that
+  // user overrides applied after the adapter are honored. Returns `none` when
+  // no valid entries remain, letting the front-/back-matter loop skip the
+  // section entirely.
+  let ai-acknowledgement-generator(config) = {
+    let ai-entries = config
+      .front-back-matter
+      .ai-acknowledgement
+      .at("entries", default: ())
+      .filter(ack => ack.tool != none and ack.usage != none)
+    if ai-entries.len() == 0 {
+      return none
+    }
+
+    pagebreak(weak: true)
+    align(center, heading(
+      __linguify-content("ai-acknowledgement-heading-dhbw"),
+      level: 1,
+    ))
+
+    let table-cells = ai-entries.fold((), (acc, (tool, usage)) => (
+      acc + (tool, usage)
+    ))
+
+    align(center, styled-table(
+      columns: (auto, 1fr),
+      table-content: (
+        table.header(
+          __linguify-content("tool"),
+          __linguify-content("usage-description"),
+        ),
+        ..table-cells,
+      ),
+    ))
+  }
+
+  config = __merge-configs(
+    config,
+    configure-statutory-declaration(
+      generator-function: statutory-declaration-generator,
+    ),
+    configure-confidentiality-clause(
+      generator-function: confidentiality-clause-generator,
+    ),
+    configure-dhbw-ka-ai-acknowledgement(
+      generator-function: ai-acknowledgement-generator,
+    ),
+  )
+
+  // ----------------------------------
   // Apply provided configs from user's positional args
   // ----------------------------------
   for addition in args.pos() {
@@ -168,124 +310,6 @@
       message: "Only configurations are allowed as positional arguments in dhbw-ka-adapter.",
     )
     config = __merge-config(config, addition)
-  }
-
-  // ----------------------------------
-  // Generate content into the config dictionary
-  // ----------------------------------
-
-  // AI acknowledgement: filter to valid entries; if none remain, the section
-  // gets no content and is skipped by the base filter.
-  let ai-entries = config
-    .front-back-matter
-    .ai-acknowledgement
-    .at("entries", default: ())
-    .filter(ack => ack.tool != none and ack.usage != none)
-
-  let course-year = int(authors.at(0).course.find(regex("\d+")))
-
-  // Statutory declaration
-  if config.front-back-matter.statutory-declaration.enable {
-    let sd-cfg = config.front-back-matter.statutory-declaration
-    config.front-back-matter.statutory-declaration.content = {
-      pagebreak(weak: true)
-
-      // TODO: The statutory declaration changed for courses starting in 2024.
-      // This complicated edge case for courses from 2023 and earlier can safely
-      // be removed by September 2026.
-      let statuatory-declaration = if course-year < 24 {
-        __linguify-content("statutory-declaration-note-dhbw-old", args: (
-          author-count: authors.len(),
-          title: args.at("title-long"),
-          type: args.at("thesis-type"),
-        ))
-      } else {
-        __linguify-content("statutory-declaration-note-dhbw", args: (
-          author-count: authors.len(),
-        ))
-      }
-
-      let statuatory-declaration-printed = if course-year < 24 {
-        __linguify-content(
-          "statutory-declaration-note-dhbw-old-printed",
-          args: (
-            author-count: authors.len(),
-          ),
-        )
-      } else {
-        __linguify-content("statutory-declaration-note-dhbw-printed", args: (
-          author-count: authors.len(),
-        ))
-      }
-
-      align(center, heading(
-        __linguify-content("statutory-declaration"),
-        level: 1,
-      ))
-
-      statuatory-declaration
-      if not sd-cfg.digital-only {
-        " " + statuatory-declaration-printed
-      }
-
-      // TODO: Just like above, this check for course-year >= 24 can be removed
-      // after September 2026 as all courses will use that statutory declaration.
-      if course-year >= 24 and ai-entries.len() > 0 {
-        linebreak()
-        __linguify-content("statutory-declaration-note-dhbw-ai")
-      }
-
-      set grid.cell(align: left, inset: (x: 1em, y: 0.3em))
-
-      for a in authors {
-        __signature-line(
-          author: a,
-          date: submission-date,
-          digital: sd-cfg.digital-submission,
-          city: sd-cfg.signature-city,
-        )
-      }
-    }
-  }
-
-  // Confidentiality clause
-  if config.front-back-matter.confidentiality-clause.enable {
-    config.front-back-matter.confidentiality-clause.content = {
-      pagebreak()
-      [#[] <__confidentiality-clause>]
-      align(center, heading(
-        __linguify-content("confidentiality-agreement"),
-        level: 1,
-      ))
-
-      __linguify-content("confidentiality-agreement-note-dhbw")
-    }
-  }
-
-  // AI acknowledgement
-  if ai-entries.len() > 0 {
-    config.front-back-matter.ai-acknowledgement.content = {
-      pagebreak(weak: true)
-      align(center, heading(
-        __linguify-content("ai-acknowledgement-heading-dhbw"),
-        level: 1,
-      ))
-
-      let table-cells = ai-entries.fold((), (acc, (tool, usage)) => (
-        acc + (tool, usage)
-      ))
-
-      align(center, styled-table(
-        columns: (auto, 1fr),
-        table-content: (
-          table.header(
-            __linguify-content("tool"),
-            __linguify-content("usage-description"),
-          ),
-          ..table-cells,
-        ),
-      ))
-    }
   }
 
   show: project.with(
