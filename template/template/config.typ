@@ -83,6 +83,21 @@
   )
 }
 
+#let __validate-relative(rel, var-name) = {
+  assert(
+    rel == __default
+      or type(rel) == relative
+      or type(rel) == length
+      or type(rel) == ratio,
+    message: "`"
+      + var-name
+      + "` must be a relative value, got "
+      + repr(rel)
+      + " of type "
+      + str(type(rel)),
+  )
+}
+
 /// Returns a copy of the provided dict but only with entries that do not have the value of `__default`. Largely copied from #link("https://github.com/touying-typ/touying/blob/a8abe0d832024038c4174d9bb8182f202bde1209/src/utils.typ#L42-L61")[touying]. -> dictionary
 #let __get-dict-without-default(dict) = {
   let new-dict = (:)
@@ -122,12 +137,16 @@
 
 /// Configure general page settings -> dictionary
 #let configure-page(
-  /// Page margins. See #link("https://typst.app/docs/reference/layout/page/#parameters-margin")[the typst documentation] for more information -> auto | relative | dictionary
+  /// Page margins. See #link("https://typst.app/docs/reference/layout/page/#parameters-margin")[the typst documentation] for more information -> relative | dictionary
   margin: __default,
 ) = {
+  if margin == auto {
+    panic(
+      "`auto` is not allowed for `margin` in this template to simplify subsequent calculations. Please choose a different type.",
+    )
+  }
   assert(
     margin == __default
-      or margin == auto
       or type(margin) == dictionary
       or type(margin) == relative
       or type(margin) == length
@@ -137,6 +156,68 @@
       + " of type "
       + str(type(margin)),
   )
+
+  if margin != __default {
+    // Normalize margins to be a dictionary of either "left, right, top, bottom" or "inside, outside, top, bottom"
+    let cp = margin
+    if type(margin) == dictionary {
+      let rest = margin.at("rest", default: 0pt)
+      if "top" in margin.keys() {
+        cp.top = margin.top
+      } else if "y" in margin.keys() {
+        cp.top = margin.y
+      } else {
+        cp.top = rest
+      }
+
+      if "bottom" in margin.keys() {
+        cp.bottom = margin.bottom
+      } else if "y" in margin.keys() {
+        cp.bottom = margin.y
+      } else {
+        cp.bottom = rest
+      }
+
+      if "inside" in margin.keys() or "outside" in margin.keys() {
+        // Fill inside/outside values
+        if "inside" in margin.keys() {
+          cp.inside = margin.inside
+        } else if "x" in margin.keys() {
+          cp.inside = margin.x
+        } else {
+          cp.inside = rest
+        }
+
+        if "outside" in margin.keys() {
+          cp.outside = margin.outside
+        } else if "x" in margin.keys() {
+          cp.outside = margin.x
+        } else {
+          cp.outside = rest
+        }
+      } else {
+        // Fill left/right values
+        if "left" in margin.keys() {
+          cp.left = margin.left
+        } else if "x" in margin.keys() {
+          cp.left = margin.x
+        } else {
+          cp.left = rest
+        }
+
+        if "right" in margin.keys() {
+          cp.right = margin.right
+        } else if "x" in margin.keys() {
+          cp.right = margin.x
+        } else {
+          cp.right = rest
+        }
+      }
+    } else {
+      margin = (top: margin, bottom: margin, left: margin, right: margin)
+    }
+  }
+
   return (
     page: __get-dict-without-default((
       margin: margin,
@@ -472,7 +553,7 @@
 
 /// Configure options regarding drafting.
 /// This includes notes and the watermark.
-/// This tempalte uses #ling
+/// See #link("https://typst.app/universe/package/drafting/")[Drafting] for more information on how to add notes.
 /// -> dictionary
 #let configure-drafting(
   /// A watermark to show on the document margins -> content

@@ -1,18 +1,14 @@
-#import "../config.typ": __default, __get-dict-without-default
+#import "../config.typ": (
+  __default, __get-dict-without-default, __validate-generator,
+)
 #import "../utils.typ": __linguify-content
 
-/// Configure the coversheet. Low-level configuration function for providing a complete custom coversheet. Use `configure-coversheet-*` for predefined coversheets. -> dictionary
+/// Configure the coversheet. Low-level configuration function for providing a completly custom coversheet. Use `configure-coversheet-*` for predefined coversheets. -> dictionary
 #let configure-coversheet(
   /// A function receiving a single position argument `config` holding the configuration dictionary and returing the conversheet `content` -> function.
   generator-function: __default,
 ) = {
-  assert(
-    generator-function == __default or type(generator-function) == function,
-    message: "`content-function` must be a function, got "
-      + repr(generator-function)
-      + " of type "
-      + str(type(generator-function)),
-  )
+  __validate-generator(generator-function)
 
   return (
     coversheet: __get-dict-without-default((
@@ -21,8 +17,11 @@
   )
 }
 
+/// Configure the coversheet of style _spotless_.
+///
+/// -> dictionary
 #let configure-coversheet-spotless() = {
-  let generator(config) = {
+  return configure-coversheet(generator-function: config => {
     // Coversheet
     grid(
       rows: (1fr, auto, 1fr),
@@ -83,7 +82,5 @@
         )
       ])
     }
-  }
-
-  return configure-coversheet(generator-function: generator)
+  })
 }

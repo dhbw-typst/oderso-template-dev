@@ -87,7 +87,7 @@
 
   configure-abbreviations(abbreviations: abbreviations),
   configure-glossary(glossary: glossary),
-  configure-drafting(notes-listing: false, watermark: "DRAFT"),
+  configure-drafting(notes-listing: true),
 )
 // You can now start writing :)
 

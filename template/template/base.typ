@@ -3,7 +3,6 @@
 #import "@preview/glossarium:0.5.10": (
   gls, glspl, make-glossary, print-glossary, register-glossary,
 )
-#import "@preview/hydra:0.6.3": hydra
 #import "@preview/codly:1.3.0": codly, codly-init
 #import "@preview/drafting:0.2.2": note-outline, set-margin-note-defaults
 #import "@preview/linguify:0.5.0": (
@@ -13,6 +12,7 @@
 #import "config.typ": *
 #import "generators.typ": *
 #import "components/coversheet.typ": configure-coversheet-spotless
+#import "components/header.typ": configure-body-header-spotless
 
 /// Default heading numbering pattern.
 /// -> str
@@ -75,9 +75,7 @@
 
 #let __base-config = __merge-configs(
   (:),
-  configure-page(margin: (
-    rest: 2.5cm,
-  )),
+  configure-page(margin: 2.5cm),
   configure-appendices(appendices: ()),
   configure-acknowledgements(
     text: none,
@@ -131,7 +129,36 @@
   configure-metadata(),
   configure-drafting(notes-listing: true),
   configure-coversheet-spotless(),
+  configure-body-header-spotless(),
 )
+
+/// Due to a bug in drafting at least one margin must be of a different size then the others.
+/// TODO: Evaluate again with the next drafting release.
+/// To fix this we check if all margins are the same and if that is the case we increment margin.top by a tiny bit.
+#let __transform-margin(margin) = {
+  if (
+    margin.top == margin.bottom
+      and (
+        (
+          "left" in margin.keys()
+            and margin.left == margin.top
+            and "right" in margin.keys()
+            and margin.right == margin.top
+        )
+          or (
+            "inside" in margin.keys()
+              and margin.inside == margin.top
+              and "outside" in margin.keys()
+              and margin.outside == margin.top
+          )
+      )
+  ) {
+    margin.top += 0.01pt
+    return margin
+  } else {
+    return margin
+  }
+}
 
 
 /// Base template for thesis documents.
@@ -146,21 +173,6 @@
 #let project(
   /// Whether the content page numbering should include total pages ("3 / 24") or not ("3"). -> bool
   numbering-show-total: false,
-  /// Watermark places the provided `content` in the left and right page margins. It can be used, for example, to mark a document as a draft when submitting non-final versions to supervisors. -> content | none
-  watermark: none,
-  /// Adapter-internal options forwarded by the adapters
-  /// (`dhbw-ka`, `dhbw-ma`, `ihk`). End users should not set these directly.
-  ///
-  /// Recognized named keys (all optional):
-  /// - `__logo-left` (content | none): top-left cover logo (e.g. company logo).
-  /// - `__logo-right` (content | none): top-right cover logo (institution logo).
-  /// - `__submission-info` (content | none): submission block under the title.
-  /// - `__metadata` (array): flat key/value pairs for the cover meta table.
-  /// - `__authors` (array): list of author dictionaries with `firstname` /
-  ///   `lastname` (and optionally `signature`).
-  /// - `__confidentiality-clause` (bool): whether to print the confidentiality
-  ///   stamp on the title page. Adapters enabling this must create a
-  ///   `<__confidentiality-clause>` label somewhere in the document.
   ..__opts,
   body,
 ) = {
@@ -194,9 +206,13 @@
 
   set page(
     paper: "a4",
-    margin: config.page.margin,
-    background: if watermark != none {
-      let watermark-text = text(15pt, fill: rgb("#ff00004b"), watermark)
+    margin: __transform-margin(config.page.margin),
+    background: if config.drafting.at("watermark", default: none) != none {
+      let watermark-text = text(
+        15pt,
+        fill: rgb("#ff00004b"),
+        config.drafting.watermark,
+      )
       (
         (pos: start + horizon, dx: 20pt, rot: -90deg),
         (pos: end + horizon, dx: -20pt, rot: 90deg),
@@ -362,25 +378,16 @@
   }
 
   // ----------------------------------
-  // Content
+  // Body
   // ----------------------------------
 
   {
     // display header
+    let body-margin = config.page.margin
+    body-margin.top = config.page.margin.top + config.body-header.height
     set page(
-      margin: (top: 4cm),
-      header: {
-        context {
-          grid(
-            columns: (auto, 1fr),
-            align(left, text(config.metadata.title-short)),
-            align(right, emph(hydra(1, display: (_, it) => {
-              it.body
-            }))),
-          )
-          line(length: 100%, stroke: (paint: gray))
-        }
-      },
+      margin: __transform-margin(body-margin),
+      header: (config.body-header.generator)(config),
       numbering: "1",
       footer: context align(center, {
         if numbering-show-total {
