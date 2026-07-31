@@ -1,7 +1,4 @@
-#import "../config.typ": (
-  __default, __get-dict-without-default, __validate-generator,
-  __validate-relative,
-)
+#import "../config.typ": __default, __get-dict-without-default, __validate-generator, __validate-relative
 #import "@preview/hydra:0.6.3": hydra
 
 /// Configures the header shown in the documents body. Low-level configuration function for providing a completly custom header. Use `configure-body-header-*` for predefined coversheets.
@@ -32,17 +29,15 @@
 /// -> dictionary
 #let configure-body-header-spotless() = {
   return configure-body-header(
-    generator-function: config => {
-      context {
-        grid(
-          columns: (auto, 1fr),
-          align(left, text(config.metadata.title-short)),
-          align(right, emph(hydra(1, display: (_, it) => {
-            it.body
-          }))),
-        )
-        line(length: 100%, stroke: (paint: gray))
-      }
+    generator-function: config => context {
+      grid(
+        columns: (auto, 1fr),
+        align(left, text(config.metadata.title-short)),
+        align(right, emph(hydra(1, display: (_, it) => {
+          it.body
+        }))),
+      )
+      line(length: 100%, stroke: (paint: gray))
     },
     height: 1cm,
   )
