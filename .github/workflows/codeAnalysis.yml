@@ -51,7 +51,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install typstyle
         run: |
-          curl -L https://github.com/typstyle-rs/typstyle/releases/download/v0.15.0/typstyle-x86_64-unknown-linux-gnu -o typstyle
+          curl -L https://github.com/typstyle-rs/typstyle/releases/download/v0.15.1/typstyle-x86_64-unknown-linux-gnu -o typstyle
           chmod +x typstyle
       - name: Typstyle version
         run: ./typstyle --version
