@@ -136,7 +136,7 @@
 // ============================================================
 
 /// Configure general page settings -> dictionary
-#let configure-page(
+#let configure-document(
   /// Page margins. See #link("https://typst.app/docs/reference/layout/page/#parameters-margin")[the typst documentation] for more information -> relative | dictionary
   margin: __default,
 ) = {
@@ -224,6 +224,8 @@
     )),
   )
 }
+
+#let configure-
 
 /// Configure abbreviations. Using #link("https://typst.app/universe/package/glossarium/")[glossarium] as underlying library. -> dicitionary
 #let configure-abbreviations(

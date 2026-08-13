@@ -72,7 +72,7 @@
 
 #let __base-config = __merge-configs(
   (:),
-  configure-page(margin: 2.5cm),
+  configure-document(margin: 2.5cm),
   configure-appendices(appendices: ()),
   configure-acknowledgements(
     text: none,
