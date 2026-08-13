@@ -203,7 +203,9 @@
     // TODO: Just like above, this check for course-year >= 24 can be removed after September 2026 as all courses will use that statutory declaration.
     if course-year >= 24 and ai-acknowledgement.len() > 0 {
       linebreak()
-      __linguify-content("statutory-declaration-note-dhbw-ai")
+      __linguify-content("statutory-declaration-note-dhbw-ai", args: (
+        author-count: authors.len(),
+      ))
     }
 
     set grid.cell(align: left, inset: (x: 1em, y: 0.3em))
