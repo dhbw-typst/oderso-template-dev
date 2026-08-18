@@ -52,6 +52,17 @@ jobs:
       - name: Install package locally
         run: ./scripts/package_template.sh
 
+      - name: Install Inter font
+        # Required for `main-dhbw-ma.typ`, which uses Inter as a fallback for
+        # Arial in `template/template/assets/ai-declaration-form_dhbw-ma.typ`.
+        # See https://github.com/rsms/inter/releases/tag/v4.1
+        run: |
+          curl -sSL https://github.com/rsms/inter/releases/download/v4.1/Inter-4.1.zip -o /tmp/inter.zip
+          unzip -q /tmp/inter.zip -d /tmp/inter
+          mkdir -p "$HOME/.local/share/fonts/inter"
+          find /tmp/inter -type f \( -name "*.ttf" -o -name "*.otf" \) -exec cp {} "$HOME/.local/share/fonts/inter/" \;
+          fc-cache -f
+
       - name: Initialize project
         run: |
           typst init @local/${{ env.PKG_NAME }}:${{ env.PKG_VERSION }}
