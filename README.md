@@ -55,3 +55,70 @@ To change the LTeX+ spell checker language from default English to German naviga
 [Nix shells](https://nixos.wiki/wiki/Development_environment_with_nix-shell) allow you to create a temporary shell with all dependencies installed.
 
 Run `nix develop --command $SHELL` or `direnv allow` depending on your setup. From inside the resulting shell run `code .` to start VSCode with the installed dependencies.
+
+## Customization Architecture
+
+### Document Components
+
+```
+- coversheet
+- frontmatter (postion < 0)
+    - frontbackmatter-header
+    - frontbackmatter-footer
+- body
+    - body-header
+    - body-footer
+- backmatter (postion >= 0)
+- appendix
+    - appendix-toc
+    - appendix-header
+    - appendix-footer
+
+frontbackmatter:
+    - toc (base)
+    - acknowledgements (base)
+    - abstracts (base)
+    - figure-listings (base)
+    - 
+```
+
+1. Base
+    Configures global defaults, no semantic information
+2. Theme
+    Changes styling of components but does not change semantic information
+3. Institution
+    Changes options to be institution compliant
+
+```typ
+#show: project.with(
+    // Specify theme
+    theme.oderso(),
+    // Specify institution
+    institution.dhbw-ka(
+        authors: (
+            (
+                name: "Marvin Fuchs",
+            ),
+            ...
+        )
+    ),
+    // Specify general front/backmatter
+    frontbackmatter.acknowledgements(
+        text: [
+            Thanks to my mom!
+        ],
+    ),
+    // Institution specific front/backmatter
+    frontbackmatter.dhbw-ka.ai-declaration(
+        ...
+    )
+    // component specific configuration
+    component.frontmatter.header(
+        ...
+    )
+    // configuration regarding the complete document (e.g. special features like book-mode or watermark, layout, typography)
+    general.book-mode(
+        ...
+    )
+)
+```

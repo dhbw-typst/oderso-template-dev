@@ -4,8 +4,8 @@
 #import "@preview/codly:1.3.0": codly, codly-init
 #import "@preview/drafting:0.2.2": note-outline, set-margin-note-defaults
 #import "@preview/linguify:0.5.0": linguify, linguify-raw, load-ftl-data, set-database
-#import "utils.typ": __in-outline, __linguify-content
-#import "config.typ": *
+#import "util.typ": _in-outline, _linguify-content
+#import "config-utils.typ": *
 #import "generators.typ": *
 #import "components/coversheet.typ": configure-coversheet-spotless
 #import "components/header.typ": configure-body-header-spotless
@@ -13,7 +13,7 @@
 
 /// Default heading numbering pattern.
 /// -> str
-#let __heading-numbering = "1.1.1"
+#let _heading-numbering = "1.1.1"
 
 /// Creates a signature line for statutory declarations.
 ///
@@ -21,7 +21,7 @@
 /// When `digital` is true, displays the author's name or signature image;
 /// when false, leaves the fields blank for handwritten signatures.
 /// -> content
-#let __signature-line(
+#let _signature-line(
   /// Whether this is a digital submission with pre-filled signature. -> bool
   digital: true,
   /// City name for the signature location. -> str | none
@@ -63,14 +63,14 @@
     columns: (30mm, 30mm, 20mm, 80mm),
     ..signature-content,
     grid.hline(end: 2), grid.hline(start: 3),
-    __linguify-content("place-of-signature"),
-    __linguify-content("date-of-signature"),
+    _linguify-content("place-of-signature"),
+    _linguify-content("date-of-signature"),
     [],
-    grid.cell(__linguify-content("signature"), align: center),
+    grid.cell(_linguify-content("signature"), align: center),
   ))
 }
 
-#let __base-config = __merge-configs(
+#let _base-config = merge-configs(
   (:),
   configure-document(margin: 2.5cm),
   configure-appendices(appendices: ()),
@@ -78,23 +78,23 @@
     text: none,
     position: "frontmatter",
     order: 10,
-    generator-function: __acknowledgements-default-generator,
+    generator-function: _acknowledgements-default-generator,
   ),
   configure-abstracts(
     abstracts: (),
     position: "frontmatter",
     order: 20,
-    generator-function: __abstracts-default-generator,
+    generator-function: _abstracts-default-generator,
   ),
   configure-toc(
     position: "frontmatter",
     order: 30,
-    generator-function: __toc-default-generator,
+    generator-function: _toc-default-generator,
   ),
   configure-bibliography(
     position: "backmatter",
     order: 40,
-    generator-function: __bibliography-default-generator,
+    generator-function: _bibliography-default-generator,
   ),
   configure-abbreviations(
     abbreviations: (),
@@ -104,7 +104,7 @@
     ),
     position: "backmatter",
     order: 50,
-    generator-function: __abbreviations-default-generator,
+    generator-function: _abbreviations-default-generator,
   ),
   configure-glossary(
     glossary: (),
@@ -113,7 +113,7 @@
     ),
     position: "backmatter",
     order: 60,
-    generator-function: __glossary-default-generator,
+    generator-function: _glossary-default-generator,
   ),
   configure-figure-listings(
     code-listing: true,
@@ -121,7 +121,7 @@
     table-listing: true,
     position: "backmatter",
     order: 70,
-    generator-function: __listings-default-generator,
+    generator-function: _listings-default-generator,
   ),
   configure-metadata(),
   configure-drafting(notes-listing: true),
@@ -133,7 +133,7 @@
 /// Due to a bug in drafting at least one margin must be of a different size then the others.
 /// TODO: Evaluate again with the next drafting release.
 /// To fix this we check if all margins are the same and if that is the case we increment margin.top by a tiny bit.
-#let __transform-margin(margin) = {
+#let _transform-margin(margin) = {
   if (
     margin.top == margin.bottom
       and (
@@ -169,27 +169,25 @@
 /// specific requirements. However the parameters shown here can be used with all adapters.
 /// -> content
 #let project(
-  /// Whether the content page numbering should include total pages ("3 / 24") or not ("3"). -> bool
-  numbering-show-total: false,
-  ..__opts,
+  ..configs,
   body,
 ) = {
   // create config dictionary
-  let config = __base-config
-  for addition in __opts.pos() {
+  let config = _base-config
+  for addition in configs.pos() {
     assert.eq(
       type(addition),
       dictionary,
       message: "Only configurations are allowed as positional arguments. See [future link for configuration] for more information.",
     )
 
-    config = __merge-config(config, addition)
+    config = merge-config(config, addition)
   }
 
   // load linguify
   set-database(eval(load-ftl-data("l10n", ("en", "de"))))
 
-  set bibliography(title: __linguify-content("bibliography"))
+  set bibliography(title: _linguify-content("bibliography"))
 
   // page setup
   set document(title: config.metadata.at("title-long", default: none))
@@ -204,7 +202,7 @@
 
   set page(
     paper: "a4",
-    margin: __transform-margin(config.page.margin),
+    margin: _transform-margin(config.page.margin),
     background: if config.drafting.at("watermark", default: none) != none {
       let watermark-text = text(
         15pt,
@@ -234,7 +232,7 @@
   show table: set par(justify: false)
 
   // heading setup
-  set heading(numbering: __heading-numbering)
+  set heading(numbering: _heading-numbering)
 
   show heading: it => {
     it
@@ -261,9 +259,9 @@
 
   // captions with caption_with_source shouldn't show source in outline
   show outline: it => {
-    __in-outline.update(true)
+    _in-outline.update(true)
     it
-    __in-outline.update(false)
+    _in-outline.update(false)
   }
 
   codly(
@@ -337,7 +335,7 @@
       config.drafting.notes-listing and (query(selector(<margin-note>).or(<inline-note>)).len() > 0)
     ) {
       set heading(numbering: none, outlined: false)
-      note-outline(title: __linguify-content("list-of-notes"))
+      note-outline(title: _linguify-content("list-of-notes"))
       pagebreak()
     }
   }
@@ -381,7 +379,7 @@
     let body-margin = config.page.margin
     body-margin.top = config.page.margin.top + config.body-header.height
     set page(
-      margin: __transform-margin(body-margin),
+      margin: _transform-margin(body-margin),
       header: (config.body-header.generator)(config),
       numbering: "1",
       footer: (config.body-footer.generator)(config),
@@ -395,7 +393,7 @@
     counter(page).update(1)
 
     body
-    [#[] <__content-end>]
+    [#[] <_content-end>]
   }
 
   // ----------------------------------
@@ -438,7 +436,7 @@
     counter(heading).update(0)
 
     heading(
-      __linguify-content("list-of-appendices"),
+      _linguify-content("list-of-appendices"),
       numbering: none,
     )
 
@@ -446,11 +444,11 @@
       depth: 1,
       indent: auto,
       title: none,
-      target: selector(heading).after(<__appendix-start>),
+      target: selector(heading).after(<_appendix-start>),
     )
 
     pagebreak(weak: true)
-    [#[] <__appendix-start>]
+    [#[] <_appendix-start>]
 
     for appendix in config.appendices.entries {
       pagebreak(weak: true)

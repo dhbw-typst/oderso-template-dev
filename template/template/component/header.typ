@@ -1,4 +1,4 @@
-#import "../config.typ": __default, __get-dict-without-default, __validate-generator, __validate-relative
+#import "../config-utils.typ": default-value, get-dict-without-default, validate-generator, validate-relative
 #import "@preview/hydra:0.6.3": hydra
 
 /// Configures the header shown in the documents body. Low-level configuration function for providing a completly custom header. Use `configure-body-header-*` for predefined coversheets.
@@ -8,16 +8,16 @@
   /// A function receiving a single position argument `config` holding the configuration dictionary and returing the header `content`.
   ///
   /// -> function.
-  generator-function: __default,
+  generator-function: default-value,
   /// Additional height added to the normal top-margin when displaying this header.
   ///
   /// -> relative
-  height: __default,
+  height: default-value,
 ) = {
-  __validate-generator(generator-function)
-  __validate-relative(height, "height")
+  validate-generator(generator-function)
+  validate-relative(height, "height")
   return (
-    body-header: __get-dict-without-default((
+    body-header: get-dict-without-default((
       generator: generator-function,
       height: height,
     )),

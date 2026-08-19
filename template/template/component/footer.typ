@@ -1,4 +1,4 @@
-#import "../config.typ": __default, __get-dict-without-default, __validate-generator, __validate-relative
+#import "../config-utils.typ": default-value, get-dict-without-default, validate-generator, validate-relative
 
 
 /// Configures the footer shown in the documents body. Low-level configuration function for providing a completly custom footer. Use `configure-body-footer-*` for predefined footers.
@@ -8,16 +8,16 @@
   /// A function receiving a single position argument `config` holding the configuration dictionary and returing the footer `content`.
   ///
   /// -> function.
-  generator-function: __default,
+  generator-function: default-value,
   /// Additional height added to the normal bottom-margin when displaying this footer.
   ///
   /// -> relative
-  height: __default,
+  height: default-value,
 ) = {
-  __validate-generator(generator-function)
-  __validate-relative(height, "height")
+  validate-generator(generator-function)
+  validate-relative(height, "height")
   return (
-    body-footer: __get-dict-without-default((
+    body-footer: get-dict-without-default((
       generator: generator-function,
       height: height,
     )),
@@ -29,10 +29,10 @@
 /// -> dictionary
 #let configure-body-footer-spotless(
   /// Whether the numebring style should be "1 / 1" or "1". -> bool
-  numbering-show-total: __default
+  numbering-show-total: default-value
 ) = {
   assert(
-    numbering-show-total == __default or type(numbering-show-total) == bool,
+    numbering-show-total == default-value or type(numbering-show-total) == bool,
     message: "`numbering-show-total` must be a boolean, got "
       + repr(numbering-show-total)
       + " of type "
@@ -44,7 +44,7 @@
         numbering(
           "1 / 1",
           counter(page).get().at(0),
-          ..counter(page).at(<__content-end>),
+          ..counter(page).at(<_content-end>),
         )
       } else {
         numbering("1", counter(page).get().at(0))
@@ -61,16 +61,16 @@
   /// A function receiving a single position argument `config` holding the configuration dictionary and returing the footer `content`.
   ///
   /// -> function.
-  generator-function: __default,
+  generator-function: default-value,
   /// Additional height added to the normal bottom-margin when displaying this footer.
   ///
   /// -> relative
-  height: __default,
+  height: default-value,
 ) = {
-  __validate-generator(generator-function)
-  __validate-relative(height, "height")
+  validate-generator(generator-function)
+  validate-relative(height, "height")
   return (
-    body-footer: __get-dict-without-default((
+    body-footer: get-dict-without-default((
       generator: generator-function,
       height: height,
     )),
@@ -82,10 +82,10 @@
 /// -> dictionary
 #let configure-front-back-matter-footer-spotless(
   /// Whether the numebring style should be "1 / 1" or "1". -> bool
-  numbering-show-total: __default
+  numbering-show-total: default-value
 ) = {
   assert(
-    numbering-show-total == __default or type(numbering-show-total) == bool,
+    numbering-show-total == default-value or type(numbering-show-total) == bool,
     message: "`numbering-show-total` must be a boolean, got "
       + repr(numbering-show-total)
       + " of type "
@@ -97,7 +97,7 @@
         numbering(
           "1 / 1",
           counter(page).get().at(0),
-          ..counter(page).at(<__content-end>),
+          ..counter(page).at(<_content-end>),
         )
       } else {
         numbering("1", counter(page).get().at(0))

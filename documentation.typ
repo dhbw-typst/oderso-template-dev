@@ -1,5 +1,5 @@
 #import "@preview/tidy:0.4.3"
-#import "template/template/utils.typ": (
+#import "template/template/util.typ": (
   caption-with-source, styled-table, table-hline-spaced, tablefigure,
   tablefigure-raw,
 )
@@ -67,7 +67,7 @@
 #show-module(base-docs)
 
 #let options-docs = tidy.parse-module(
-  read("template/template/config.typ"),
+  read("template/template/config-utils.typ"),
 )
 
 #show-module(options-docs)
@@ -87,7 +87,7 @@
 }
 
 #let utils-docs = tidy.parse-module(
-  read("template/template/utils.typ"),
+  read("template/template/util.typ"),
   scope: (
     caption-with-source: caption-with-source,
     table-hline-spaced: table-hline-spaced,

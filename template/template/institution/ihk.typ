@@ -1,15 +1,15 @@
 // LTeX: enabled=false
 
-#import "../base.typ": __signature-line, project
-#import "../config.typ": *
+#import "../base.typ": _signature-line, project
+#import "../config-utils.typ": *
 #import "config.typ": *
 #import "@preview/linguify:0.5.0": linguify
-#import "../utils.typ": __linguify-content
+#import "../util.typ": _linguify-content
 
 /// Default IHK adapter config: sets position/order/enable defaults and IHK
 /// signature defaults for the front/back matter sections owned by this adapter.
 /// Content is generated at call site by the adapter function body.
-#let __ihk-config = __merge-configs(
+#let _ihk-config = merge-configs(
   (:),
   configure-statutory-declaration(
     enable: true,
@@ -73,11 +73,11 @@
   body,
 ) = {
   let submission-info = [
-    #__linguify-content("as-part-of-examination-ihk")
+    #_linguify-content("as-part-of-examination-ihk")
 
     *#examination*
 
-    #__linguify-content("in-the-training-occupation")\
+    #_linguify-content("in-the-training-occupation")\
     #training-occupation
   ]
 
@@ -87,17 +87,17 @@
   }
 
   let metadata = (
-    __linguify-content("submission-date"),
+    _linguify-content("submission-date"),
     submission-date,
-    __linguify-content("processing-duration"),
-    __linguify-content("weeks", args: (count: processing-period-weeks)),
-    __linguify-content("examinee-number"),
+    _linguify-content("processing-duration"),
+    _linguify-content("weeks", args: (count: processing-period-weeks)),
+    _linguify-content("examinee-number"),
     authors.map(a => a.examinee-number).join(linebreak()),
-    __linguify-content("training-company"),
+    _linguify-content("training-company"),
     company-name + linebreak() + company-city,
-    __linguify-content("department"),
+    _linguify-content("department"),
     company-department,
-    __linguify-content("supervisor-at-training-company"),
+    _linguify-content("supervisor-at-training-company"),
     company-supervisor,
   )
 
@@ -108,7 +108,7 @@
   // ----------------------------------
   // Construct default config
   // ----------------------------------
-  let config = __ihk-config
+  let config = _ihk-config
 
   // ----------------------------------
   // Install section generators
@@ -123,19 +123,19 @@
     let sd-cfg = config.front-back-matter.statutory-declaration
     pagebreak(weak: true)
     align(center, heading(
-      __linguify-content("statutory-declaration"),
+      _linguify-content("statutory-declaration"),
       level: 1,
     ))
 
     // Using the statutory declaration of the dhbw, as there is no template for the IHK
-    __linguify-content("statutory-declaration-note-dhbw", args: (
+    _linguify-content("statutory-declaration-note-dhbw", args: (
       author-count: authors.len(),
     ))
 
     set grid.cell(align: left, inset: (x: 1em, y: 0.3em))
 
     for a in authors {
-      __signature-line(
+      _signature-line(
         author: a,
         date: submission-date,
         digital: sd-cfg.digital-submission,
@@ -147,16 +147,16 @@
   // Confidentiality clause generator
   let confidentiality-clause-generator(config) = {
     pagebreak(weak: true)
-    [#[] <__confidentiality-clause>]
+    [#[] <_confidentiality-clause>]
     align(center, heading(
-      __linguify-content("confidentiality-agreement"),
+      _linguify-content("confidentiality-agreement"),
       level: 1,
     ))
 
-    __linguify-content("confidentiality-agreement-note-ihk")
+    _linguify-content("confidentiality-agreement-note-ihk")
   }
 
-  config = __merge-configs(
+  config = merge-configs(
     config,
     configure-statutory-declaration(
       generator-function: statutory-declaration-generator,
@@ -175,15 +175,15 @@
       dictionary,
       message: "Only configurations are allowed as positional arguments in ihk-adapter.",
     )
-    config = __merge-config(config, addition)
+    config = merge-config(config, addition)
   }
 
   show: project.with(
-    __logo-left: company-logo,
-    __logo-right: image("../assets/IHK-Logo.svg"),
-    __authors: authors,
-    __submission-info: submission-info,
-    __metadata: metadata,
+    _logo-left: company-logo,
+    _logo-right: image("../assets/IHK-Logo.svg"),
+    _authors: authors,
+    _submission-info: submission-info,
+    _metadata: metadata,
     config,
     ..args.named(),
   )

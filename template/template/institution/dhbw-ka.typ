@@ -1,31 +1,29 @@
 // LTeX: enabled=false
 
 #import "@preview/linguify:0.5.0": linguify, linguify-raw
-#import "../base.typ": __signature-line, project
-#import "../config.typ": *
+#import "../base.typ": _signature-line, project
+#import "../config/lib.typ" as config
 #import "config.typ": *
-#import "../utils.typ": __linguify-content, styled-table
+#import "../util.typ": _linguify-content, styled-table
 
 /// Default DHBW Karlsruhe adapter config: sets position/order/enable defaults
 /// and DHBW-KA-specific defaults (signature city, submission mode) for the
 /// front/back matter sections owned by this adapter. Content is generated at
 /// call site by the adapter function body.
-#let __dhbw-ka-config = __merge-configs(
+#let _dhbw-ka-config = config.util.merge-configs(
   (:),
-  configure-statutory-declaration(
+  frontbackmatter.dhbw-ka.statutory-declaration(
     enable: true,
-    position: "backmatter",
     order: 80,
-    digital-submission: true,
     digital-only: true,
     signature-city: "Karlsruhe",
   ),
-  configure-confidentiality-clause(
+  frontbackmatter.dhbw-ka.confidentiality-clause(
     enable: true,
     position: "backmatter",
     order: 90,
-  ),
-  configure-dhbw-ka-ai-acknowledgement(position: "backmatter", order: 100),
+  )
+  frontbackmatter.dhbw-ka(position: "backmatter", order: 100),
 )
 
 /// Template adapter for DHBW Karlsruhe thesis documents.
@@ -39,7 +37,7 @@
 /// `configure-confidentiality-clause(enable: ...)`, and
 /// `configure-dhbw-ka-ai-acknowledgement(entries: ...)`.
 /// -> content
-#let dhbw-ka-adapter(
+#let dhbw-ka(
   /// The primary language of the document. Affects hyphenation, quotes,
   /// and localized strings. Supported: `"en"`, `"de"`. -> str
   lang: "en",
@@ -93,20 +91,20 @@
   // ----------------------------------
   // Construct default config
   // ----------------------------------
-  let config = __dhbw-ka-config
+  let config = _dhbw-ka-config
 
   // ----------------------------------
   // Fill metadata config
   // ----------------------------------
   // Submission information (for coversheet)
   let submission-info = [
-    #__linguify-content("as-part-of-examination-dhbw")
+    #_linguify-content("as-part-of-examination-dhbw")
 
     *#examination*
 
-    #__linguify-content("in-field-of-study", args: (study: study))
+    #_linguify-content("in-field-of-study", args: (study: study))
 
-    #context __linguify-content("at-the-institution", args: (
+    #context _linguify-content("at-the-institution", args: (
       institution: linguify-raw("dhbw-long"),
       city: linguify-raw("ka"),
     ))
@@ -114,29 +112,29 @@
 
   // Misc data (for coversheet)
   let misc-key-value = (
-    __linguify-content("submission-date"),
+    _linguify-content("submission-date"),
     submission-date,
-    __linguify-content("processing-duration"),
-    __linguify-content("weeks", args: (count: processing-period-weeks)),
-    __linguify-content("matriculation-number")
+    _linguify-content("processing-duration"),
+    _linguify-content("weeks", args: (count: processing-period-weeks)),
+    _linguify-content("matriculation-number")
       + ", "
-      + __linguify-content("course"),
+      + _linguify-content("course"),
     authors
       .map(a => a.matriculation-number + ", " + a.course)
       .join(linebreak()),
     ..if company-name != none and company-city != none {
       (
-        __linguify-content("training-company"),
+        _linguify-content("training-company"),
         company-name + linebreak() + company-city,
       )
     },
     ..if company-department != none {
-      (__linguify-content("department"), company-department)
+      (_linguify-content("department"), company-department)
     },
     ..if company-supervisor != none {
-      (__linguify-content("supervisor-at-training-company"), company-supervisor)
+      (_linguify-content("supervisor-at-training-company"), company-supervisor)
     },
-    __linguify-content("supervisor-at-university"),
+    _linguify-content("supervisor-at-university"),
     university-supervisor,
   )
 
@@ -144,7 +142,7 @@
     panic("At least one author has to be specified!")
   }
 
-  config = __merge-configs(config, configure-metadata(
+  config = merge-configs(config, configure-metadata(
     metadata: (
       lang: lang,
       title-long: title-long,
@@ -186,32 +184,32 @@
     // This complicated edge case for courses from 2023 and earlier can safely
     // be removed by September 2026.
     let statuatory-declaration = if course-year < 24 {
-      __linguify-content("statutory-declaration-note-dhbw-old", args: (
+      _linguify-content("statutory-declaration-note-dhbw-old", args: (
         author-count: authors.len(),
         title: title-long,
         type: thesis-type,
       ))
     } else {
-      __linguify-content("statutory-declaration-note-dhbw", args: (
+      _linguify-content("statutory-declaration-note-dhbw", args: (
         author-count: authors.len(),
       ))
     }
 
     let statuatory-declaration-printed = if course-year < 24 {
-      __linguify-content(
+      _linguify-content(
         "statutory-declaration-note-dhbw-old-printed",
         args: (
           author-count: authors.len(),
         ),
       )
     } else {
-      __linguify-content("statutory-declaration-note-dhbw-printed", args: (
+      _linguify-content("statutory-declaration-note-dhbw-printed", args: (
         author-count: authors.len(),
       ))
     }
 
     align(center, heading(
-      __linguify-content("statutory-declaration"),
+      _linguify-content("statutory-declaration"),
       level: 1,
     ))
 
@@ -224,13 +222,13 @@
     // after September 2026 as all courses will use that statutory declaration.
     if course-year >= 24 and ai-entries.len() > 0 {
       linebreak()
-      __linguify-content("statutory-declaration-note-dhbw-ai")
+      _linguify-content("statutory-declaration-note-dhbw-ai")
     }
 
     set grid.cell(align: left, inset: (x: 1em, y: 0.3em))
 
     for a in authors {
-      __signature-line(
+      _signature-line(
         author: a,
         date: submission-date,
         digital: sd-cfg.digital-submission,
@@ -242,13 +240,13 @@
   // Confidentiality clause generator
   let confidentiality-clause-generator(config) = {
     pagebreak()
-    [#[] <__confidentiality-clause>]
+    [#[] <_confidentiality-clause>]
     align(center, heading(
-      __linguify-content("confidentiality-agreement"),
+      _linguify-content("confidentiality-agreement"),
       level: 1,
     ))
 
-    __linguify-content("confidentiality-agreement-note-dhbw")
+    _linguify-content("confidentiality-agreement-note-dhbw")
   }
 
   // AI acknowledgement generator: filters entries at render time so that
@@ -267,7 +265,7 @@
 
     pagebreak(weak: true)
     align(center, heading(
-      __linguify-content("ai-acknowledgement-heading-dhbw"),
+      _linguify-content("ai-acknowledgement-heading-dhbw"),
       level: 1,
     ))
 
@@ -279,15 +277,15 @@
       columns: (auto, 1fr),
       table-content: (
         table.header(
-          __linguify-content("tool"),
-          __linguify-content("usage-description"),
+          _linguify-content("tool"),
+          _linguify-content("usage-description"),
         ),
         ..table-cells,
       ),
     ))
   }
 
-  config = __merge-configs(
+  config = merge-configs(
     config,
     configure-statutory-declaration(
       generator-function: statutory-declaration-generator,
@@ -309,7 +307,7 @@
       dictionary,
       message: "Only configurations are allowed as positional arguments in dhbw-ka-adapter.",
     )
-    config = __merge-config(config, addition)
+    config = merge-config(config, addition)
   }
 
   show: project.with(

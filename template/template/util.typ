@@ -5,7 +5,7 @@
 
 /// Internal state to track whether we are currently rendering an outline.
 /// -> state
-#let __in-outline = state("in-outline", false)
+#let _in-outline = state("in-outline", false)
 
 /// Creates a caption that conditionally includes a source reference.
 ///
@@ -27,7 +27,7 @@
   /// The source reference (typically a citation like `[@source]`). -> content
   source,
 ) = context {
-  if __in-outline.at(here()) {
+  if _in-outline.at(here()) {
     caption-text
   } else {
     caption-text + " " + source
@@ -230,7 +230,7 @@
   ))
 }
 
-#let __linguify-content(..args) = {
+#let _linguify-content(..args) = {
   context eval(linguify-raw(..args), mode: "markup")
 }
 

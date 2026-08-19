@@ -2,20 +2,13 @@
 #import "@preview/drafting:0.2.2" as drafting
 #import "@preview/glossarium:0.5.10" as glossarium
 
-#import "adapters/dhbw-ka.typ": dhbw-ka-adapter
-#import "adapters/dhbw-ma.typ": dhbw-ma-adapter
-#import "adapters/ihk.typ": ihk-adapter
-#import "adapters/config.typ": (
-  configure-confidentiality-clause, configure-dhbw-ka-ai-acknowledgement,
-  configure-dhbw-ma-ai-declaration-form, configure-statutory-declaration,
-)
-#import "utils.typ": (
+#import "theme/lib.typ" as theme
+#import "config/lib.typ" as config
+
+#import "institution/lib.typ" as institution
+#import "util.typ" as util: (
   caption-with-source, inline-glossary, styled-table, table-hline-spaced,
   tablefigure, tablefigure-raw,
 )
-#import "config.typ": (
-  configure-abbreviations, configure-abstracts, configure-acknowledgements,
-  configure-appendices, configure-bibliography, configure-drafting,
-  configure-figure-listings, configure-glossary, configure-document, configure-toc,
-)
+
 #import "base.typ": project
