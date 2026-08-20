@@ -35,7 +35,7 @@
   return base
 }
 
-/// Returns a copy of the provided dict but only with entries that do not have the value of `_default`. Largely copied from #link("https://github.com/touying-typ/touying/blob/a8abe0d832024038c4174d9bb8182f202bde1209/src/utils.typ#L42-L61")[touying]. -> dictionary
+/// Returns a copy of the provided dict but only with entries that do not have the value of `default`. Largely copied from #link("https://github.com/touying-typ/touying/blob/a8abe0d832024038c4174d9bb8182f202bde1209/src/utils.typ#L42-L61")[touying]. -> dictionary
 #let get-dict-without-default(dict) = {
   let new-dict = (:)
   for (key, value) in dict.pairs() {
@@ -65,4 +65,8 @@
       return get-config(rest-key, config.at(this-key))
     }
   }
+}
+
+#let linguify-content(..args) = {
+  context eval(linguify-raw(..args), mode: "markup")
 }

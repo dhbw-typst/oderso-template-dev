@@ -4,6 +4,7 @@
 
 #import "theme/lib.typ" as theme
 #import "config/lib.typ" as config
+#import "general/lib.typ" as general
 
 #import "institution/lib.typ" as institution
 #import "util.typ" as util: (
