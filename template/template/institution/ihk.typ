@@ -1,47 +1,43 @@
 // LTeX: enabled=false
 
-#import "../base.typ": _signature-line, project
-#import "../config-utils.typ": *
-#import "config.typ": *
+#import "../base.typ": _signature-line
+#import "../config/lib.typ" as config: merge-config, merge-configs
+#import "../frontbackmatter/_shared.typ": configure-statutory-declaration, configure-confidentiality-clause
 #import "@preview/linguify:0.5.0": linguify
 #import "../util.typ": _linguify-content
+#import "../general/metadata.typ": metadata as _general-metadata
 
-/// Default IHK adapter config: sets position/order/enable defaults and IHK
-/// signature defaults for the front/back matter sections owned by this adapter.
-/// Content is generated at call site by the adapter function body.
-#let _ihk-config = merge-configs(
-  (:),
-  configure-statutory-declaration(
-    enable: true,
-    position: "backmatter",
-    order: 80,
-    digital-submission: true,
-    digital-only: true,
-    signature-city: "Karlsruhe",
-  ),
-  configure-confidentiality-clause(
-    enable: true,
-    position: "backmatter",
-    order: 90,
-  ),
-)
+/// Default IHK config: sets position/order/enable defaults and IHK
+/// signature defaults for the front/back matter sections.
+#let _ihk-defaults() = {
+  merge-configs(
+    (:),
+    configure-statutory-declaration(
+      enable: true,
+      position: "backmatter",
+      order: 80,
+      digital-submission: true,
+      digital-only: true,
+      signature-city: "Karlsruhe",
+    ),
+    configure-confidentiality-clause(
+      enable: true,
+      position: "backmatter",
+      order: 90,
+    ),
+  )
+}
 
-/// Template adapter for IHK thesis documents.
+/// Pure config producer for IHK thesis documents.
 ///
-/// This function configures the base `project` template for vocational training documentations.
-///
-/// Section-specific settings (submission mode, signature city, enable flags)
-/// live in `configure-statutory-declaration(...)` and
-/// `configure-confidentiality-clause(enable: ...)`.
-/// -> content
-#let ihk-adapter(
+/// Returns a configuration dictionary that can be passed to `project()`.
+/// -> dictionary
+#let ihk(
   /// The examination type (e.g., "Abschlussprüfung Teil 2"). -> str | none
   examination: none,
-  /// The training occupation (Ausbildungsberuf),
-  /// e.g., "Fachinformatiker für Anwendungsentwicklung". -> str
+  /// The training occupation (Ausbildungsberuf). -> str
   training-occupation: "Fachinformatiker für Anwendungsentwicklung",
-  /// List of author dictionaries. Each author should have: `firstname`,
-  /// `lastname`, `examinee-number`, and optionally `signature`. -> array
+  /// List of author dictionaries. -> array
   authors: (
     (
       firstname: none,
@@ -52,7 +48,7 @@
   ),
   /// Submission date of the thesis. -> str
   submission-date: datetime.today().display("[day].[month].[year]"),
-  /// Format string for displaying the submission date. (see #link("https://typst.app/docs/reference/foundations/datetime/#format")[datetime formats]) -> str
+  /// Format string for displaying the submission date. -> str
   submission-date-format: "[day].[month].[year]",
   /// Duration of the thesis processing period in weeks. -> int | none
   processing-period-weeks: none,
@@ -66,12 +62,27 @@
   company-department: none,
   /// Name of the company supervisor. -> str | none
   company-supervisor: none,
-  /// Additional arguments passed to the base template plus positional
-  /// `configure-*` configurations.
-  ..args,
-  /// The main document body content. -> content
-  body,
+  /// Full thesis title displayed on the cover. -> str | none
+  title-long: none,
+  /// Shortened title for the header. -> str | none
+  title-short: none,
+  /// Type of document. -> str | none
+  thesis-type: none,
+  /// Language of the document. -> str
+  lang: "en",
 ) = {
+  if authors == none or type(authors) != array or authors.len() == 0 {
+    panic("At least one author has to be specified!")
+  }
+
+  // TODO: only for compatibility: Remove with v3.0.0 release
+  if type(submission-date) == datetime {
+    submission-date = submission-date.display(submission-date-format)
+  }
+
+  // ----------------------------------
+  // Build metadata
+  // ----------------------------------
   let submission-info = [
     #_linguify-content("as-part-of-examination-ihk")
 
@@ -81,12 +92,7 @@
     #training-occupation
   ]
 
-  // TODO: only for compatibility reasons: Remove with v3.0.0 release
-  if type(submission-date) == datetime {
-    submission-date = submission-date.display(submission-date-format)
-  }
-
-  let metadata = (
+  let misc-key-value = (
     _linguify-content("submission-date"),
     submission-date,
     _linguify-content("processing-duration"),
@@ -101,22 +107,26 @@
     company-supervisor,
   )
 
-  if authors == none or type(authors) != array or authors.len() == 0 {
-    panic("At least one author has to be specified!")
-  }
+  // ----------------------------------
+  // Build config
+  // ----------------------------------
+  let cfg = _ihk-defaults()
 
-  // ----------------------------------
-  // Construct default config
-  // ----------------------------------
-  let config = _ihk-config
+  cfg = merge-config(cfg, _general-metadata(metadata: (
+    lang: lang,
+    title-long: title-long,
+    title-short: title-short,
+    thesis-type: thesis-type,
+    logo-left: company-logo,
+    logo-right: image("../assets/IHK-Logo.svg"),
+    submission-info: submission-info,
+    misc-key-value: misc-key-value,
+    authors: authors,
+  )))
 
   // ----------------------------------
   // Install section generators
   // ----------------------------------
-  // Generators are installed BEFORE user positional args so that user overrides
-  // can override section data without clobbering the adapter's generator. If a
-  // user wants to replace a generator, they can pass `generator-function: ...`
-  // in their own positional configuration call.
 
   // Statutory declaration generator
   let statutory-declaration-generator(config) = {
@@ -127,7 +137,6 @@
       level: 1,
     ))
 
-    // Using the statutory declaration of the dhbw, as there is no template for the IHK
     _linguify-content("statutory-declaration-note-dhbw", args: (
       author-count: authors.len(),
     ))
@@ -156,8 +165,8 @@
     _linguify-content("confidentiality-agreement-note-ihk")
   }
 
-  config = merge-configs(
-    config,
+  cfg = merge-configs(
+    cfg,
     configure-statutory-declaration(
       generator-function: statutory-declaration-generator,
     ),
@@ -166,26 +175,5 @@
     ),
   )
 
-  // ----------------------------------
-  // Apply provided configs from user's positional args
-  // ----------------------------------
-  for addition in args.pos() {
-    assert.eq(
-      type(addition),
-      dictionary,
-      message: "Only configurations are allowed as positional arguments in ihk-adapter.",
-    )
-    config = merge-config(config, addition)
-  }
-
-  show: project.with(
-    _logo-left: company-logo,
-    _logo-right: image("../assets/IHK-Logo.svg"),
-    _authors: authors,
-    _submission-info: submission-info,
-    _metadata: metadata,
-    config,
-    ..args.named(),
-  )
-  body
+  cfg
 }

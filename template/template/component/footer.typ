@@ -1,4 +1,4 @@
-#import "../config-utils.typ": default-value, get-dict-without-default, validate-generator, validate-relative
+#import "../config/lib.typ" as config
 
 
 /// Configures the footer shown in the documents body. Low-level configuration function for providing a completly custom footer. Use `configure-body-footer-*` for predefined footers.
@@ -8,16 +8,16 @@
   /// A function receiving a single position argument `config` holding the configuration dictionary and returing the footer `content`.
   ///
   /// -> function.
-  generator-function: default-value,
+  generator-function: config.util.default-value,
   /// Additional height added to the normal bottom-margin when displaying this footer.
   ///
   /// -> relative
-  height: default-value,
+  height: config.util.default-value,
 ) = {
-  validate-generator(generator-function)
-  validate-relative(height, "height")
+  config.validation.validate-generator(generator-function)
+  config.validation.validate-relative(height, "height")
   return (
-    body-footer: get-dict-without-default((
+    body-footer: config.util.get-dict-without-default((
       generator: generator-function,
       height: height,
     )),
@@ -29,10 +29,10 @@
 /// -> dictionary
 #let configure-body-footer-spotless(
   /// Whether the numebring style should be "1 / 1" or "1". -> bool
-  numbering-show-total: default-value
+  numbering-show-total: config.util.default-value
 ) = {
   assert(
-    numbering-show-total == default-value or type(numbering-show-total) == bool,
+    numbering-show-total == config.util.default-value or type(numbering-show-total) == bool,
     message: "`numbering-show-total` must be a boolean, got "
       + repr(numbering-show-total)
       + " of type "
@@ -61,16 +61,16 @@
   /// A function receiving a single position argument `config` holding the configuration dictionary and returing the footer `content`.
   ///
   /// -> function.
-  generator-function: default-value,
+  generator-function: config.util.default-value,
   /// Additional height added to the normal bottom-margin when displaying this footer.
   ///
   /// -> relative
-  height: default-value,
+  height: config.util.default-value,
 ) = {
-  validate-generator(generator-function)
-  validate-relative(height, "height")
+  config.validation.validate-generator(generator-function)
+  config.validation.validate-relative(height, "height")
   return (
-    body-footer: get-dict-without-default((
+    body-footer: config.util.get-dict-without-default((
       generator: generator-function,
       height: height,
     )),
@@ -82,10 +82,10 @@
 /// -> dictionary
 #let configure-front-back-matter-footer-spotless(
   /// Whether the numebring style should be "1 / 1" or "1". -> bool
-  numbering-show-total: default-value
+  numbering-show-total: config.util.default-value
 ) = {
   assert(
-    numbering-show-total == default-value or type(numbering-show-total) == bool,
+    numbering-show-total == config.util.default-value or type(numbering-show-total) == bool,
     message: "`numbering-show-total` must be a boolean, got "
       + repr(numbering-show-total)
       + " of type "

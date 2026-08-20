@@ -1,7 +1,7 @@
 #import "../config/lib.typ" as config
 
 /// Configure the appendices. -> dictionary
-#let configure-appendices(
+#let appendices(
   /// List of appendices. Entries must have `title` (content), `reference` (string), by which the appendix can be referenced, and text (content). -> array
   appendices: config.util.default-value,
 ) = {

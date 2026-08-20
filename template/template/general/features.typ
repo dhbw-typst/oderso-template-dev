@@ -1,4 +1,4 @@
-#import "../config/lib.typ" as config
+#import "../config/lib.typ" as config: validate-enable
 
 /// Configure options regarding drafting.
 /// This includes notes and the watermark.

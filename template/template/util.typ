@@ -3,6 +3,13 @@
 #import "@preview/linguify:0.5.0": linguify-raw
 #import "@preview/glossarium:0.5.10": print-glossary
 
+/// Convenience wrapper: evaluates a linguify string as markup content at call site.
+/// Used throughout the template to render localised strings.
+/// -> content
+#let _linguify-content(..args) = {
+  context eval(linguify-raw(..args), mode: "markup")
+}
+
 /// Internal state to track whether we are currently rendering an outline.
 /// -> state
 #let _in-outline = state("in-outline", false)

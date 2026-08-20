@@ -1,54 +1,46 @@
 // LTeX: enabled=false
 
 #import "@preview/linguify:0.5.0": linguify, linguify-raw
-#import "../base.typ": _signature-line, project
-#import "../config-utils.typ": *
-#import "config.typ": *
+#import "../base.typ": _signature-line
+#import "../config/lib.typ" as config: merge-config, merge-configs
+#import "../frontbackmatter/_shared.typ": configure-statutory-declaration, configure-confidentiality-clause
+#import "config.typ": configure-dhbw-ma-ai-declaration-form
 #import "../assets/ai-declaration-form_dhbw-ma.typ": ai-declaration-form
 #import "../util.typ": _linguify-content
+#import "../general/metadata.typ": metadata as _general-metadata
 
-/// Default DHBW Mannheim adapter config: sets position/order/enable defaults
-/// and DHBW-MA-specific defaults (signature city, submission mode) for the
-/// front/back matter sections owned by this adapter. Content is generated at
-/// call site by the adapter function body.
-#let _dhbw-ma-config = merge-configs(
-  (:),
-  configure-statutory-declaration(
-    enable: true,
-    position: "backmatter",
-    order: 80,
-    digital-submission: true,
-    digital-only: true,
-    signature-city: "Mannheim",
-  ),
-  configure-confidentiality-clause(
-    enable: true,
-    position: "backmatter",
-    order: 90,
-  ),
-  configure-dhbw-ma-ai-declaration-form(position: "backmatter", order: 100),
-)
+/// Default DHBW Mannheim config: sets position/order/enable defaults
+/// and DHBW-MA-specific defaults for the front/back matter sections.
+#let _dhbw-ma-defaults() = {
+  merge-configs(
+    (:),
+    configure-statutory-declaration(
+      enable: true,
+      position: "backmatter",
+      order: 80,
+      digital-submission: true,
+      digital-only: true,
+      signature-city: "Mannheim",
+    ),
+    configure-confidentiality-clause(
+      enable: true,
+      position: "backmatter",
+      order: 90,
+    ),
+    configure-dhbw-ma-ai-declaration-form(position: "backmatter", order: 100),
+  )
+}
 
-/// Template adapter for DHBW Mannheim thesis documents.
+/// Pure config producer for DHBW Mannheim thesis documents.
 ///
-/// This function configures the base `project` template with DHBW Mannheim-specific
-/// settings, including statutory declarations, confidentiality clauses,
-/// and the official AI declaration form.
-///
-/// Section-specific settings (submission mode, signature city, enable flags)
-/// live in `configure-statutory-declaration(...)`,
-/// `configure-confidentiality-clause(enable: ...)`, and
-/// `configure-dhbw-ma-ai-declaration-form(...)`.
-/// -> content
-#let dhbw-ma-adapter(
+/// Returns a configuration dictionary that can be passed to `project()`.
+/// -> dictionary
+#let dhbw-ma(
   /// The examination degree, e.g., "Bachelor of Science (B.Sc.)". -> str
   examination: "Bachelor of Science (B.Sc.)",
   /// The field of study, e.g., "Computer Science". -> str
   study: "Computer Science",
-  /// List of author dictionaries. Each author should have: `firstname`,
-  /// `lastname`, `matriculation-number`, `course`, `signature` (optional),
-  /// `email`, `address`, and `phone-number`. AI declaration data per author
-  /// is passed separately via `configure-dhbw-ma-ai-declaration-form(authors: ...)`. -> array
+  /// List of author dictionaries. -> array
   authors: (
     (
       firstname: none,
@@ -63,7 +55,7 @@
   ),
   /// Submission date of the thesis. -> str
   submission-date: datetime.today().display("[day].[month].[year]"),
-  /// Format string for displaying dates. (see #link("https://typst.app/docs/reference/foundations/datetime/#format")[datetime formats]) -> str
+  /// Format string for displaying dates. -> str
   submission-date-format: "[day].[month].[year]",
   /// Duration of the thesis processing period in weeks. -> int | none
   processing-period-weeks: none,
@@ -93,12 +85,27 @@
   ),
   /// Name of the course director. -> str | none
   course-director: none,
-  /// Additional arguments passed to the base template plus positional
-  /// `configure-*` configurations.
-  ..args,
-  /// The main document body content. -> content
-  body,
+  /// Full thesis title displayed on the cover. -> str | none
+  title-long: none,
+  /// Shortened title for the header. -> str | none
+  title-short: none,
+  /// Type of thesis. -> str | none
+  thesis-type: none,
+  /// Language of the document. -> str
+  lang: "en",
 ) = {
+  if authors == none or type(authors) != array or authors.len() == 0 {
+    panic("At least one author has to be specified!")
+  }
+
+  // TODO: only for compatibility: Remove with v3.0.0 release
+  if type(submission-date) == datetime {
+    submission-date = submission-date.display(submission-date-format)
+  }
+
+  // ----------------------------------
+  // Build metadata
+  // ----------------------------------
   let submission-info = [
     #_linguify-content("as-part-of-examination-dhbw")
 
@@ -111,11 +118,6 @@
       city: linguify-raw("ma"),
     ))
   ]
-
-  // TODO: only for compatibility reasons: Remove with v3.0.0 release
-  if type(submission-date) == datetime {
-    submission-date = submission-date.display(submission-date-format)
-  }
 
   let company-supervisor-data = [
     #company-supervisor.firstname #company-supervisor.lastname#if (
@@ -141,7 +143,7 @@
     }
   ]
 
-  let metadata = (
+  let misc-key-value = (
     _linguify-content("submission-date"),
     submission-date,
     _linguify-content("processing-duration"),
@@ -175,24 +177,26 @@
     university-supervisor-data,
   )
 
-  if authors == none or type(authors) != array or authors.len() == 0 {
-    panic("At least one author has to be specified!")
-  }
+  // ----------------------------------
+  // Build config
+  // ----------------------------------
+  let cfg = _dhbw-ma-defaults()
 
-  // ----------------------------------
-  // Construct default config
-  // ----------------------------------
-  let config = _dhbw-ma-config
+  cfg = merge-config(cfg, _general-metadata(metadata: (
+    lang: lang,
+    title-long: title-long,
+    title-short: title-short,
+    thesis-type: thesis-type,
+    logo-left: company-logo,
+    logo-right: image("../assets/DHBW-Logo.svg"),
+    submission-info: submission-info,
+    misc-key-value: misc-key-value,
+    authors: authors,
+  )))
 
   // ----------------------------------
   // Install section generators
   // ----------------------------------
-  // Generators are installed BEFORE user positional args so that user calls
-  // (e.g. `configure-dhbw-ma-ai-declaration-form(authors: (...))`) can override
-  // section data without clobbering the adapter's generator. If a user wants
-  // to replace a generator, they can pass `generator-function: ...` in their
-  // own positional configuration call.
-
   let course-year = int(authors.at(0).course.find(regex("\d+")))
 
   // Statutory declaration generator
@@ -200,14 +204,11 @@
     let sd-cfg = config.front-back-matter.statutory-declaration
     pagebreak(weak: true)
 
-    // TODO: The statutory declaration changed for courses starting in 2024.
-    // This complicated edge case for courses from 2023 and earlier can safely
-    // be removed by September 2026.
     let statuatory-declaration = if course-year < 24 {
       _linguify-content("statutory-declaration-note-dhbw-old", args: (
         author-count: authors.len(),
-        title: args.at("title-long"),
-        type: args.at("thesis-type"),
+        title: title-long,
+        type: thesis-type,
       ))
     } else {
       _linguify-content("statutory-declaration-note-dhbw", args: (
@@ -262,9 +263,7 @@
     _linguify-content("confidentiality-agreement-note-dhbw")
   }
 
-  // AI declaration form generator: reads per-author data from the final config
-  // so user overrides applied after the adapter are honored. Returns `none`
-  // when no per-author data is configured.
+  // AI declaration form generator
   let ai-declaration-form-generator(config) = {
     let ai-cfg = config.front-back-matter.ai-declaration-form
     let ai-authors = ai-cfg.at("authors", default: ())
@@ -301,8 +300,8 @@
     }
   }
 
-  config = merge-configs(
-    config,
+  cfg = merge-configs(
+    cfg,
     configure-statutory-declaration(
       generator-function: statutory-declaration-generator,
     ),
@@ -314,26 +313,5 @@
     ),
   )
 
-  // ----------------------------------
-  // Apply provided configs from user's positional args
-  // ----------------------------------
-  for addition in args.pos() {
-    assert.eq(
-      type(addition),
-      dictionary,
-      message: "Only configurations are allowed as positional arguments in dhbw-ma-adapter.",
-    )
-    config = merge-config(config, addition)
-  }
-
-  show: project.with(
-    _logo-left: company-logo,
-    _logo-right: image("../assets/DHBW-Logo.svg"),
-    _authors: authors,
-    _submission-info: submission-info,
-    _metadata: metadata,
-    config,
-    ..args.named(),
-  )
-  body
+  cfg
 }

@@ -67,15 +67,15 @@
 #show-module(base-docs)
 
 #let options-docs = tidy.parse-module(
-  read("template/template/config-utils.typ"),
+  read("template/template/config/util.typ"),
 )
 
 #show-module(options-docs)
 
 #let adapters = (
-  "dhbw-ka.typ",
-  "dhbw-ma.typ",
-  "ihk.typ",
+  "institution/dhbw-ka.typ",
+  "institution/dhbw-ma.typ",
+  "institution/ihk.typ",
 )
 
 #for adapter in adapters {

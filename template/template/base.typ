@@ -5,11 +5,33 @@
 #import "@preview/drafting:0.2.2": note-outline, set-margin-note-defaults
 #import "@preview/linguify:0.5.0": linguify, linguify-raw, load-ftl-data, set-database
 #import "util.typ": _in-outline, _linguify-content
-#import "config-utils.typ": *
+#import "config/lib.typ" as config: merge-config, merge-configs
 #import "generators.typ": *
-#import "components/coversheet.typ": configure-coversheet-spotless
-#import "components/header.typ": configure-body-header-spotless
-#import "components/footer.typ": configure-body-footer-spotless
+#import "frontbackmatter/general.typ": (
+  acknowledgements as _fbm-acknowledgements,
+  abstracts as _fbm-abstracts,
+  toc as _fbm-toc,
+  bibliography as _fbm-bibliography,
+  abbreviations as _fbm-abbreviations,
+  glossary as _fbm-glossary,
+  figure-listings as _fbm-figure-listings,
+)
+#import "general/layout.typ": document as _general-document
+#import "general/metadata.typ": metadata as _general-metadata
+#import "general/features.typ": drafting as _general-drafting
+#import "general/typography.typ": (
+  body as _typography-body,
+  headers as _typography-headers,
+  captions as _typography-captions,
+  code as _typography-code,
+  math as _typography-math,
+  _default-body-font,
+  _default-header-font,
+  _default-caption-font,
+  _default-code-font,
+  _default-math-font,
+)
+#import "component/appendices.typ": appendices as _component-appendices
 
 /// Default heading numbering pattern.
 /// -> str
@@ -70,33 +92,55 @@
   ))
 }
 
+/// Resolve the header or footer config for a given section name.
+/// Merges the shared flat `component.header` / `component.footer` with any
+/// section-specific override (section-specific wins on key conflicts).
+///
+/// Returns a dictionary with at least `generator` (function | none) and
+/// optional `height` (relative).
+/// -> dictionary
+#let _resolve-component(config, section-key) = {
+  let comp = config.at("component", default: (:))
+  // Determine flat fallback key
+  let flat-key = if section-key.ends-with("-header") {
+    "header"
+  } else if section-key.ends-with("-footer") {
+    "footer"
+  } else {
+    none
+  }
+  let flat = if flat-key != none { comp.at(flat-key, default: (:)) } else { (:) }
+  let specific = comp.at(section-key, default: (:))
+  merge-configs((:), flat, specific)
+}
+
 #let _base-config = merge-configs(
   (:),
-  configure-document(margin: 2.5cm),
-  configure-appendices(appendices: ()),
-  configure-acknowledgements(
+  _general-document(margin: 2.5cm),
+  _component-appendices(appendices: ()),
+  _fbm-acknowledgements(
     text: none,
     position: "frontmatter",
     order: 10,
     generator-function: _acknowledgements-default-generator,
   ),
-  configure-abstracts(
+  _fbm-abstracts(
     abstracts: (),
     position: "frontmatter",
     order: 20,
     generator-function: _abstracts-default-generator,
   ),
-  configure-toc(
+  _fbm-toc(
     position: "frontmatter",
     order: 30,
     generator-function: _toc-default-generator,
   ),
-  configure-bibliography(
+  _fbm-bibliography(
     position: "backmatter",
     order: 40,
     generator-function: _bibliography-default-generator,
   ),
-  configure-abbreviations(
+  _fbm-abbreviations(
     abbreviations: (),
     print-options: (
       deduplicate-back-references: true,
@@ -106,7 +150,7 @@
     order: 50,
     generator-function: _abbreviations-default-generator,
   ),
-  configure-glossary(
+  _fbm-glossary(
     glossary: (),
     print-options: (
       deduplicate-back-references: true,
@@ -115,7 +159,7 @@
     order: 60,
     generator-function: _glossary-default-generator,
   ),
-  configure-figure-listings(
+  _fbm-figure-listings(
     code-listing: true,
     figure-listing: true,
     table-listing: true,
@@ -123,11 +167,34 @@
     order: 70,
     generator-function: _listings-default-generator,
   ),
-  configure-metadata(),
-  configure-drafting(notes-listing: true),
-  configure-coversheet-spotless(),
-  configure-body-header-spotless(),
-  configure-body-footer-spotless(numbering-show-total: false),
+  _general-metadata(),
+  _general-drafting(notes-listing: true),
+  _typography-body(
+    font: _default-body-font.font,
+    size: _default-body-font.size,
+    leading: _default-body-font.leading,
+    spacing: _default-body-font.spacing,
+  ),
+  _typography-headers(
+    font: _default-header-font.font,
+    size: _default-header-font.size,
+    level-scaling: 90%,
+  ),
+  _typography-captions(
+    font: _default-caption-font.font,
+    size: _default-caption-font.size,
+  ),
+  _typography-code(
+    font: _default-code-font.font,
+    size: _default-code-font.size,
+  ),
+  _typography-math(
+    font: _default-math-font.font,
+    size: _default-math-font.size,
+  ),
+  // NOTE: No coversheet, header, or footer defaults here.
+  // The active theme is responsible for providing those via component.coversheet,
+  // component.body-header, component.body-footer, etc.
 )
 
 /// Due to a bug in drafting at least one margin must be of a different size then the others.
@@ -165,8 +232,8 @@
 /// styling, and layout. It handles the cover page, table of contents,
 /// lists of figures/tables/code, bibliography, and appendices.
 ///
-/// Institution-specific adapters should wrap this function to add their
-/// specific requirements. However the parameters shown here can be used with all adapters.
+/// Pass configurations produced by `theme.*`, `institution.*`,
+/// `frontbackmatter.*`, `component.*`, and `general.*` as positional arguments.
 /// -> content
 #let project(
   ..configs,
@@ -197,8 +264,17 @@
     set text(lang: config.metadata.lang)
   }
 
-  // font setup (LaTeX Look: 'New Computer Modern')
-  set text(font: "New Computer Modern", size: 12pt)
+  // font setup — driven by config.typography.body
+  let t-body = config.at("typography", default: (:)).at("body", default: (:))
+  let t-headers = config.at("typography", default: (:)).at("headers", default: (:))
+  let t-captions = config.at("typography", default: (:)).at("captions", default: (:))
+  let t-code = config.at("typography", default: (:)).at("code", default: (:))
+  let t-math = config.at("typography", default: (:)).at("math", default: (:))
+
+  set text(
+    font: t-body.at("font", default: "New Computer Modern"),
+    size: t-body.at("size", default: 12pt),
+  )
 
   set page(
     paper: "a4",
@@ -226,13 +302,28 @@
 
   // justify content.
   // Values researched in https://github.com/dhbw-typst/oderso-template-dev/pull/64 to match Arial 12pt and 1.5 line spacing in Microsoft Word
-  set par(justify: true, leading: 1.05em, spacing: 1.5em)
+  set par(
+    justify: true,
+    leading: t-body.at("leading", default: 1.05em),
+    spacing: t-body.at("spacing", default: 1.5em),
+  )
 
   // tables settings
   show table: set par(justify: false)
 
-  // heading setup
+  // heading setup — font driven by config.typography.headers
+  let header-font = t-headers.at("font", default: t-body.at("font", default: "New Computer Modern"))
+  let h1-size = t-headers.at("size", default: 1em)
+  let level-scaling = t-headers.at("level-scaling", default: 90%)
+  let h2-size = h1-size * (level-scaling / 100%)
+  let h3-size = h2-size * (level-scaling / 100%)
+
   set heading(numbering: _heading-numbering)
+
+  show heading.where(level: 1): set text(font: header-font, size: h1-size)
+  show heading.where(level: 2): set text(font: header-font, size: h2-size)
+  show heading.where(level: 3): set text(font: header-font, size: h3-size)
+  show heading.where(level: 4): set text(font: header-font)
 
   show heading: it => {
     it
@@ -244,8 +335,14 @@
     it
   }
 
-  // fancy inline code
+  // fancy inline code — font driven by config.typography.code
   // if you don't like them, just remove this section.
+  let code-font = t-code.at("font", default: none)
+  let code-size = t-code.at("size", default: 0.9em)
+  show raw: set text(
+    font: if code-font != none { code-font } else { () },
+    size: code-size,
+  )
   show raw.where(block: false): box.with(
     fill: luma(240),
     inset: (x: 2pt, y: 0pt),
@@ -276,6 +373,14 @@
   // set table numbering to roman
   show figure.where(kind: table): set figure(numbering: "I")
 
+  // caption typography — driven by config.typography.captions
+  let caption-font = t-captions.at("font", default: none)
+  let caption-size = t-captions.at("size", default: 1em)
+  show figure.caption: set text(
+    font: if caption-font != none { caption-font } else { () },
+    size: caption-size,
+  )
+
   show: make-glossary
 
   // fancy inline links
@@ -301,6 +406,13 @@
 
   // Equation figures
   set math.equation(numbering: "(1)")
+  // math font — driven by config.typography.math
+  // Note: Typst math font selection is limited; this primarily controls text inside math.
+  let math-font = t-math.at("font", default: none)
+  if math-font != none {
+    show math.equation: set text(font: math-font)
+  }
+
   // follow IEEE style for equation references: `(1)` instead of `equation 1`
   show ref: it => {
     if it.element != none and it.element.func() == math.equation {
@@ -340,9 +452,12 @@
     }
   }
 
-  (config.coversheet.generator)(config)
-
-  pagebreak()
+  let coversheet-cfg = _resolve-component(config, "coversheet")
+  let coversheet-generator = coversheet-cfg.at("generator", default: none)
+  if coversheet-generator != none {
+    (coversheet-generator)(config)
+    pagebreak()
+  }
 
   // ----------------------------------
   // Frontmatter
@@ -350,14 +465,28 @@
 
   {
     counter(page).update(1)
-    set page(numbering: "I")
+    let fm-header-cfg = _resolve-component(config, "frontmatter-header")
+    let fm-footer-cfg = _resolve-component(config, "frontmatter-footer")
+    let fm-header-height = fm-header-cfg.at("height", default: 0cm)
+    let fm-header-gen = fm-header-cfg.at("generator", default: none)
+    let fm-footer-gen = fm-footer-cfg.at("generator", default: none)
+    let fm-margin = config.page.margin
+    if fm-header-gen != none and fm-header-height != 0cm {
+      fm-margin.top = fm-margin.top + fm-header-height
+    }
+    set page(
+      numbering: "I",
+      margin: _transform-margin(fm-margin),
+      header: if fm-header-gen != none { (fm-header-gen)(config) } else { none },
+      footer: if fm-footer-gen != none { (fm-footer-gen)(config) } else { none },
+    )
     set heading(numbering: none)
     // Filter by "frontmatter" and order by order
     let frontmatters = config
       .front-back-matter
       .values()
       .filter(entry => (
-        entry.position == "frontmatter" and entry.at("enable", default: true) and ("generator" in entry.keys())
+        "position" in entry.keys() and entry.position == "frontmatter" and entry.at("enable", default: true) and ("generator" in entry.keys())
       ))
       .sorted(key: entry => entry.order, by: (l, r) => l < r)
 
@@ -375,14 +504,20 @@
   // ----------------------------------
 
   {
-    // display header
+    let body-header-cfg = _resolve-component(config, "body-header")
+    let body-footer-cfg = _resolve-component(config, "body-footer")
+    let body-header-height = body-header-cfg.at("height", default: 0cm)
+    let body-header-gen = body-header-cfg.at("generator", default: none)
+    let body-footer-gen = body-footer-cfg.at("generator", default: none)
     let body-margin = config.page.margin
-    body-margin.top = config.page.margin.top + config.body-header.height
+    if body-header-gen != none {
+      body-margin.top = body-margin.top + body-header-height
+    }
     set page(
       margin: _transform-margin(body-margin),
-      header: (config.body-header.generator)(config),
+      header: if body-header-gen != none { (body-header-gen)(config) } else { none },
       numbering: "1",
-      footer: (config.body-footer.generator)(config),
+      footer: if body-footer-gen != none { (body-footer-gen)(config) } else { none },
     )
     show heading.where(level: 1): it => {
       pagebreak(weak: true)
@@ -401,14 +536,28 @@
   // ----------------------------------
   {
     counter(page).update(1)
-    set page(numbering: "a")
+    let bm-header-cfg = _resolve-component(config, "backmatter-header")
+    let bm-footer-cfg = _resolve-component(config, "backmatter-footer")
+    let bm-header-height = bm-header-cfg.at("height", default: 0cm)
+    let bm-header-gen = bm-header-cfg.at("generator", default: none)
+    let bm-footer-gen = bm-footer-cfg.at("generator", default: none)
+    let bm-margin = config.page.margin
+    if bm-header-gen != none and bm-header-height != 0cm {
+      bm-margin.top = bm-margin.top + bm-header-height
+    }
+    set page(
+      numbering: "a",
+      margin: _transform-margin(bm-margin),
+      header: if bm-header-gen != none { (bm-header-gen)(config) } else { none },
+      footer: if bm-footer-gen != none { (bm-footer-gen)(config) } else { none },
+    )
     set heading(numbering: none)
     // Filter by "backmatter" and order by order
     let backmatters = config
       .front-back-matter
       .values()
       .filter(entry => (
-        entry.position == "backmatter" and entry.at("enable", default: true) and ("generator" in entry.keys())
+        "position" in entry.keys() and entry.position == "backmatter" and entry.at("enable", default: true) and ("generator" in entry.keys())
       ))
       .sorted(key: entry => entry.order, by: (l, r) => l < r)
 
@@ -423,6 +572,10 @@
 
   // display appendix
   if config.appendices.entries.len() > 0 {
+    let app-header-cfg = _resolve-component(config, "appendix-header")
+    let app-footer-cfg = _resolve-component(config, "appendix-footer")
+    let app-header-gen = app-header-cfg.at("generator", default: none)
+    let app-footer-gen = app-footer-cfg.at("generator", default: none)
     set heading(
       outlined: true,
       numbering: (..nums) => {
@@ -431,21 +584,31 @@
       },
       supplement: none,
     )
-    set page(numbering: "A", footer: auto)
+    set page(
+      numbering: "A",
+      footer: if app-footer-gen != none { (app-footer-gen)(config) } else { none },
+      header: if app-header-gen != none { (app-header-gen)(config) } else { none },
+    )
     counter(page).update(1)
     counter(heading).update(0)
 
-    heading(
-      _linguify-content("list-of-appendices"),
-      numbering: none,
-    )
-
-    outline(
-      depth: 1,
-      indent: auto,
-      title: none,
-      target: selector(heading).after(<_appendix-start>),
-    )
+    let app-toc-cfg = config.at("component", default: (:)).at("appendix-toc", default: (:))
+    let app-toc-gen = app-toc-cfg.at("generator", default: none)
+    if app-toc-gen != none {
+      (app-toc-gen)(config)
+    } else {
+      // Default appendix TOC
+      heading(
+        _linguify-content("list-of-appendices"),
+        numbering: none,
+      )
+      outline(
+        depth: 1,
+        indent: auto,
+        title: none,
+        target: selector(heading).after(<_appendix-start>),
+      )
+    }
 
     pagebreak(weak: true)
     [#[] <_appendix-start>]

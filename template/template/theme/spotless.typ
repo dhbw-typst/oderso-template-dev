@@ -1,17 +1,23 @@
+// LTeX: enabled=false
 #import "../component/lib.typ" as component
 #import "../config/lib.typ" as config
+#import "../util.typ": _linguify-content
+#import "@preview/hydra:0.6.3": hydra
 
-/// Configure the coversheet of style _spotless_.
+// ============================================================
+// Spotless theme
+// ============================================================
+
+/// Configure the theme _spotless_.
 ///
-/// TODO: Add what metadata is required to dispay this coversheet
+/// Sets defaults for:
+/// - Coversheet (two-logo layout with title block and metadata table)
+/// - Body header (short title left + current heading right, with rule)
+/// - Body footer (centred page number)
 ///
+/// All section defaults can be overridden by passing further config
+/// dictionaries after `theme.spotless()` in the `project` call.
 /// -> dictionary
-#let spotless() = {
-  config.utils.merge-configs(
-    _coversheet(),
-  )
-}
-
 #let _coversheet() = {
   return component.coversheet(generator-function: config => {
     // Coversheet
@@ -64,7 +70,11 @@
       }),
     )
 
-    if config.front-back-matter.confidentiality-clause.enable {
+    let confidentiality-enabled = config
+      .front-back-matter
+      .at("confidentiality-clause", default: (:))
+      .at("enable", default: false)
+    if confidentiality-enabled {
       place(top + center, dy: 5cm, link(<_confidentiality-clause>)[
         #text(
           size: 12pt,
@@ -76,3 +86,41 @@
     }
   })
 }
+
+#let _body-header() = {
+  return component.body-header(
+    generator-function: config => context {
+      grid(
+        columns: (auto, 1fr),
+        align(left, text(config.metadata.title-short)),
+        align(right, emph(hydra(1, display: (_, it) => {
+          it.body
+        }))),
+      )
+      line(length: 100%, stroke: (paint: gray))
+    },
+    height: 1cm,
+  )
+}
+
+#let _body-footer() = {
+  return component.body-footer(
+    generator-function: config => context align(center, {
+      numbering("1", counter(page).get().at(0))
+    }),
+    height: 0cm,
+  )
+}
+
+#let spotless() = {
+  config.merge-configs(
+    (:),
+    _coversheet(),
+    _body-header(),
+    _body-footer(),
+  )
+}
+
+// ============================================================
+// Private producers
+// ============================================================

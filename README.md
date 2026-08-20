@@ -79,15 +79,16 @@ frontbackmatter:
     - acknowledgements (base)
     - abstracts (base)
     - figure-listings (base)
-    - 
 ```
 
 1. Base
-    Configures global defaults, no semantic information
+    Defaults for base frontbackmatter component positions, despite that no defaults (using typst defaults, no headers, footers, coversheet)
 2. Theme
-    Changes styling of components but does not change semantic information
+    Sets defaults (and producers) for relevant general, component and frontbackmatter components. Expects following layers to configer semantic information (e.g. provide a title if required by a theme). Provides producers for institution components if they differ between themes.
 3. Institution
-    Changes options to be institution compliant
+    Configures metadata and adjusts configurations to be institution compliant. Provides producers for institution components if they are the same for all themes.
+4. Customization
+    Allows the user to override values of previous layers
 
 ```typ
 #show: project.with(

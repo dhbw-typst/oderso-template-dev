@@ -1,4 +1,6 @@
 
+#import "util.typ": default-value
+
 /// Asserts that `position` is either the default sentinel or one of "frontmatter" / "backmatter",
 /// and that `order` is either the default sentinel or an integer.
 #let validate-position-order(position, order) = {
