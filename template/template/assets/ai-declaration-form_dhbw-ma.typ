@@ -1,5 +1,5 @@
 //Declaration form for the use of AI-based tools in Projektarbeiten at DHBW Mannheim.
-#import "../util.typ": _linguify-content
+#import "../util.typ": config.util.linguify-content
 
 #let ai-declaration-form(
   digital: true,
@@ -126,13 +126,13 @@
   // returns a rectangle (checked if the exam type equals the thesis type) and the thesis type
   let fill-check-rec(kind) = {
     if (not kind.starts-with("Projektarbeit")) {
-      return rec(kind) + " " + _linguify-content(lower(kind))
+      return rec(kind) + " " + config.util.linguify-content(lower(kind))
     } else {
       let a = lower(kind).split(" ")
       return (
         rec(kind)
           + " "
-          + _linguify-content(a.at(0), args: (thesis-number: upper(a.at(1))))
+          + config.util.linguify-content(a.at(0), args: (thesis-number: upper(a.at(1))))
       )
     }
   }
@@ -154,13 +154,13 @@
     inset: 0cm,
     align(left, heading(
       level: 1,
-    )[#_linguify-content("ai-dec-title")]),
+    )[#config.util.linguify-content("ai-dec-title")]),
     align(right, image("DHBW-Logo.svg", width: 100%)),
   )
 
   v(0.7cm)
 
-  heading(level: 2, outlined: false)[#_linguify-content(
+  heading(level: 2, outlined: false)[#config.util.linguify-content(
     "ai-dec-personal-information",
   )]
 
@@ -174,29 +174,29 @@
       columns: (60%, 40%),
       text(size: font-size-normal)[#field-name],
       text(size: font-size-normal)[#field-identification-number],
-      grid.cell(stroke: (top: 1pt))[#_linguify-content(
+      grid.cell(stroke: (top: 1pt))[#config.util.linguify-content(
         "ai-dec-last-first-name",
       )],
-      grid.cell(stroke: (top: 1pt))[#_linguify-content(
+      grid.cell(stroke: (top: 1pt))[#config.util.linguify-content(
         "ai-dec-matriculation-number",
       )],
       grid.cell(inset: lineSpacing, colspan: 2)[],
       text(size: font-size-normal)[#field-address],
       text(size: font-size-normal)[#field-course],
-      grid.cell(stroke: (top: 1pt))[#_linguify-content("ai-dec-address")],
-      grid.cell(stroke: (top: 1pt))[#_linguify-content("ai-dec-course")],
+      grid.cell(stroke: (top: 1pt))[#config.util.linguify-content("ai-dec-address")],
+      grid.cell(stroke: (top: 1pt))[#config.util.linguify-content("ai-dec-course")],
       grid.cell(inset: lineSpacing, colspan: 2)[],
       text(size: font-size-normal)[#field-email],
       text(size: font-size-normal)[#field-mobile-number],
-      grid.cell(stroke: (top: 1pt))[#_linguify-content("ai-dec-mail")],
-      grid.cell(stroke: (top: 1pt))[#_linguify-content("ai-dec-tel-number")],
+      grid.cell(stroke: (top: 1pt))[#config.util.linguify-content("ai-dec-mail")],
+      grid.cell(stroke: (top: 1pt))[#config.util.linguify-content("ai-dec-tel-number")],
     )
 
     v(1.1cm)
 
     grid(
       columns: (3.4cm, 5.9cm, 8cm),
-      text(size: font-size-normal)[#_linguify-content("ai-dec-for-module")],
+      text(size: font-size-normal)[#config.util.linguify-content("ai-dec-for-module")],
       grid.cell(colspan: 2, text(
         size: font-size-normal,
       )[#field-module-name-semester]),
@@ -205,11 +205,11 @@
         colspan: 2,
         stroke: (top: 1pt),
         align: center,
-      )[#_linguify-content("ai-dec-module-semester")],
-      text(size: font-size-normal)[#_linguify-content("ai-dec-have-to-on")],
+      )[#config.util.linguify-content("ai-dec-module-semester")],
+      text(size: font-size-normal)[#config.util.linguify-content("ai-dec-have-to-on")],
       grid.cell(colspan: 2, text(size: font-size-normal)[#field-date]),
       [],
-      grid.cell(stroke: (top: 1pt), align: center)[#_linguify-content(
+      grid.cell(stroke: (top: 1pt), align: center)[#config.util.linguify-content(
         "ai-dec-deadline-date",
       )],
       [],
@@ -220,7 +220,7 @@
 
   pad(right: 1cm)[
 
-    #_linguify-content("ai-dec-following-examination")
+    #config.util.linguify-content("ai-dec-following-examination")
     #v(0.35cm)
 
     #grid(
@@ -232,7 +232,7 @@
       grid.cell(colspan: 3)[],
       grid.cell(align: center, stroke: (top: 1pt), text(
         size: font-size-small,
-      )[#_linguify-content("specific-descr")]),
+      )[#config.util.linguify-content("specific-descr")]),
       grid.cell(colspan: 4, inset: (top: 0.15cm, bottom: 0pt))[],
       [#fill-check-rec("Seminararbeit")],
       [#fill-check-rec("Bachelorarbeit")],
@@ -240,7 +240,7 @@
 
     #v(2.2cm)
 
-    #_linguify-content("ai-dec-intro")
+    #config.util.linguify-content("ai-dec-intro")
   ]
 
   v(1cm)
@@ -252,12 +252,12 @@
       show text: strong
       list(
         spacing: 0.6cm,
-        [#_linguify-content("ai-dec-informed-performance-restrictions")],
-        [#_linguify-content("ai-dec-independence-controlling")],
-        [#_linguify-content("ai-dec-scientific-independent-work")],
-        [#_linguify-content("ai-dec-scientific-responsibility")],
-        [#_linguify-content("ai-dec-no-other-tools")],
-        [#_linguify-content("ai-dec-all-specified")],
+        [#config.util.linguify-content("ai-dec-informed-performance-restrictions")],
+        [#config.util.linguify-content("ai-dec-independence-controlling")],
+        [#config.util.linguify-content("ai-dec-scientific-independent-work")],
+        [#config.util.linguify-content("ai-dec-scientific-responsibility")],
+        [#config.util.linguify-content("ai-dec-no-other-tools")],
+        [#config.util.linguify-content("ai-dec-all-specified")],
       )
     }
   ]
@@ -267,8 +267,8 @@
   pad(right: 1.1cm)[
     #set par(justify: true)
 
-    #underline(_linguify-content("ai-dec-title-products-first"))
-    #_linguify-content("ai-dec-title-products-second")
+    #underline(config.util.linguify-content("ai-dec-title-products-first"))
+    #config.util.linguify-content("ai-dec-title-products-second")
     #{
       if (digital) {
         v(0.7cm)
@@ -281,24 +281,24 @@
 
     #v(1.3cm)
 
-    #_linguify-content("ai-dec-title-used-functions")
+    #config.util.linguify-content("ai-dec-title-used-functions")
     #v(1cm)
 
-    - #_linguify-content("ai-dec-topic-structure")
+    - #config.util.linguify-content("ai-dec-topic-structure")
     #v(1cm)
     #text-area(content: field-topic)
 
-    - #_linguify-content("ai-dec-topic-processing")
+    - #config.util.linguify-content("ai-dec-topic-processing")
     #v(1cm)
     #text-area(content: topic-editing)
 
-    - #_linguify-content("ai-dec-research-choose")
+    - #config.util.linguify-content("ai-dec-research-choose")
     #v(1cm)
     #text-area(content: research)
 
     #set par(justify: false)
 
-    - #_linguify-content("ai-dec-formal-design")
+    - #config.util.linguify-content("ai-dec-formal-design")
     #v(1cm)
     #text-area(content: design)
   ]
@@ -307,9 +307,9 @@
 
   pad(right: 0.5cm)[
     #block(stroke: 0.5pt, inset: 3pt)[
-      #_linguify-content("notice")
+      #config.util.linguify-content("notice")
 
-      #_linguify-content("ai-dec-notice")
+      #config.util.linguify-content("ai-dec-notice")
     ]
   ]
   v(1.6cm)
@@ -323,8 +323,8 @@
     column-gutter: 0.5cm,
     align(bottom, text(size: font-size-normal, field-signature)),
     place(bottom, signature),
-    grid.cell(stroke: (top: 1pt), [#_linguify-content("place-date")]),
-    grid.cell(stroke: (top: 1pt), [#_linguify-content("signature-student")]),
+    grid.cell(stroke: (top: 1pt), [#config.util.linguify-content("place-date")]),
+    grid.cell(stroke: (top: 1pt), [#config.util.linguify-content("signature-student")]),
   )
 }
 
@@ -346,9 +346,9 @@
   exam-type: "Projektarbeit I", //"Projektarbeit I", "Projektarbeit II", "Seminararbeit",   Bachelorarbeit"
   product-name: "ChatGPT, DeepL",
   topic: "Automatisierung von Geschäftsprozessen",
-  topic-editing: _linguify-content("ai-dec-structure"),
-  research: _linguify-content("ai-dec-research-ai"),
-  design: _linguify-content("ai-dec-generation-correction"),
+  topic-editing: config.util.linguify-content("ai-dec-structure"),
+  research: config.util.linguify-content("ai-dec-research-ai"),
+  design: config.util.linguify-content("ai-dec-generation-correction"),
   signature-city: "Mannheim",
   signature-date: datetime
     .today()

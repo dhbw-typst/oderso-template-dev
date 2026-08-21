@@ -1,5 +1,5 @@
 // LTeX: enabled=false
-#import "../config/lib.typ" as config: default-value, get-dict-without-default
+#import "../config/lib.typ" as config
 
 // ============================================================
 // Default font parameters for New Computer Modern
@@ -50,23 +50,25 @@
 /// All fields are optional; unset fields fall back to theme/base defaults.
 /// -> dictionary
 #let body(
-  /// Font family name or list of fallbacks. -> str | array | default-value
-  font: default-value,
-  /// Base font size. -> length | default-value
-  size: default-value,
-  /// Line leading (distance between baselines). -> relative | default-value
-  leading: default-value,
-  /// Paragraph spacing (vertical space between paragraphs). -> relative | default-value
-  spacing: default-value,
+  /// Font family name or list of fallbacks. -> str | array | config.util.default-value
+  font: config.util.default-value,
+  /// Base font size. -> length | config.util.default-value
+  size: config.util.default-value,
+  /// Line leading (distance between baselines). -> relative | config.util.default-value
+  leading: config.util.default-value,
+  /// Paragraph spacing (vertical space between paragraphs). -> relative | config.util.default-value
+  spacing: config.util.default-value,
 ) = {
   return (
-    typography: (
-      body: get-dict-without-default((
-        font: font,
-        size: size,
-        leading: leading,
-        spacing: spacing,
-      )),
+    general: (
+      typography: (
+        body: config.util.get-dict-without-default((
+          font: font,
+          size: size,
+          leading: leading,
+          spacing: spacing,
+        )),
+      ),
     ),
   )
 }
@@ -75,40 +77,46 @@
 ///
 /// `size` sets the level-1 heading size; deeper levels scale relative to it.
 /// -> dictionary
-#let headers(
-  /// Font family name or list of fallbacks. -> str | array | default-value
-  font: default-value,
-  /// Level-1 heading size (deeper levels scale proportionally). -> relative | default-value
-  size: default-value,
+#let heading(
+  /// Font family name or list of fallbacks. -> str | array | config.util.default-value
+  font: config.util.default-value,
+  /// Level-1 heading size (deeper levels scale proportionally). -> relative | config.util.default-value
+  size: config.util.default-value,
   /// Scaling factor applied per heading level (e.g. 90% means each deeper level
-  /// is 90 % of the previous). -> ratio | default-value
-  level-scaling: default-value,
+  /// is 90 % of the previous) or an array of sizes applied to h2 downwards (h1 is configured by size argument). -> ratio | array | config.util.default-value
+  size-scaling: config.util.default-value,
+  numbering: config.util.default-value,
 ) = {
   return (
-    typography: (
-      headers: get-dict-without-default((
-        font: font,
-        size: size,
-        level-scaling: level-scaling,
-      )),
+    general: (
+      typography: (
+        heading: config.util.get-dict-without-default((
+          font: font,
+          size: size,
+          size-scaling: size-scaling,
+          numbering: numbering
+        )),
+      ),
     ),
   )
 }
 
 /// Configure figure caption typography.
 /// -> dictionary
-#let captions(
-  /// Font family name or list of fallbacks. -> str | array | default-value
-  font: default-value,
-  /// Caption font size relative to body. -> relative | default-value
-  size: default-value,
+#let caption(
+  /// Font family name or list of fallbacks. -> str | array | config.util.default-value
+  font: config.util.default-value,
+  /// Caption font size relative to body. -> relative | config.util.default-value
+  size: config.util.default-value,
 ) = {
   return (
-    typography: (
-      captions: get-dict-without-default((
-        font: font,
-        size: size,
-      )),
+    general: (
+      typography: (
+        caption: config.util.get-dict-without-default((
+          font: font,
+          size: size,
+        )),
+      ),
     ),
   )
 }
@@ -116,17 +124,19 @@
 /// Configure inline and block code typography.
 /// -> dictionary
 #let code(
-  /// Monospace font family name or list of fallbacks. -> str | array | default-value
-  font: default-value,
-  /// Code font size relative to body. -> relative | default-value
-  size: default-value,
+  /// Monospace font family name or list of fallbacks. -> str | array | config.util.default-value
+  font: config.util.default-value,
+  /// Code font size relative to body. -> relative | config.util.default-value
+  size: config.util.default-value,
 ) = {
   return (
-    typography: (
-      code: get-dict-without-default((
-        font: font,
-        size: size,
-      )),
+    general: (
+      typography: (
+        code: config.util.get-dict-without-default((
+          font: font,
+          size: size,
+        )),
+      ),
     ),
   )
 }
@@ -134,17 +144,19 @@
 /// Configure math typography.
 /// -> dictionary
 #let math(
-  /// Math font family name. -> str | array | default-value
-  font: default-value,
-  /// Math font size relative to body. -> relative | default-value
-  size: default-value,
+  /// Math font family name. -> str | array | config.util.default-value
+  font: config.util.default-value,
+  /// Math font size relative to body. -> relative | config.util.default-value
+  size: config.util.default-value,
 ) = {
   return (
-    typography: (
-      math: get-dict-without-default((
-        font: font,
-        size: size,
-      )),
+    general: (
+      typography: (
+        math: config.util.get-dict-without-default((
+          font: font,
+          size: size,
+        )),
+      ),
     ),
   )
 }

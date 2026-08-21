@@ -2,17 +2,10 @@
 
 #import "@preview/linguify:0.5.0": linguify-raw
 #import "@preview/glossarium:0.5.10": print-glossary
+#import "config/lib.typ" as config
 
-/// Convenience wrapper: evaluates a linguify string as markup content at call site.
-/// Used throughout the template to render localised strings.
-/// -> content
-#let _linguify-content(..args) = {
-  context eval(linguify-raw(..args), mode: "markup")
-}
 
-/// Internal state to track whether we are currently rendering an outline.
-/// -> state
-#let _in-outline = state("in-outline", false)
+
 
 /// Creates a caption that conditionally includes a source reference.
 ///
@@ -34,7 +27,7 @@
   /// The source reference (typically a citation like `[@source]`). -> content
   source,
 ) = context {
-  if _in-outline.at(here()) {
+  if config.util.in-outline.at(here()) {
     caption-text
   } else {
     caption-text + " " + source

@@ -46,27 +46,30 @@
   return new-dict
 }
 
-#let get-config(key, config) = {
-  if key == "" or key == none {
+#let get-config(path, default, config) = {
+  if path == "" or path == none {
     return config
   }
 
-  let first-dot = key.position(".")
+  let first-dot = path.position(".")
   if first-dot == none {
-    if key in config.keys() {
-      return config.at(key)
+    if path in config.keys() {
+      return config.at(path)
     } else {
-      panic("The provided config key '" + key + "' does not exist")
+      return default
     }
   } else {
-    let this-key = key.slice(0, first-dot)
-    let rest-key = key.slice(first-dot + 1)
+    let this-key = path.slice(0, first-dot)
+    let rest-key = path.slice(first-dot + 1)
     if this-key in config.keys() {
-      return get-config(rest-key, config.at(this-key))
+      return get-config(rest-key, default, config.at(this-key))
     }
   }
 }
 
+/// Evaluates a linguify string as markup content at call site.
+/// Used throughout the template to render localised strings.
+/// -> content
 #let linguify-content(..args) = {
   context eval(linguify-raw(..args), mode: "markup")
 }

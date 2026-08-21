@@ -1,13 +1,3 @@
-// LTeX: enabled=false
-#import "../component/lib.typ" as component
-#import "../config/lib.typ" as config
-#import "../util.typ": _linguify-content
-#import "@preview/hydra:0.6.3": hydra
-
-// ============================================================
-// Spotless theme
-// ============================================================
-
 /// Configure the theme _spotless_.
 ///
 /// Sets defaults for:
@@ -48,7 +38,7 @@
 
         #config.metadata.submission-info
 
-        #_linguify-content("by")
+        #config.util.linguify-content("by")
 
         #for author in config.metadata.authors {
           [*#author.firstname #author.lastname*\ ]
@@ -80,7 +70,7 @@
           size: 12pt,
           weight: "bold",
           fill: gray,
-          _linguify-content("confidentiality-stamp"),
+          config.util.linguify-content("confidentiality-stamp"),
         )
       ])
     }
@@ -111,16 +101,3 @@
     height: 0cm,
   )
 }
-
-#let spotless() = {
-  config.merge-configs(
-    (:),
-    _coversheet(),
-    _body-header(),
-    _body-footer(),
-  )
-}
-
-// ============================================================
-// Private producers
-// ============================================================

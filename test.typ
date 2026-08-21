@@ -1,5 +1,7 @@
-#import "@preview/drafting:0.2.2": *
+#show: set text(fill: blue) if false
 
-#set page(margin: 4cm)
+#show heading: set par(spacing: 5em)
 
-#margin-note("test")
+test
+
+== Test

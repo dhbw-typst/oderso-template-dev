@@ -44,9 +44,9 @@
     sys.inputs.at("version", default: "v?.?.?"),
     datetime.today().display("[month repr:long] [day], [year]"),
   ))
-  align(center, text(underline(
+  align(center, text(
     link("https://github.com/dhbw-typst/oderso-template"),
-  )))
+  ))
   v(2em)
   place(center + horizon, pad(
     text([

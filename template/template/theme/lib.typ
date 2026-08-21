@@ -1,1 +1,1 @@
-#import "spotless.typ": spotless
+#import "spotless/spotless.typ": spotless

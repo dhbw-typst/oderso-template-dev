@@ -1,5 +1,5 @@
 #import "../config/lib.typ" as config
-#import "../util.typ": _linguify-content
+#import "../util.typ": config.util.linguify-content
 
 /// Component-local validator: accepts config.util.default-value, none (suppress), or function.
 #let _validate-coversheet-generator(generator-function) = {

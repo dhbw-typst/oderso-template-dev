@@ -4,7 +4,7 @@
 #import "../config/lib.typ" as config: merge-config, merge-configs
 #import "../frontbackmatter/_shared.typ": configure-statutory-declaration, configure-confidentiality-clause
 #import "@preview/linguify:0.5.0": linguify
-#import "../util.typ": _linguify-content
+#import "../util.typ": config.util.linguify-content
 #import "../general/metadata.typ": metadata as _general-metadata
 
 /// Default IHK config: sets position/order/enable defaults and IHK
@@ -84,26 +84,26 @@
   // Build metadata
   // ----------------------------------
   let submission-info = [
-    #_linguify-content("as-part-of-examination-ihk")
+    #config.util.linguify-content("as-part-of-examination-ihk")
 
     *#examination*
 
-    #_linguify-content("in-the-training-occupation")\
+    #config.util.linguify-content("in-the-training-occupation")\
     #training-occupation
   ]
 
   let misc-key-value = (
-    _linguify-content("submission-date"),
+    config.util.linguify-content("submission-date"),
     submission-date,
-    _linguify-content("processing-duration"),
-    _linguify-content("weeks", args: (count: processing-period-weeks)),
-    _linguify-content("examinee-number"),
+    config.util.linguify-content("processing-duration"),
+    config.util.linguify-content("weeks", args: (count: processing-period-weeks)),
+    config.util.linguify-content("examinee-number"),
     authors.map(a => a.examinee-number).join(linebreak()),
-    _linguify-content("training-company"),
+    config.util.linguify-content("training-company"),
     company-name + linebreak() + company-city,
-    _linguify-content("department"),
+    config.util.linguify-content("department"),
     company-department,
-    _linguify-content("supervisor-at-training-company"),
+    config.util.linguify-content("supervisor-at-training-company"),
     company-supervisor,
   )
 
@@ -133,11 +133,11 @@
     let sd-cfg = config.front-back-matter.statutory-declaration
     pagebreak(weak: true)
     align(center, heading(
-      _linguify-content("statutory-declaration"),
+      config.util.linguify-content("statutory-declaration"),
       level: 1,
     ))
 
-    _linguify-content("statutory-declaration-note-dhbw", args: (
+    config.util.linguify-content("statutory-declaration-note-dhbw", args: (
       author-count: authors.len(),
     ))
 
@@ -158,11 +158,11 @@
     pagebreak(weak: true)
     [#[] <_confidentiality-clause>]
     align(center, heading(
-      _linguify-content("confidentiality-agreement"),
+      config.util.linguify-content("confidentiality-agreement"),
       level: 1,
     ))
 
-    _linguify-content("confidentiality-agreement-note-ihk")
+    config.util.linguify-content("confidentiality-agreement-note-ihk")
   }
 
   cfg = merge-configs(

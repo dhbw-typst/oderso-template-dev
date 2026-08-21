@@ -84,8 +84,10 @@
   }
 
   return (
-    page: config.util.get-dict-without-default((
-      margin: margin,
-    )),
+    general: (
+      document: config.util.get-dict-without-default((
+        margin: margin,
+      )),
+    ),
   )
 }

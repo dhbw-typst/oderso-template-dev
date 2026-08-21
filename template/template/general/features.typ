@@ -1,4 +1,4 @@
-#import "../config/lib.typ" as config: validate-enable
+#import "../config/lib.typ" as config
 
 /// Configure options regarding drafting.
 /// This includes notes and the watermark.
@@ -9,14 +9,17 @@
   watermark: config.util.default-value,
   /// Generator function used to display the watermark -> function
   watermark-generator: config.util.default-value,
-  /// Whether to display a list of notes at the very first page of the document. -->
+  /// Whether to display a list of notes at the very first page of the document. --> bool
   notes-listing: config.util.default-value,
 ) = {
-  validate-enable(notes-listing)
+  config.validation.validate-enable(notes-listing)
   return (
-    drafting: config.util.get-dict-without-default((
-      watermark: watermark,
-      notes-listing: notes-listing,
-    )),
+    general: (
+      drafting: config.util.get-dict-without-default((
+        watermark: watermark,
+        watermark-generator: watermark-generator,
+        notes-listing: notes-listing,
+      )),
+    ),
   )
 }

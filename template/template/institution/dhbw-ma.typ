@@ -6,7 +6,7 @@
 #import "../frontbackmatter/_shared.typ": configure-statutory-declaration, configure-confidentiality-clause
 #import "config.typ": configure-dhbw-ma-ai-declaration-form
 #import "../assets/ai-declaration-form_dhbw-ma.typ": ai-declaration-form
-#import "../util.typ": _linguify-content
+#import "../util.typ": config.util.linguify-content
 #import "../general/metadata.typ": metadata as _general-metadata
 
 /// Default DHBW Mannheim config: sets position/order/enable defaults
@@ -107,13 +107,13 @@
   // Build metadata
   // ----------------------------------
   let submission-info = [
-    #_linguify-content("as-part-of-examination-dhbw")
+    #config.util.linguify-content("as-part-of-examination-dhbw")
 
     *#examination*
 
-    #_linguify-content("in-field-of-study", args: (study: study))
+    #config.util.linguify-content("in-field-of-study", args: (study: study))
 
-    #context _linguify-content("at-the-institution", args: (
+    #context config.util.linguify-content("at-the-institution", args: (
       institution: linguify-raw("dhbw-long"),
       city: linguify-raw("ma"),
     ))
@@ -144,36 +144,36 @@
   ]
 
   let misc-key-value = (
-    _linguify-content("submission-date"),
+    config.util.linguify-content("submission-date"),
     submission-date,
-    _linguify-content("processing-duration"),
-    _linguify-content("weeks", args: (count: processing-period-weeks)),
-    _linguify-content("matriculation-number")
+    config.util.linguify-content("processing-duration"),
+    config.util.linguify-content("weeks", args: (count: processing-period-weeks)),
+    config.util.linguify-content("matriculation-number")
       + ", "
-      + _linguify-content("course"),
+      + config.util.linguify-content("course"),
     authors
       .map(a => a.matriculation-number + ", " + a.course)
       .join(linebreak()),
     ..if company-name != none and company-city != none {
       (
-        _linguify-content("training-company"),
+        config.util.linguify-content("training-company"),
         company-name + linebreak() + company-city,
       )
     },
     ..if company-department != none {
-      (_linguify-content("department"), company-department)
+      (config.util.linguify-content("department"), company-department)
     },
     ..if company-supervisor.firstname != none
       or company-supervisor.lastname != none {
       (
-        _linguify-content("supervisor-at-training-company"),
+        config.util.linguify-content("supervisor-at-training-company"),
         company-supervisor-data,
       )
     },
     ..if course-director != none {
-      (_linguify-content("course-director"), course-director)
+      (config.util.linguify-content("course-director"), course-director)
     },
-    _linguify-content("supervisor-at-university"),
+    config.util.linguify-content("supervisor-at-university"),
     university-supervisor-data,
   )
 
@@ -205,32 +205,32 @@
     pagebreak(weak: true)
 
     let statuatory-declaration = if course-year < 24 {
-      _linguify-content("statutory-declaration-note-dhbw-old", args: (
+      config.util.linguify-content("statutory-declaration-note-dhbw-old", args: (
         author-count: authors.len(),
         title: title-long,
         type: thesis-type,
       ))
     } else {
-      _linguify-content("statutory-declaration-note-dhbw", args: (
+      config.util.linguify-content("statutory-declaration-note-dhbw", args: (
         author-count: authors.len(),
       ))
     }
 
     let statuatory-declaration-printed = if course-year < 24 {
-      _linguify-content(
+      config.util.linguify-content(
         "statutory-declaration-note-dhbw-old-printed",
         args: (
           author-count: authors.len(),
         ),
       )
     } else {
-      _linguify-content("statutory-declaration-note-dhbw-printed", args: (
+      config.util.linguify-content("statutory-declaration-note-dhbw-printed", args: (
         author-count: authors.len(),
       ))
     }
 
     align(center, heading(
-      _linguify-content("statutory-declaration"),
+      config.util.linguify-content("statutory-declaration"),
       level: 1,
     ))
 
@@ -256,11 +256,11 @@
     pagebreak(weak: true)
     [#[] <_confidentiality-clause>]
     align(center, heading(
-      _linguify-content("confidentiality-agreement"),
+      config.util.linguify-content("confidentiality-agreement"),
       level: 1,
     ))
 
-    _linguify-content("confidentiality-agreement-note-dhbw")
+    config.util.linguify-content("confidentiality-agreement-note-dhbw")
   }
 
   // AI declaration form generator

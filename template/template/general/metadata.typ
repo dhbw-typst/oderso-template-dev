@@ -2,23 +2,14 @@
 
 /// Configure arbitrary metadata of the document, used by adapters and components. Low level configuration, is only called from adapters but may be used modify internal behaviour. -> dictionary
 #let metadata(
-  metadata: config.util.default-value,
+  ..metadata,
 ) = {
-  assert(
-    metadata == config.util.default-value or type(metadata) == dictionary,
-    message: "`metadata` must be a dictionary, got "
-      + repr(metadata)
-      + " of type "
-      + str(type(metadata)),
-  )
+  assert(metadata.pos().len() > 0, message: "Only named arguments are allowed, remove positional arguments.")
 
-  if metadata == config.util.default-value {
-    return (
-      metadata: (:),
-    )
-  } else {
-    return (
-      metadata: metadata,
-    )
-  }
+  let named = metadata.named()
+  return (
+    general: (
+      metadata: named,
+    ),
+  )
 }
