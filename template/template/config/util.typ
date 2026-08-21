@@ -1,3 +1,4 @@
+#import "@preview/linguify:0.5.0": linguify-raw
 #let default-value = metadata((kind: "oderso-default"))
 
 /// Recusively adds `addition` to `base`. Largely copied from #link("https://github.com/touying-typ/touying/blob/a8abe0d832024038c4174d9bb8182f202bde1209/src/utils.typ#L42-L61")[touying]. Base is modified and returned. -> dictionary
@@ -63,6 +64,8 @@
     let rest-key = path.slice(first-dot + 1)
     if this-key in config.keys() {
       return get-config(rest-key, default, config.at(this-key))
+    } else {
+      return default
     }
   }
 }

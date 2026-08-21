@@ -29,14 +29,18 @@
   generator-function: config.util.default-value,
   /// Additional height added to the top margin for this header. -> relative
   height: config.util.default-value,
+  /// Show rule function receiving content (`it`) applied after all base set/show rules. -> function | none
+  show-fun: config.util.default-value,
 ) = {
   _validate-component-generator(generator-function)
   config.validation.validate-relative(height, "height")
+  config.validation.validate-show(show-fun)
   return (
     component: (
       header: config.util.get-dict-without-default((
         generator: generator-function,
         height: height,
+        show-rule: show-fun,
       )),
     ),
   )
@@ -51,14 +55,18 @@
   generator-function: config.util.default-value,
   /// Additional height added to the bottom margin for this footer. -> relative
   height: config.util.default-value,
+  /// Show rule function receiving content (`it`) applied after all base set/show rules. -> function | none
+  show-fun: config.util.default-value,
 ) = {
   _validate-component-generator(generator-function)
   config.validation.validate-relative(height, "height")
+  config.validation.validate-show(show-fun)
   return (
     component: (
       footer: config.util.get-dict-without-default((
         generator: generator-function,
         height: height,
+        show-rule: show-fun,
       )),
     ),
   )
@@ -75,14 +83,18 @@
   generator-function: config.util.default-value,
   /// Additional height. -> relative
   height: config.util.default-value,
+  /// Show rule function receiving content (`it`) applied after all base set/show rules. -> function | none
+  show-fun: config.util.default-value,
 ) = {
   _validate-component-generator(generator-function)
   config.validation.validate-relative(height, "height")
+  config.validation.validate-show(show-fun)
   return (
     component: (
       frontmatter-header: config.util.get-dict-without-default((
         generator: generator-function,
         height: height,
+        show-rule: show-fun,
       )),
     ),
   )
@@ -92,14 +104,18 @@
 #let frontmatter-footer(
   generator-function: config.util.default-value,
   height: config.util.default-value,
+  /// Show rule function receiving content (`it`) applied after all base set/show rules. -> function | none
+  show-fun: config.util.default-value,
 ) = {
   _validate-component-generator(generator-function)
   config.validation.validate-relative(height, "height")
+  config.validation.validate-show(show-fun)
   return (
     component: (
       frontmatter-footer: config.util.get-dict-without-default((
         generator: generator-function,
         height: height,
+        show-rule: show-fun,
       )),
     ),
   )
@@ -109,14 +125,18 @@
 #let body-header(
   generator-function: config.util.default-value,
   height: config.util.default-value,
+  /// Show rule function receiving content (`it`) applied after all base set/show rules. -> function | none
+  show-fun: config.util.default-value,
 ) = {
   _validate-component-generator(generator-function)
   config.validation.validate-relative(height, "height")
+  config.validation.validate-show(show-fun)
   return (
     component: (
       body-header: config.util.get-dict-without-default((
         generator: generator-function,
         height: height,
+        show-rule: show-fun,
       )),
     ),
   )
@@ -126,14 +146,18 @@
 #let body-footer(
   generator-function: config.util.default-value,
   height: config.util.default-value,
+  /// Show rule function receiving content (`it`) applied after all base set/show rules. -> function | none
+  show-fun: config.util.default-value,
 ) = {
   _validate-component-generator(generator-function)
   config.validation.validate-relative(height, "height")
+  config.validation.validate-show(show-fun)
   return (
     component: (
       body-footer: config.util.get-dict-without-default((
         generator: generator-function,
         height: height,
+        show-rule: show-fun,
       )),
     ),
   )
@@ -143,14 +167,18 @@
 #let backmatter-header(
   generator-function: config.util.default-value,
   height: config.util.default-value,
+  /// Show rule function receiving content (`it`) applied after all base set/show rules. -> function | none
+  show-fun: config.util.default-value,
 ) = {
   _validate-component-generator(generator-function)
   config.validation.validate-relative(height, "height")
+  config.validation.validate-show(show-fun)
   return (
     component: (
       backmatter-header: config.util.get-dict-without-default((
         generator: generator-function,
         height: height,
+        show-rule: show-fun,
       )),
     ),
   )
@@ -160,14 +188,18 @@
 #let backmatter-footer(
   generator-function: config.util.default-value,
   height: config.util.default-value,
+  /// Show rule function receiving content (`it`) applied after all base set/show rules. -> function | none
+  show-fun: config.util.default-value,
 ) = {
   _validate-component-generator(generator-function)
   config.validation.validate-relative(height, "height")
+  config.validation.validate-show(show-fun)
   return (
     component: (
       backmatter-footer: config.util.get-dict-without-default((
         generator: generator-function,
         height: height,
+        show-rule: show-fun,
       )),
     ),
   )
@@ -177,12 +209,16 @@
 #let appendix-toc(
   /// Generator function for the appendix TOC. -> function | none
   generator-function: config.util.default-value,
+  /// Show rule function receiving content (`it`) applied after all base set/show rules. -> function | none
+  show-fun: config.util.default-value,
 ) = {
   _validate-component-generator(generator-function)
+  config.validation.validate-show(show-fun)
   return (
     component: (
       appendix-toc: config.util.get-dict-without-default((
         generator: generator-function,
+        show-rule: show-fun,
       )),
     ),
   )
@@ -192,14 +228,18 @@
 #let appendix-header(
   generator-function: config.util.default-value,
   height: config.util.default-value,
+  /// Show rule function receiving content (`it`) applied after all base set/show rules. -> function | none
+  show-fun: config.util.default-value,
 ) = {
   _validate-component-generator(generator-function)
   config.validation.validate-relative(height, "height")
+  config.validation.validate-show(show-fun)
   return (
     component: (
       appendix-header: config.util.get-dict-without-default((
         generator: generator-function,
         height: height,
+        show-rule: show-fun,
       )),
     ),
   )
@@ -209,14 +249,18 @@
 #let appendix-footer(
   generator-function: config.util.default-value,
   height: config.util.default-value,
+  /// Show rule function receiving content (`it`) applied after all base set/show rules. -> function | none
+  show-fun: config.util.default-value,
 ) = {
   _validate-component-generator(generator-function)
   config.validation.validate-relative(height, "height")
+  config.validation.validate-show(show-fun)
   return (
     component: (
       appendix-footer: config.util.get-dict-without-default((
         generator: generator-function,
         height: height,
+        show-rule: show-fun,
       )),
     ),
   )

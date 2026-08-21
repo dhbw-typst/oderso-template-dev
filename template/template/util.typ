@@ -3,6 +3,7 @@
 #import "@preview/linguify:0.5.0": linguify-raw
 #import "@preview/glossarium:0.5.10": print-glossary
 #import "config/lib.typ" as config
+#import "config/state.typ": _in-outline
 
 
 
@@ -27,7 +28,7 @@
   /// The source reference (typically a citation like `[@source]`). -> content
   source,
 ) = context {
-  if config.util.in-outline.at(here()) {
+  if _in-outline.at(here()) {
     caption-text
   } else {
     caption-text + " " + source

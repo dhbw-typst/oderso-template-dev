@@ -29,10 +29,11 @@
 /// -> dictionary
 #let configure-body-footer-spotless(
   /// Whether the numebring style should be "1 / 1" or "1". -> bool
-  numbering-show-total: config.util.default-value
+  numbering-show-total: config.util.default-value,
 ) = {
   assert(
-    numbering-show-total == config.util.default-value or type(numbering-show-total) == bool,
+    numbering-show-total == config.util.default-value
+      or type(numbering-show-total) == bool,
     message: "`numbering-show-total` must be a boolean, got "
       + repr(numbering-show-total)
       + " of type "
@@ -82,10 +83,11 @@
 /// -> dictionary
 #let configure-front-back-matter-footer-spotless(
   /// Whether the numebring style should be "1 / 1" or "1". -> bool
-  numbering-show-total: config.util.default-value
+  numbering-show-total: config.util.default-value,
 ) = {
   assert(
-    numbering-show-total == config.util.default-value or type(numbering-show-total) == bool,
+    numbering-show-total == config.util.default-value
+      or type(numbering-show-total) == bool,
     message: "`numbering-show-total` must be a boolean, got "
       + repr(numbering-show-total)
       + " of type "

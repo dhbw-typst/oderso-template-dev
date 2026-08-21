@@ -4,13 +4,8 @@
 
 // General (institution-agnostic) front/back matter sections
 #import "general.typ": (
-  abbreviations,
-  glossary,
-  acknowledgements,
-  abstracts,
-  bibliography,
-  figure-listings,
-  toc,
+  abbreviations, abstracts, acknowledgements, bibliography, figure-listings,
+  glossary, toc,
 )
 
 // Institution-specific sub-namespaces

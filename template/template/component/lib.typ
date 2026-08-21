@@ -2,17 +2,9 @@
 #import "coversheet.typ": coversheet
 #import "appendices.typ": appendices
 #import "config.typ": (
-  header,
-  footer,
-  frontmatter-header,
-  frontmatter-footer,
-  body-header,
-  body-footer,
-  backmatter-header,
-  backmatter-footer,
-  appendix-toc,
-  appendix-header,
-  appendix-footer,
+  appendix-footer, appendix-header, appendix-toc, backmatter-footer,
+  backmatter-header, body-footer, body-header, footer, frontmatter-footer,
+  frontmatter-header, header,
 )
 
 // Section-specific sub-namespaces for ergonomic access:

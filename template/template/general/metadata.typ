@@ -4,7 +4,10 @@
 #let metadata(
   ..metadata,
 ) = {
-  assert(metadata.pos().len() > 0, message: "Only named arguments are allowed, remove positional arguments.")
+  assert(
+    metadata.pos().len() == 0,
+    message: "Only named arguments are allowed, remove positional arguments.",
+  )
 
   let named = metadata.named()
   return (

@@ -1,3 +1,6 @@
+#import "../../config/lib.typ" as config
+#let linguify-content = config.util.linguify-content
+#import "@preview/glossarium:0.5.10": print-glossary
 /// Default generator for the acknowledgements section. Renders a centered
 /// acknowledgements page with the configured text, or `none` if no text was
 /// provided. -> content | none
@@ -9,7 +12,7 @@
   align(center + horizon, {
     heading(outlined: false, numbering: none, [#text(
       0.85em,
-      smallcaps(config.util.linguify-content("acknowledgments")),
+      smallcaps(linguify-content("acknowledgments")),
     )\ ])
     align(left, ack.text)
     v(20%)
@@ -28,7 +31,7 @@
     align(center + horizon, {
       heading(outlined: false, numbering: none, [#text(
           0.85em,
-          smallcaps(config.util.linguify-content("abstract")),
+          smallcaps(linguify-content("abstract")),
         )\ #text(
           0.75em,
           weight: "light",
@@ -48,7 +51,7 @@
   show outline.entry.where(level: 1): strong
   set par(leading: 0.65em)
   outline(
-    title: config.util.linguify-content("table-of-contents"),
+    title: linguify-content("table-of-contents"),
     depth: 3,
     indent: auto,
     target: selector(heading).before(<_appendix-start>),
@@ -78,7 +81,7 @@
   if entries.len() == 0 {
     return none
   }
-  heading(config.util.linguify-content("glossary"))
+  heading(linguify-content("glossary"))
   print-glossary(entries, ..gloss.at("print-options", default: (:)))
 }
 
@@ -91,7 +94,7 @@
   if entries.len() == 0 {
     return none
   }
-  heading(config.util.linguify-content("abbreviations"))
+  heading(linguify-content("abbreviations"))
   print-glossary(entries, ..abbr.at("print-options", default: (:)))
 }
 
@@ -108,7 +111,7 @@
       and query(figure.where(kind: image)).len() > 0
   ) {
     pagebreak(weak: true)
-    heading(config.util.linguify-content("list-of-figures"))
+    heading(linguify-content("list-of-figures"))
     outline(
       target: figure.where(kind: image).before(<_appendix-start>),
       title: none,
@@ -121,7 +124,7 @@
       and query(figure.where(kind: table)).len() > 0
   ) {
     pagebreak(weak: true)
-    heading(config.util.linguify-content("list-of-tables"))
+    heading(linguify-content("list-of-tables"))
     outline(
       target: figure.where(kind: table).before(<_appendix-start>),
       title: none,
@@ -134,7 +137,7 @@
       and query(figure.where(kind: raw)).len() > 0
   ) {
     pagebreak(weak: true)
-    heading(config.util.linguify-content("list-of-code"))
+    heading(linguify-content("list-of-code"))
     outline(
       target: figure.where(kind: raw).before(<_appendix-start>),
       title: none,

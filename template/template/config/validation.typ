@@ -1,22 +1,14 @@
 
 #import "util.typ": default-value
 
-/// Asserts that `position` is either the default sentinel or one of "frontmatter" / "backmatter",
-/// and that `order` is either the default sentinel or an integer.
-#let validate-position-order(position, order) = {
+/// Asserts that `position` is either the default sentinel or an integer.
+/// Negative values place the component in the frontmatter; zero and positive
+/// values place it in the backmatter. The absolute value determines render order.
+#let validate-position(position) = {
   assert(
-    position == default-value
-      or position == "frontmatter"
-      or position == "backmatter",
-    message: "`position` must be either \"frontmatter\" or \"backmatter\", got: "
+    position == default-value or type(position) == int,
+    message: "`position` must be an integer (negative = frontmatter, ≥0 = backmatter), got: "
       + repr(position),
-  )
-  assert(
-    order == default-value or type(order) == int,
-    message: "`order` must be an integer, got "
-      + repr(order)
-      + " of type "
-      + str(type(order)),
   )
 }
 
@@ -39,6 +31,18 @@
       + repr(generator-function)
       + " of type "
       + str(type(generator-function)),
+  )
+}
+
+/// Asserts that `show-fun` is either the default sentinel, `none`, or a function.
+/// The function receives content (`it`) and returns content.
+#let validate-show(show-fun) = {
+  assert(
+    show-fun == default-value or show-fun == none or type(show-fun) == function,
+    message: "`show` must be a function (content -> content) or `none`, got "
+      + repr(show-fun)
+      + " of type "
+      + str(type(show-fun)),
   )
 }
 

@@ -4,7 +4,10 @@
 #let document(
   /// Page margins. See #link("https://typst.app/docs/reference/layout/page/#parameters-margin")[the typst documentation] for more information -> relative | dictionary
   margin: config.util.default-value,
+  /// Show rule function receiving content (`it`) applied after all base set/show rules. Pass `none` to disable. -> function | none
+  show-fun: config.util.default-value,
 ) = {
+  config.validation.validate-show(show-fun)
   if margin == auto {
     panic(
       "`auto` is not allowed for `margin` in this template to simplify subsequent calculations. Please choose a different type.",
@@ -87,6 +90,7 @@
     general: (
       document: config.util.get-dict-without-default((
         margin: margin,
+        show-rule: show-fun,
       )),
     ),
   )

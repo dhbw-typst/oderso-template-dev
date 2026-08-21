@@ -1,3 +1,6 @@
+#import "../../config/lib.typ" as config
+#let linguify-content = config.util.linguify-content
+#import "../../component/lib.typ" as component
 /// Configure the theme _spotless_.
 ///
 /// Sets defaults for:
@@ -20,8 +23,8 @@
 
         grid(
           columns: (1fr, 1fr),
-          align(left, config.metadata.at("logo-left", default: none)),
-          align(right, config.metadata.at("logo-right", default: none)),
+          align(left, config.general.metadata.at("logo-left", default: none)),
+          align(right, config.general.metadata.at("logo-right", default: none)),
         )
       },
 
@@ -29,18 +32,18 @@
       align(center)[
         #set par(justify: false)
 
-        #text(20pt)[*#config.metadata.title-long*]
+        #text(20pt)[*#config.general.metadata.title-long*]
 
         #smallcaps(text(
           1.25em,
           weight: "semibold",
-        )[#config.metadata.thesis-type])
+        )[#config.general.metadata.thesis-type])
 
-        #config.metadata.submission-info
+        #config.general.metadata.submission-info
 
-        #config.util.linguify-content("by")
+        #linguify-content("by")
 
-        #for author in config.metadata.authors {
+        #for author in config.general.metadata.authors {
           [*#author.firstname #author.lastname*\ ]
         }
       ],
@@ -55,7 +58,7 @@
           columns: (1fr, 1fr),
           align: (right + top, left + top),
           stroke: none,
-          ..config.metadata.misc-key-value
+          ..config.general.metadata.misc-key-value
         )
       }),
     )
@@ -70,7 +73,7 @@
           size: 12pt,
           weight: "bold",
           fill: gray,
-          config.util.linguify-content("confidentiality-stamp"),
+          linguify-content("confidentiality-stamp"),
         )
       ])
     }
@@ -82,7 +85,7 @@
     generator-function: config => context {
       grid(
         columns: (auto, 1fr),
-        align(left, text(config.metadata.title-short)),
+        align(left, text(config.general.metadata.title-short)),
         align(right, emph(hydra(1, display: (_, it) => {
           it.body
         }))),

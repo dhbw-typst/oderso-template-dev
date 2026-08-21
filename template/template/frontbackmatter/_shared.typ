@@ -5,10 +5,8 @@
 #let configure-statutory-declaration(
   /// Whether the statutory declaration section is rendered. -> bool
   enable: config.util.default-value,
-  /// Where the statutory declaration should be displayed. -> "frontmatter" | "backmatter"
+  /// Where and when the statutory declaration should be displayed. Negative = frontmatter, zero or positive = backmatter. The value determines render order within its section. -> int
   position: config.util.default-value,
-  /// What order the statutory declaration should have. -> int
-  order: config.util.default-value,
   /// Whether the thesis is submitted digitally. Controls whether the signature
   /// line is pre-filled with the author's name/signature or left blank for
   /// handwritten signing. -> bool
@@ -22,10 +20,11 @@
   generator-function: config.util.default-value,
 ) = {
   config.validation.validate-enable(enable)
-  config.validation.validate-position-order(position, order)
+  config.validation.validate-position(position)
   config.validation.validate-generator(generator-function)
   assert(
-    digital-submission == config.util.default-value or type(digital-submission) == bool,
+    digital-submission == config.util.default-value
+      or type(digital-submission) == bool,
     message: "`digital-submission` must be a boolean, got "
       + repr(digital-submission)
       + " of type "
@@ -53,7 +52,6 @@
         digital-only: digital-only,
         signature-city: signature-city,
         position: position,
-        order: order,
         generator: generator-function,
       )),
     ),
@@ -64,22 +62,19 @@
 #let configure-confidentiality-clause(
   /// Whether the confidentiality clause section is rendered. -> bool
   enable: config.util.default-value,
-  /// Where the confidentiality clause should be displayed. -> "frontmatter" | "backmatter"
+  /// Where and when the confidentiality clause should be displayed. Negative = frontmatter, zero or positive = backmatter. The value determines render order within its section. -> int
   position: config.util.default-value,
-  /// What order the confidentiality clause should have. -> int
-  order: config.util.default-value,
   /// A function receiving a single positional argument `config` holding the configuration dictionary and returning the confidentiality clause section `content` (or `none` to skip). -> function
   generator-function: config.util.default-value,
 ) = {
   config.validation.validate-enable(enable)
-  config.validation.validate-position-order(position, order)
+  config.validation.validate-position(position)
   config.validation.validate-generator(generator-function)
   return (
     front-back-matter: (
       confidentiality-clause: config.util.get-dict-without-default((
         enable: enable,
         position: position,
-        order: order,
         generator: generator-function,
       )),
     ),

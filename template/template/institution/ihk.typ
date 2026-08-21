@@ -1,29 +1,32 @@
 // LTeX: enabled=false
 
 #import "../base.typ": _signature-line
-#import "../config/lib.typ" as config: merge-config, merge-configs
-#import "../frontbackmatter/_shared.typ": configure-statutory-declaration, configure-confidentiality-clause
+#import "../config/lib.typ" as config
+#let merge-config = config.util.merge-config
+#let merge-configs = config.util.merge-configs
+#import "../frontbackmatter/lib.typ" as frontbackmatter
+#let configure-statutory-declaration = frontbackmatter.ihk.statutory-declaration
+#let configure-confidentiality-clause = frontbackmatter.ihk.confidentiality-clause
 #import "@preview/linguify:0.5.0": linguify
-#import "../util.typ": config.util.linguify-content
-#import "../general/metadata.typ": metadata as _general-metadata
+#let linguify-content = config.util.linguify-content
+#import "../general/lib.typ" as general
+#let _general-metadata = general.metadata
 
-/// Default IHK config: sets position/order/enable defaults and IHK
+/// Default IHK config: sets position/enable defaults and IHK
 /// signature defaults for the front/back matter sections.
 #let _ihk-defaults() = {
   merge-configs(
     (:),
     configure-statutory-declaration(
       enable: true,
-      position: "backmatter",
-      order: 80,
+      position: 80,
       digital-submission: true,
       digital-only: true,
       signature-city: "Karlsruhe",
     ),
     configure-confidentiality-clause(
       enable: true,
-      position: "backmatter",
-      order: 90,
+      position: 90,
     ),
   )
 }
@@ -84,26 +87,26 @@
   // Build metadata
   // ----------------------------------
   let submission-info = [
-    #config.util.linguify-content("as-part-of-examination-ihk")
+    #linguify-content("as-part-of-examination-ihk")
 
     *#examination*
 
-    #config.util.linguify-content("in-the-training-occupation")\
+    #linguify-content("in-the-training-occupation")\
     #training-occupation
   ]
 
   let misc-key-value = (
-    config.util.linguify-content("submission-date"),
+    linguify-content("submission-date"),
     submission-date,
-    config.util.linguify-content("processing-duration"),
-    config.util.linguify-content("weeks", args: (count: processing-period-weeks)),
-    config.util.linguify-content("examinee-number"),
+    linguify-content("processing-duration"),
+    linguify-content("weeks", args: (count: processing-period-weeks)),
+    linguify-content("examinee-number"),
     authors.map(a => a.examinee-number).join(linebreak()),
-    config.util.linguify-content("training-company"),
+    linguify-content("training-company"),
     company-name + linebreak() + company-city,
-    config.util.linguify-content("department"),
+    linguify-content("department"),
     company-department,
-    config.util.linguify-content("supervisor-at-training-company"),
+    linguify-content("supervisor-at-training-company"),
     company-supervisor,
   )
 
@@ -112,7 +115,7 @@
   // ----------------------------------
   let cfg = _ihk-defaults()
 
-  cfg = merge-config(cfg, _general-metadata(metadata: (
+  cfg = merge-config(cfg, _general-metadata(
     lang: lang,
     title-long: title-long,
     title-short: title-short,
@@ -122,7 +125,7 @@
     submission-info: submission-info,
     misc-key-value: misc-key-value,
     authors: authors,
-  )))
+  ))
 
   // ----------------------------------
   // Install section generators
@@ -133,11 +136,11 @@
     let sd-cfg = config.front-back-matter.statutory-declaration
     pagebreak(weak: true)
     align(center, heading(
-      config.util.linguify-content("statutory-declaration"),
+      linguify-content("statutory-declaration"),
       level: 1,
     ))
 
-    config.util.linguify-content("statutory-declaration-note-dhbw", args: (
+    linguify-content("statutory-declaration-note-dhbw", args: (
       author-count: authors.len(),
     ))
 
@@ -158,11 +161,11 @@
     pagebreak(weak: true)
     [#[] <_confidentiality-clause>]
     align(center, heading(
-      config.util.linguify-content("confidentiality-agreement"),
+      linguify-content("confidentiality-agreement"),
       level: 1,
     ))
 
-    config.util.linguify-content("confidentiality-agreement-note-ihk")
+    linguify-content("confidentiality-agreement-note-ihk")
   }
 
   cfg = merge-configs(

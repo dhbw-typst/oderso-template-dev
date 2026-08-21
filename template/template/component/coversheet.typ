@@ -1,5 +1,4 @@
 #import "../config/lib.typ" as config
-#import "../util.typ": config.util.linguify-content
 
 /// Component-local validator: accepts config.util.default-value, none (suppress), or function.
 #let _validate-coversheet-generator(generator-function) = {
@@ -18,13 +17,17 @@
 #let coversheet(
   /// A function receiving a single position argument `config` holding the configuration dictionary and returing the conversheet `content`. Pass `none` to suppress the coversheet. -> function | none
   generator-function: config.util.default-value,
+  /// Show rule function receiving content (`it`) applied after all base set/show rules. Pass `none` to disable. -> function | none
+  show-fun: config.util.default-value,
 ) = {
   _validate-coversheet-generator(generator-function)
+  config.validation.validate-show(show-fun)
 
   return (
     component: (
       coversheet: config.util.get-dict-without-default((
         generator: generator-function,
+        show-rule: show-fun,
       )),
     ),
   )

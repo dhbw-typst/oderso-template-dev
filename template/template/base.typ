@@ -1,12 +1,16 @@
 // LTeX: enabled=false
 
-#import "@preview/glossarium:0.5.10": gls, glspl, make-glossary, print-glossary, register-glossary
+#import "@preview/glossarium:0.5.10": (
+  gls, glspl, make-glossary, print-glossary, register-glossary,
+)
 #import "@preview/codly:1.3.0": codly, codly-init
 #import "@preview/drafting:0.2.2": note-outline, set-margin-note-defaults
-#import "@preview/linguify:0.5.0": linguify, linguify-raw, load-ftl-data, set-database
+#import "@preview/linguify:0.5.0": (
+  linguify, linguify-raw, load-ftl-data, set-database,
+)
 #import "config/lib.typ" as config
 #import "general/lib.typ" as general
-#import "config/state.typ": _in-outline, _config
+#import "config/state.typ": _config, _in-outline
 
 /// Default heading numbering pattern.
 /// -> str
@@ -75,7 +79,11 @@
 
   let collapsed = config.util.get-config(pos.remove(0), (:), cfg)
   for path in pos {
-    collapsed = config.util.merge-config(collapsed, config.util.get-config(path, (:), cfg))
+    collapsed = config.util.merge-config(collapsed, config.util.get-config(
+      path,
+      (:),
+      cfg,
+    ))
   }
 
   return collapsed
@@ -123,7 +131,10 @@
   ..cfgs,
   body,
 ) = {
-  asserts(cfgs.named().len() > 0, message: "Only positional arguments are allowed, remove named arguments.")
+  assert(
+    cfgs.named().len() == 0,
+    message: "Only positional arguments are allowed, remove named arguments.",
+  )
 
   // create config dictionary. Set typst defaults as base config.
   let cfg = (:)
@@ -134,13 +145,15 @@
       message: "Only configurations are allowed as positional arguments. See [TODO: specify where to read more about usage] for more information.",
     )
 
-    config = config.util.merge-config(config, addition)
+    cfg = config.util.merge-config(cfg, addition)
   }
 
   _config.update(cfg)
 
   // set text language (e. g. for smart quotes)
-  show: set text(lang: cfg.general.metadata.lang) if config.util.get-config("general.metadata.lang", none, cfg) != none
+  show: set text(lang: cfg.general.metadata.lang) if (
+    config.util.get-config("general.metadata.lang", none, cfg) != none
+  )
 
   // load linguify
   set-database(eval(load-ftl-data("l10n", ("en", "de"))))
@@ -148,21 +161,30 @@
   set bibliography(title: config.util.linguify-content("bibliography"))
 
   // page setup
-  set document(title: config.util.get-config("general.metadta.title-long", default: none.cfg))
+  set document(title: config.util.get-config(
+    "general.metadata.title-long",
+    none,
+    cfg,
+  ))
 
   // font setup — driven by config.typography.body
-  let t-body = config.util.get-config("general.typography.body", default: (:).cfg)
-  let t-heading = config.util.get-config("general.typography.heading", default: (:).cfg)
-  let t-caption = config.util.get-config("general.typography.caption", default: (:).cfg)
-  let t-code = config.util.get-config("general.typography.code", default: (:).cfg)
-  let t-math = config.util.get-config("general.typography.math", default: (:).cfg)
+  let t-body = config.util.get-config("general.typography.body", (:), cfg)
+  let t-heading = config.util.get-config("general.typography.heading", (:), cfg)
+  let t-caption = config.util.get-config("general.typography.caption", (:), cfg)
+  let t-code = config.util.get-config("general.typography.code", (:), cfg)
+  let t-math = config.util.get-config("general.typography.math", (:), cfg)
 
   show: set text(font: t-body.font) if "font" in t-body
   show: set text(size: t-body.size) if "size" in t-body
 
   set page(
     paper: "a4",
-    background: if config.util.get-config("general.drafting.watermark-generator", none, cfg) != none {
+    background: if config.util.get-config(
+      "general.drafting.watermark-generator",
+      none,
+      cfg,
+    )
+      != none {
       (cfg.general.drafting.watermark-generator)(cfg)
     },
   )
@@ -221,7 +243,6 @@
     _in-outline.update(false)
   }
 
-
   show: make-glossary
 
   // Style configurations that should be set for all themes
@@ -236,26 +257,56 @@
   set-margin-note-defaults(rect: caution-rect, fill: orange.lighten(80%))
 
   // register abbreviations abd glossary entries before content so references resolve
-  if config.util.get-config("frontbackmatter.abbreviations.entries", (:), cfg).len() > 0 {
-    register-glossary(cfg.frontbackmatter.abbreviations.entries)
+  if (
+    config
+      .util
+      .get-config("front-back-matter.abbreviations.entries", (:), cfg)
+      .len()
+      > 0
+  ) {
+    register-glossary(config.util.get-config(
+      "front-back-matter.abbreviations.entries",
+      (),
+      cfg,
+    ))
   }
-  if config.util.get-config("frontbackmatter.glossary.entries", (:), cfg).len() > 0 {
-    register-glossary(cfg.frontbackmatter.glossary.entries)
+  if (
+    config.util.get-config("front-back-matter.glossary.entries", (:), cfg).len()
+      > 0
+  ) {
+    register-glossary(config.util.get-config(
+      "front-back-matter.glossary.entries",
+      (),
+      cfg,
+    ))
   }
+
+  // Apply general.document.show rule AFTER all base set/show rules
+  show: (
+    config.util.get-config("general.document.show-rule", it => it, cfg)
+  ).with()
 
   // ----------------------------------
   // Coversheet
   // ----------------------------------
 
   // Show notes before everything else, so you don't miss them
-  context if config.util.get-config("general.drafting.notes-listing", false, cfg) and (query(selector(<margin-note>).or(<inline-note>)).len() > 0)  {
-      set heading(numbering: none, outlined: false)
-      note-outline(title: config.util.linguify-content("list-of-notes"))
-      pagebreak()
+  context if (
+    config.util.get-config("general.drafting.notes-listing", false, cfg)
+      and (query(selector(<margin-note>).or(<inline-note>)).len() > 0)
+  ) {
+    set heading(numbering: none, outlined: false)
+    note-outline(title: config.util.linguify-content("list-of-notes"))
+    pagebreak()
   }
 
-  if config.util.get-config("component.coversheet.generator", none, cfg) != none {
-    (coversheet-generator)(cfg)
+  if (
+    config.util.get-config("component.coversheet.generator", none, cfg) != none
+  ) {
+    show: (
+      config.util.get-config("component.coversheet.show-rule", it => it, cfg)
+    ).with()
+    (config.util.get-config("component.coversheet.generator", none, cfg))(cfg)
     pagebreak()
   }
 
@@ -265,28 +316,42 @@
 
   {
     counter(page).update(1)
-    let header = _collapse-specifications(cfg, "component.header", "component.frontmatter.header")
-    let footer = _collapse-specifications(cfg, "component.footer", "component.frontmatter.header")
+    let header = _collapse-specifications(
+      cfg,
+      "component.header",
+      "component.frontmatter.header",
+    )
+    let footer = _collapse-specifications(
+      cfg,
+      "component.footer",
+      "component.frontmatter.header",
+    )
     let general = config.util.get-config("component.frontmatter", (:), cfg)
 
     show: set page(numbering: general.numbering) if "numbering" in general
-    show: set page(margin: _transform-margin(general.margin)) if "margin" in general
+    show: set page(margin: _transform-margin(general.margin)) if (
+      "margin" in general
+    )
     show: set page(header: (header.generator)(cfg)) if "generator" in header
     show: set page(footer: (footer.generator)(cfg)) if "generator" in footer
-
     set heading(numbering: none)
 
-    // Filter by "frontmatter" and order by order
+    show: (
+      config.util.get-config("component.frontmatter.show-rule", it => it, cfg)
+    ).with()
+
+    // Filter front-back-matter entries with negative position (frontmatter) and sort ascending
     let entries = cfg
-      .frontmatter
+      .front-back-matter
       .values()
       .filter(entry => (
         "position" in entry.keys()
-          and entry.position == "frontmatter"
+          and type(entry.position) == int
+          and entry.position < 0
           and entry.at("enable", default: true)
           and ("generator" in entry.keys())
       ))
-      .sorted(key: entry => entry.order, by: (l, r) => l < r)
+      .sorted(key: entry => entry.position, by: (l, r) => l < r)
 
     for frontmatter in entries {
       let rendered = (frontmatter.generator)(cfg)
@@ -304,12 +369,22 @@
 
   {
     counter(page).update(1)
-    let header = _collapse-specifications(cfg, "component.header", "component.body.header")
-    let footer = _collapse-specifications(cfg, "component.footer", "component.body.header")
+    let header = _collapse-specifications(
+      cfg,
+      "component.header",
+      "component.body.header",
+    )
+    let footer = _collapse-specifications(
+      cfg,
+      "component.footer",
+      "component.body.header",
+    )
     let general = config.util.get-config("component.body", (:), cfg)
 
     show: set page(numbering: general.numbering) if "numbering" in general
-    show: set page(margin: _transform-margin(general.margin)) if "margin" in general
+    show: set page(margin: _transform-margin(general.margin)) if (
+      "margin" in general
+    )
     show: set page(header: (header.generator)(cfg)) if "generator" in header
     show: set page(footer: (footer.generator)(cfg)) if "generator" in footer
     // TODO: Make configurable
@@ -317,6 +392,10 @@
       pagebreak(weak: true)
       it
     }
+
+    show: (
+      config.util.get-config("component.body.show-rule", it => it, cfg)
+    ).with()
 
     // reset page counter and show content
     counter(page).update(1)
@@ -330,28 +409,43 @@
   // ----------------------------------
   {
     counter(page).update(1)
-    let header = _collapse-specifications(cfg, "component.header", "component.backmatter.header")
-    let footer = _collapse-specifications(cfg, "component.footer", "component.backmatter.header")
+    let header = _collapse-specifications(
+      cfg,
+      "component.header",
+      "component.backmatter.header",
+    )
+    let footer = _collapse-specifications(
+      cfg,
+      "component.footer",
+      "component.backmatter.header",
+    )
     let general = config.util.get-config("component.backmatter", (:), cfg)
 
     show: set page(numbering: general.numbering) if "numbering" in general
-    show: set page(margin: _transform-margin(general.margin)) if "margin" in general
+    show: set page(margin: _transform-margin(general.margin)) if (
+      "margin" in general
+    )
     show: set page(header: (header.generator)(cfg)) if "generator" in header
     show: set page(footer: (footer.generator)(cfg)) if "generator" in footer
 
+    show: (
+      config.util.get-config("component.backmatter.show-rule", it => it, cfg)
+    ).with()
+
     set heading(numbering: none)
 
-    // Filter by "backmatter" and order by order
+    // Filter front-back-matter entries with non-negative position (backmatter) and sort ascending
     let entries = cfg
-      .backmatter
+      .front-back-matter
       .values()
       .filter(entry => (
         "position" in entry.keys()
-          and entry.position == "backmatter"
+          and type(entry.position) == int
+          and entry.position >= 0
           and entry.at("enable", default: true)
           and ("generator" in entry.keys())
       ))
-      .sorted(key: entry => entry.order, by: (l, r) => l < r)
+      .sorted(key: entry => entry.position, by: (l, r) => l < r)
 
     for backmatter in entries {
       let rendered = (backmatter.generator)(cfg)
@@ -364,9 +458,17 @@
   }
 
   // display appendix
-  if config.appendices.entries.len() > 0 {
-    let app-header-cfg = _resolve-component(config, "appendix-header")
-    let app-footer-cfg = _resolve-component(config, "appendix-footer")
+  if cfg.at("appendices", default: (:)).at("entries", default: ()).len() > 0 {
+    let app-header-cfg = _collapse-specifications(
+      cfg,
+      "component.header",
+      "component.appendix.header",
+    )
+    let app-footer-cfg = _collapse-specifications(
+      cfg,
+      "component.footer",
+      "component.appendix.footer",
+    )
     let app-header-gen = app-header-cfg.at("generator", default: none)
     let app-footer-gen = app-footer-cfg.at("generator", default: none)
     set heading(
@@ -379,16 +481,18 @@
     )
     set page(
       numbering: "A",
-      footer: if app-footer-gen != none { (app-footer-gen)(config) } else { none },
-      header: if app-header-gen != none { (app-header-gen)(config) } else { none },
+      footer: if app-footer-gen != none { (app-footer-gen)(cfg) } else { none },
+      header: if app-header-gen != none { (app-header-gen)(cfg) } else { none },
     )
     counter(page).update(1)
     counter(heading).update(0)
 
-    let app-toc-cfg = config.at("component", default: (:)).at("appendix-toc", default: (:))
+    let app-toc-cfg = cfg
+      .at("component", default: (:))
+      .at("appendix-toc", default: (:))
     let app-toc-gen = app-toc-cfg.at("generator", default: none)
     if app-toc-gen != none {
-      (app-toc-gen)(config)
+      (app-toc-gen)(cfg)
     } else {
       // Default appendix TOC
       heading(
@@ -406,7 +510,7 @@
     pagebreak(weak: true)
     [#[] <_appendix-start>]
 
-    for appendix in config.appendices.entries {
+    for appendix in cfg.appendices.entries {
       pagebreak(weak: true)
       [#heading(appendix.title) #label(appendix.reference)]
 

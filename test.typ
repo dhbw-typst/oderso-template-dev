@@ -1,6 +1,9 @@
-#show: set text(fill: blue) if false
+#let config(it) = {
+  set text(fill: blue)
+  it
+}
 
-#show heading: set par(spacing: 5em)
+#show: config.with()
 
 test
 

@@ -1,66 +1,84 @@
-#let spotless() = {
-   // TODO: Add styling
-     show heading: it => {
-    it
-    v(0.5cm)
-  }
+#import "@preview/codly:1.3.0": codly, codly-init
+#import "../../config/lib.typ" as config
+#import "../../general/lib.typ" as general
+#import "../../frontbackmatter/lib.typ" as fbm
+#import "_components.typ": _body-footer, _body-header, _coversheet
+#import "_frontbackmatter.typ": (
+  _abbreviations, _abstracts, _acknowledgements, _bibliography, _glossary,
+  _listings, _toc,
+)
 
-  show heading.where(level: 2): it => {
-    v(weak: true, 1.2cm)
-    it
-  }
+#let spotless() = {
+  let _document-show(it) = {
+    show heading: it => {
+      it
+      v(0.5cm)
+    }
+
+    show heading.where(level: 2): it => {
+      v(weak: true, 1.2cm)
+      it
+    }
 
     show raw.where(block: false): box.with(
-    fill: luma(240),
-    inset: (x: 2pt, y: 0pt),
-    outset: (y: 3pt),
-    radius: 2pt,
-  )
+      fill: luma(240),
+      inset: (x: 2pt, y: 0pt),
+      outset: (y: 3pt),
+      radius: 2pt,
+    )
 
+    // fancy code blocks. TODO: move to general.features
+    show: codly-init.with()
+    codly(
+      zebra-fill: none,
+      display-icon: false,
+      display-name: false,
+      number-align: right + top,
+    )
 
-  // fancy code blocks. TODO: move to general.features
-  show: codly-init.with()
-  codly(
-    zebra-fill: none,
-    display-icon: false,
-    display-name: false,
-    number-align: right + top,
-  )
+    show figure.where(kind: raw): set figure(supplement: "Code")
 
-  show figure.where(kind: raw): set figure(supplement: "Code")
+    // set table numbering to roman
+    show figure.where(kind: table): set figure(numbering: "I")
 
-
-  // set table numbering to roman
-  show figure.where(kind: table): set figure(numbering: "I")
-
-
-  // fancy inline links
-  show link: it => {
-    if type(it.dest) == str {
-      set text(fill: gray.darken(80%))
-      underline(
-        stroke: (paint: gray, thickness: 0.5pt, dash: "densely-dashed"),
-        offset: 4pt,
-        it,
-      )
-    } else {
-      it
+    // fancy inline links
+    show link: it => {
+      if type(it.dest) == str {
+        set text(fill: gray.darken(80%))
+        underline(
+          stroke: (paint: gray, thickness: 0.5pt, dash: "densely-dashed"),
+          offset: 4pt,
+          it,
+        )
+      } else {
+        it
+      }
     }
+
+    // follow IEEE style for equation references: `(1)` instead of `equation 1`
+    show ref: it => {
+      if it.element != none and it.element.func() == math.equation {
+        numbering("(1)", ..counter(math.equation).at(it.target))
+      } else {
+        it
+      }
+    }
+
+    it
   }
 
-  // follow IEEE style for equation references: `(1)` instead of `equation 1`
-  show ref: it => {
-    if it.element != none and it.element.func() == math.equation {
-      numbering("(1)", ..counter(math.equation).at(it.target))
-    } else {
-      it
-    }
-  }
-
-  return config.merge-configs(
+  return config.util.merge-configs(
     (:),
+    general.document(show-fun: _document-show),
     _coversheet(),
     _body-header(),
     _body-footer(),
+    fbm.acknowledgements(generator-function: _acknowledgements, position: -80),
+    fbm.abstracts(generator-function: _abstracts, position: -70),
+    fbm.toc(generator-function: _toc, position: -60),
+    fbm.glossary(generator-function: _glossary, position: 10),
+    fbm.abbreviations(generator-function: _abbreviations, position: 20),
+    fbm.bibliography(generator-function: _bibliography, position: 30),
+    fbm.figure-listings(generator-function: _listings, position: 40),
   )
 }

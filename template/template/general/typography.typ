@@ -94,7 +94,7 @@
           font: font,
           size: size,
           size-scaling: size-scaling,
-          numbering: numbering
+          numbering: numbering,
         )),
       ),
     ),
