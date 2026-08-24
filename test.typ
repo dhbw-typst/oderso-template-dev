@@ -1,10 +1,7 @@
-#let config(it) = {
-  set text(fill: blue)
-  it
-}
-
-#show: config.with()
+#set text(size: 20pt)
 
 test
 
-== Test
+#show heading: set text(size: 20pt)
+
+= test

@@ -9,7 +9,7 @@
 )
 
 #let spotless() = {
-  let _document-show(it) = {
+  let document-show(it) = {
     show heading: it => {
       it
       v(0.5cm)
@@ -69,7 +69,7 @@
 
   return config.util.merge-configs(
     (:),
-    general.document(show-fun: _document-show),
+    general.document(show-fun: document-show),
     _coversheet(),
     _body-header(),
     _body-footer(),

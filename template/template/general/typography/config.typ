@@ -1,5 +1,5 @@
 // LTeX: enabled=false
-#import "../config/lib.typ" as config
+#import "../../config/lib.typ" as config
 
 // ============================================================
 // Default font parameters for New Computer Modern
