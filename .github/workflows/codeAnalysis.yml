@@ -72,7 +72,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install typst
-        uses: typst-community/setup-typst@40d32bb6ccb235bd7f5164cb47cfd40a5ea3a314 # v5.2.0
+        uses: typst-community/setup-typst@9107b8dd77d7a7fd6c5faebbb507cac28069042e # v5.3
         with:
           typst-version: ${{ fromJson(needs.discover_versions.outputs.versions)[0] }}
       - name: Typst version
@@ -116,7 +116,7 @@ jobs:
         with:
           path: new
       - name: Install typst
-        uses: typst-community/setup-typst@40d32bb6ccb235bd7f5164cb47cfd40a5ea3a314 # v5.2.0
+        uses: typst-community/setup-typst@9107b8dd77d7a7fd6c5faebbb507cac28069042e # v5.3
         with:
           typst-version: ${{ fromJson(needs.discover_versions.outputs.versions)[0] }}
       - name: Typst version
