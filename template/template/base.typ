@@ -367,7 +367,7 @@
     let footer = _collapse-specifications(
       cfg,
       "component.footer",
-      "component.body.header",
+      "component.body.footer",
     )
     let general = config.util.get-config("component.body", (:), cfg)
 
@@ -377,6 +377,8 @@
     )
     show: set page(header: (header.generator)(cfg)) if "generator" in header
     show: set page(footer: (footer.generator)(cfg)) if "generator" in footer
+
+
     // TODO: Make configurable
     show heading.where(level: 1): it => {
       pagebreak(weak: true)
@@ -386,9 +388,6 @@
     show: (
       config.util.get-config("component.body.show-rule", it => it, cfg)
     ).with()
-
-    // reset page counter and show content
-    counter(page).update(1)
 
     body
     [#[] <_content-end>]
@@ -479,7 +478,8 @@
 
     let app-toc-cfg = cfg
       .at("component", default: (:))
-      .at("appendix-toc", default: (:))
+      .at("appendix", default: (:))
+      .at("toc", default: (:))
     let app-toc-gen = app-toc-cfg.at("generator", default: none)
     if app-toc-gen != none {
       (app-toc-gen)(cfg)

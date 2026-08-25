@@ -1,6 +1,7 @@
 #import "../../config/lib.typ" as config
 #let linguify-content = config.util.linguify-content
 #import "../../component/lib.typ" as component
+#import "@preview/hydra:0.6.3": hydra, anchor
 /// Configure the theme _spotless_.
 ///
 /// Sets defaults for:
@@ -81,8 +82,9 @@
 }
 
 #let _body-header() = {
-  return component.body-header(
+  return component.body.header(
     generator-function: config => context {
+      anchor()
       grid(
         columns: (auto, 1fr),
         align(left, text(config.general.metadata.title-short)),
@@ -97,7 +99,7 @@
 }
 
 #let _body-footer() = {
-  return component.body-footer(
+  return component.body.footer(
     generator-function: config => context align(center, {
       numbering("1", counter(page).get().at(0))
     }),

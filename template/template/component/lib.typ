@@ -1,36 +1,10 @@
 // LTeX: enabled=false
 #import "coversheet.typ": coversheet
 #import "appendices.typ": appendices
-#import "config.typ": (
-  appendix-footer, appendix-header, appendix-toc, backmatter-footer,
-  backmatter-header, body-footer, body-header, footer, frontmatter-footer,
-  frontmatter-header, header,
-)
 
-// Section-specific sub-namespaces for ergonomic access:
-// component.frontmatter.header(...), component.body.footer(...), etc.
+#import "general.typ": header, footer
 
-/// Frontmatter component overrides.
-#let frontmatter = (
-  header: frontmatter-header,
-  footer: frontmatter-footer,
-)
-
-/// Body component overrides.
-#let body = (
-  header: body-header,
-  footer: body-footer,
-)
-
-/// Backmatter component overrides.
-#let backmatter = (
-  header: backmatter-header,
-  footer: backmatter-footer,
-)
-
-/// Appendix component overrides.
-#let appendix = (
-  toc: appendix-toc,
-  header: appendix-header,
-  footer: appendix-footer,
-)
+#import "frontmatter.typ" as frontmatter
+#import "body.typ" as body
+#import "backmatter.typ" as backmatter
+#import "appendix.typ" as appendix

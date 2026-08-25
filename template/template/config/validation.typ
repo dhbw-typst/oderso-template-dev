@@ -23,8 +23,7 @@
   )
 }
 
-/// Asserts that `generator-function` is either the default sentinel or a function.
-#let validate-generator(generator-function) = {
+
   assert(
     generator-function == default-value or type(generator-function) == function,
     message: "`generator-function` must be a function, got "
@@ -36,6 +35,17 @@
 
 /// Asserts that `show-fun` is either the default sentinel, `none`, or a function.
 /// The function receives content (`it`) and returns content.
+/// Asserts that `generator-function` is either the default sentinel or a function.
+#let validate-generator(generator-function) = {
+  assert(
+    generator-function == default-value or type(generator-function) == function,
+    message: "`generator-function` must be a function, got "
+      + repr(generator-function)
+      + " of type "
+      + str(type(generator-function)),
+  )
+}
+
 #let validate-show(show-fun) = {
   assert(
     show-fun == default-value or show-fun == none or type(show-fun) == function,
