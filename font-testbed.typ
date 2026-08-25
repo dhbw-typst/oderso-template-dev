@@ -9,44 +9,60 @@ This document provides a testbed to adjust the size and spacing of different fon
   leading: 1em,
 )
 
-#let show-arial = false
+#let show-arial = true
 
 #let fonts = (
   new-computer-modern: (
     font: "New Computer Modern",
-    size: 12.4pt,
-    spacing: 1.47em,
-    leading: 0.985em,
-    char-spacing: 80%,
-    tracking: -0.08pt,
+    size: 12.7pt,
+    spacing: 1.42em,
+    leading: 0.946em,
   ),
   libertinus-serif: (
     font: "Libertinus Serif",
     size: 13.2pt,
     spacing: 1.366em,
     leading: 0.905em,
-    char-spacing: 90%,
-    tracking: -0.1pt,
   ),
 )
 
-#let body = [
-  #box(height: 200pt, {
-    lorem(100)
-  })
+#let body = {
+  box(height: 100pt, grid(columns: (() => {
+    let columns = ()
+    for _ in range(26) {
+      columns.push(1fr)
+    }
+    return columns
+  })())[A][B][C][D][E][F][G][H][I][J][K][L][M][N][O][P][Q][R][S][T][U][V][W][X][Y][Z])
 
-  A paragraph with a few words
+  box(height: 100pt, grid(columns: (() => {
+    let columns = ()
+    for _ in range(26) {
+      columns.push(1fr)
+    }
+    return columns
+  })())[a][b][c][d][e][f][g][h][i][j][k][l][m][n][o][p][q][r][s][t][u][v][w][x][y][z])
 
-  Another paragraph
+  box(height: 100pt, width: 100%)[
+    A line\
+    Another line\
+    And a third line\
+  ]
 
-  And a third paragraph
-]
+  box(height: 100pt, width: 100%)[
+    A paragraph with a few words
+
+    Another paragraph
+
+    And a third paragraph
+  ]
+}
 
 #for (_, font) in fonts {
   pagebreak()
 
   let font-a(body) = {
-    set text(font: font.font, size: font.size, spacing: font.char-spacing, tracking: font.tracking)
+    set text(font: font.font, size: font.size)
     set par(spacing: font.spacing, leading: font.leading)
     body
   }
@@ -58,19 +74,24 @@ This document provides a testbed to adjust the size and spacing of different fon
   }
 
   set page(
-    background: place(top + left, float: true, scope: "column", pad(rest: 2cm, {
+    background: place(dy: 4cm, top + left, float: true, scope: "column", pad(rest: 2cm, {
       show: font-b.with()
       set text(fill: red)
       if show-arial {
         body
       }
     })),
-    foreground: place(top + left, float: true, scope: "column", pad(rest: 2cm, {
+    foreground: place(dy: 4cm, top + left, float: true, scope: "column", pad(rest: 2cm, {
       show: font-a.with()
       set text(fill: black.transparentize(30%))
       body
     })),
   )
+
+  [
+    #set text(font: font.font)
+    = #font.font
+  ]
 }
 
 
