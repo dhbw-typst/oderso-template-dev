@@ -75,7 +75,13 @@
     _body-header(),
     _body-footer(),
     general.typography.body(..general.typography.font.libertinus-serif),
-    general.typography.heading(..general.typography.heading-style.modular-scale(general.typography.font.libertinus-serif, 1.2), numbering: "1."),
+    general.typography.heading(
+      ..general.typography.heading-style.modular-scale(
+        general.typography.font.libertinus-serif,
+        1.2,
+      ),
+      numbering: "1.",
+    ),
     fbm.acknowledgements(generator-function: _acknowledgements, position: -80),
     fbm.abstracts(generator-function: _abstracts, position: -70),
     fbm.toc(generator-function: _toc, position: -60),

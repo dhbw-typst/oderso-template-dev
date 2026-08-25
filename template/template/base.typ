@@ -204,7 +204,7 @@
   show heading: set text(font: t-heading.font) if "font" in t-heading
   show: set heading(numbering: t-heading.numbering) if "numbering" in t-heading
 
-  let sizes = if "sizes" in t-heading {t-heading.sizes} else {()}
+  let sizes = if "sizes" in t-heading { t-heading.sizes } else { () }
 
   show heading.where(level: 1): set text(size: sizes.at(0)) if sizes.len() > 0
   show heading.where(level: 2): set text(size: sizes.at(1)) if sizes.len() > 1
@@ -381,7 +381,6 @@
     )
     show: set page(header: (header.generator)(cfg)) if "generator" in header
     show: set page(footer: (footer.generator)(cfg)) if "generator" in footer
-
 
     // TODO: Make configurable
     show heading.where(level: 1): it => {

@@ -1,6 +1,6 @@
 // LTeX: enabled=false
 #import "../config/lib.typ" as config
-#import "_shared.typ": make-header, make-footer, make-page
+#import "_shared.typ": make-footer, make-header, make-page
 
 /// Configure general page settings (numbering, margin) shared across ALL sections.
 /// Overridden by any section-specific `page` config. -> dictionary

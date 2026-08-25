@@ -1,5 +1,5 @@
 // LTeX: enabled=false
-#import "_shared.typ": make-header, make-footer, make-toc, make-page
+#import "_shared.typ": make-footer, make-header, make-page, make-toc
 
 /// Configure the table of contents entry for the appendix. -> dictionary
 #let toc = make-toc("appendix")

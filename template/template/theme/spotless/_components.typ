@@ -1,7 +1,7 @@
 #import "../../config/lib.typ" as config
 #let linguify-content = config.util.linguify-content
 #import "../../component/lib.typ" as component
-#import "@preview/hydra:0.6.3": hydra, anchor
+#import "@preview/hydra:0.6.3": anchor, hydra
 /// Configure the theme _spotless_.
 ///
 /// Sets defaults for:
