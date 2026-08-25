@@ -208,24 +208,14 @@
   show heading: set text(font: t-heading.font) if "font" in t-heading
   show: set heading(numbering: t-heading.numbering) if "numbering" in t-heading
 
-  let sizes = ()
-  if "size-scaling" in t-heading and "size" in t-heading {
-    sizes.push(t-heading.size)
-    for depth in range(1, 5) {
-      if type(t-heading.size-scaling) == ratio {
-        sizes.push(t-heading.size-scaling * sizes.at(depth - 1))
-      } else if t-heading.size-scaling.len() < depth {
-        sizes.push(sizes.at(depth - 1))
-      } else {
-        sizes.push(t-heading.size-scaling.at(depth - 1) * sizes.at(depth - 1))
-      }
-    }
-  }
+  let sizes = if "sizes" in t-heading {t-heading.sizes} else {()}
 
   show heading.where(level: 1): set text(size: sizes.at(0)) if sizes.len() > 0
-  show heading.where(level: 2): set text(size: sizes.at(0)) if sizes.len() > 0
-  show heading.where(level: 3): set text(size: sizes.at(0)) if sizes.len() > 0
-  show heading.where(level: 4): set text(size: sizes.at(0)) if sizes.len() > 0
+  show heading.where(level: 2): set text(size: sizes.at(1)) if sizes.len() > 1
+  show heading.where(level: 3): set text(size: sizes.at(2)) if sizes.len() > 2
+  show heading.where(level: 4): set text(size: sizes.at(3)) if sizes.len() > 3
+  show heading.where(level: 5): set text(size: sizes.at(4)) if sizes.len() > 4
+  show heading.where(level: 6): set text(size: sizes.at(5)) if sizes.len() > 5
 
   show raw: set text(font: t-code.font) if "font" in t-code
   show raw: set text(size: t-code.size) if "size" in t-code

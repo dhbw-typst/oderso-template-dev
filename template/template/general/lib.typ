@@ -2,4 +2,4 @@
 #import "layout.typ": document
 #import "metadata.typ": metadata
 
-#import "typography/config.typ" as typography
+#import "typography/lib.typ" as typography

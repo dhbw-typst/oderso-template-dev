@@ -1,50 +1,6 @@
 // LTeX: enabled=false
 #import "../../config/lib.typ" as config
 
-// ============================================================
-// Default font parameters for New Computer Modern
-// These match the current hard-coded values in base.typ and
-// can be overridden by theme functions.
-// ============================================================
-
-/// Default body font parameters.
-#let _default-body-font = (
-  font: "New Computer Modern",
-  size: 12pt,
-  leading: 1.05em,
-  spacing: 1.5em,
-)
-
-/// Default header font parameters.
-/// `size` refers to the level-1 heading size; sub-headings scale relative to it.
-#let _default-header-font = (
-  font: "New Computer Modern",
-  size: 1em, // relative to body, level 1 heading
-)
-
-/// Default caption font parameters.
-#let _default-caption-font = (
-  font: "New Computer Modern",
-  size: 1em,
-)
-
-/// Default code font parameters (monospace).
-/// Uses New Computer Modern in its monospace variant (the same family, raw elements use monospace style automatically).
-#let _default-code-font = (
-  font: "New Computer Modern",
-  size: 0.9em,
-)
-
-/// Default math font parameters.
-#let _default-math-font = (
-  font: "New Computer Modern Math",
-  size: 1em,
-)
-
-// ============================================================
-// Public config functions
-// ============================================================
-
 /// Configure body text typography.
 ///
 /// All fields are optional; unset fields fall back to theme/base defaults.
@@ -81,10 +37,7 @@
   /// Font family name or list of fallbacks. -> str | array | config.util.default-value
   font: config.util.default-value,
   /// Level-1 heading size (deeper levels scale proportionally). -> relative | config.util.default-value
-  size: config.util.default-value,
-  /// Scaling factor applied per heading level (e.g. 90% means each deeper level
-  /// is 90 % of the previous) or an array of sizes applied to h2 downwards (h1 is configured by size argument). -> ratio | array | config.util.default-value
-  size-scaling: config.util.default-value,
+  sizes: config.util.default-value,
   numbering: config.util.default-value,
 ) = {
   return (
@@ -92,8 +45,7 @@
       typography: (
         heading: config.util.get-dict-without-default((
           font: font,
-          size: size,
-          size-scaling: size-scaling,
+          sizes: sizes,
           numbering: numbering,
         )),
       ),
