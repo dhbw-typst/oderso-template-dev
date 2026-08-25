@@ -1,5 +1,5 @@
 // LTeX: enabled=false
-#import "_shared.typ": make-header, make-footer
+#import "_shared.typ": make-header, make-footer, make-page
 
 /// Configure the header for the backmatter section only.
 /// Overrides the shared `component.header` for backmatter pages. -> dictionary
@@ -7,3 +7,6 @@
 
 /// Configure the footer for the backmatter section only. -> dictionary
 #let footer = make-footer("backmatter")
+
+/// Configure the page settings (numbering, margin) for the backmatter section only. -> dictionary
+#let page = make-page("backmatter")

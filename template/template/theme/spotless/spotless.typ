@@ -2,6 +2,7 @@
 #import "../../config/lib.typ" as config
 #import "../../general/lib.typ" as general
 #import "../../frontbackmatter/lib.typ" as fbm
+#import "../../component/lib.typ" as component
 #import "_components.typ": _body-footer, _body-header, _coversheet
 #import "_frontbackmatter.typ": (
   _abbreviations, _abstracts, _acknowledgements, _bibliography, _glossary,
@@ -69,7 +70,7 @@
 
   return config.util.merge-configs(
     (:),
-    general.document(show-fun: document-show),
+    component.show-rules(show-fun: document-show),
     _coversheet(),
     _body-header(),
     _body-footer(),

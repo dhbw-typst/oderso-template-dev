@@ -189,10 +189,6 @@
     },
   )
 
-  show: set page(
-    margin: _transform-margin(cfg.general.document.margin),
-  ) if "margin" in cfg.general.document
-
   // justify content.
   // Values researched in https://github.com/dhbw-typst/oderso-template-dev/pull/64 to match Arial 12pt and 1.5 line spacing in Microsoft Word
   set par(
@@ -271,9 +267,9 @@
     ))
   }
 
-  // Apply general.document.show rule AFTER all base set/show rules
+  // Apply component-level show rule AFTER all base set/show rules
   show: (
-    config.util.get-config("general.document.show-rule", it => it, cfg)
+    config.util.get-config("component.show-rule", it => it, cfg)
   ).with()
 
   // ----------------------------------
@@ -314,13 +310,17 @@
     let footer = _collapse-specifications(
       cfg,
       "component.footer",
-      "component.frontmatter.header",
+      "component.frontmatter.footer",
     )
-    let general = config.util.get-config("component.frontmatter", (:), cfg)
+    let page-cfg = _collapse-specifications(
+      cfg,
+      "component.page",
+      "component.frontmatter.page",
+    )
 
-    show: set page(numbering: general.numbering) if "numbering" in general
-    show: set page(margin: _transform-margin(general.margin)) if (
-      "margin" in general
+    show: set page(numbering: page-cfg.numbering) if "numbering" in page-cfg
+    show: set page(margin: _transform-margin(page-cfg.margin)) if (
+      "margin" in page-cfg
     )
     show: set page(header: (header.generator)(cfg)) if "generator" in header
     show: set page(footer: (footer.generator)(cfg)) if "generator" in footer
@@ -369,11 +369,15 @@
       "component.footer",
       "component.body.footer",
     )
-    let general = config.util.get-config("component.body", (:), cfg)
+    let page-cfg = _collapse-specifications(
+      cfg,
+      "component.page",
+      "component.body.page",
+    )
 
-    show: set page(numbering: general.numbering) if "numbering" in general
-    show: set page(margin: _transform-margin(general.margin)) if (
-      "margin" in general
+    show: set page(numbering: page-cfg.numbering) if "numbering" in page-cfg
+    show: set page(margin: _transform-margin(page-cfg.margin)) if (
+      "margin" in page-cfg
     )
     show: set page(header: (header.generator)(cfg)) if "generator" in header
     show: set page(footer: (footer.generator)(cfg)) if "generator" in footer
@@ -406,13 +410,17 @@
     let footer = _collapse-specifications(
       cfg,
       "component.footer",
-      "component.backmatter.header",
+      "component.backmatter.footer",
     )
-    let general = config.util.get-config("component.backmatter", (:), cfg)
+    let page-cfg = _collapse-specifications(
+      cfg,
+      "component.page",
+      "component.backmatter.page",
+    )
 
-    show: set page(numbering: general.numbering) if "numbering" in general
-    show: set page(margin: _transform-margin(general.margin)) if (
-      "margin" in general
+    show: set page(numbering: page-cfg.numbering) if "numbering" in page-cfg
+    show: set page(margin: _transform-margin(page-cfg.margin)) if (
+      "margin" in page-cfg
     )
     show: set page(header: (header.generator)(cfg)) if "generator" in header
     show: set page(footer: (footer.generator)(cfg)) if "generator" in footer
@@ -458,6 +466,11 @@
       "component.footer",
       "component.appendix.footer",
     )
+    let app-page-cfg = _collapse-specifications(
+      cfg,
+      "component.page",
+      "component.appendix.page",
+    )
     let app-header-gen = app-header-cfg.at("generator", default: none)
     let app-footer-gen = app-footer-cfg.at("generator", default: none)
     set heading(
@@ -469,10 +482,13 @@
       supplement: none,
     )
     set page(
-      numbering: "A",
+      numbering: app-page-cfg.at("numbering", default: "A"),
       footer: if app-footer-gen != none { (app-footer-gen)(cfg) } else { none },
       header: if app-header-gen != none { (app-header-gen)(cfg) } else { none },
     )
+    if "margin" in app-page-cfg {
+      set page(margin: _transform-margin(app-page-cfg.margin))
+    }
     counter(page).update(1)
     counter(heading).update(0)
 

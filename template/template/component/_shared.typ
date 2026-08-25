@@ -3,6 +3,82 @@
 // Do NOT import this file from outside the component/ directory.
 #import "../config/lib.typ" as config
 
+// ── Margin helpers (private) ─────────────────────────────────────────────────
+
+#let _validate-margin(margin) = {
+  if margin == auto {
+    panic(
+      "`auto` is not allowed for `margin` in this template to simplify subsequent calculations. Please choose a different type.",
+    )
+  }
+  assert(
+    margin == config.util.default-value
+      or type(margin) == dictionary
+      or type(margin) == relative
+      or type(margin) == length
+      or type(margin) == ratio,
+    message: "`margin` must be a length, a ratio, a relative length, or a dictionary, got "
+      + repr(margin)
+      + " of type "
+      + str(type(margin)),
+  )
+}
+
+#let _normalize-margin(margin) = {
+  if type(margin) == dictionary {
+    let cp = margin
+    let rest = margin.at("rest", default: 0pt)
+    cp.top = if "top" in margin {
+      margin.top
+    } else if "y" in margin {
+      margin.y
+    } else {
+      rest
+    }
+    cp.bottom = if "bottom" in margin {
+      margin.bottom
+    } else if "y" in margin {
+      margin.y
+    } else {
+      rest
+    }
+    if "inside" in margin.keys() or "outside" in margin.keys() {
+      cp.inside = if "inside" in margin {
+        margin.inside
+      } else if "x" in margin {
+        margin.x
+      } else {
+        rest
+      }
+      cp.outside = if "outside" in margin {
+        margin.outside
+      } else if "x" in margin {
+        margin.x
+      } else {
+        rest
+      }
+    } else {
+      cp.left = if "left" in margin {
+        margin.left
+      } else if "x" in margin {
+        margin.x
+      } else {
+        rest
+      }
+      cp.right = if "right" in margin {
+        margin.right
+      } else if "x" in margin {
+        margin.x
+      } else {
+        rest
+      }
+    }
+    return cp
+  } else {
+    return (top: margin, bottom: margin, left: margin, right: margin)
+  }
+}
+
 // ── Config-dict builder ───────────────────────────────────────────────────────
 
 /// Build a `(component: ...)` config dict.
@@ -58,6 +134,30 @@
       config.util.get-dict-without-default((
         generator: generator-function,
         show-rule: show-fun,
+      )),
+    )
+  }
+}
+
+// ── Page factory ─────────────────────────────────────────────────────────────
+
+/// Return a page config function for the given scope (`none` = top-level).
+/// Configures the page numbering and/or margin for the given section.
+#let make-page(scope) = {
+  (
+    numbering: config.util.default-value,
+    margin: config.util.default-value,
+  ) => {
+    _validate-margin(margin)
+    if margin != config.util.default-value {
+      margin = _normalize-margin(margin)
+    }
+    make-component-config(
+      scope,
+      "page",
+      config.util.get-dict-without-default((
+        numbering: numbering,
+        margin: margin,
       )),
     )
   }
