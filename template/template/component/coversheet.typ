@@ -1,4 +1,5 @@
 #import "../config/lib.typ" as config
+#import "_shared.typ": _build-show-rules-entry, _make-show-rule-entry
 
 /// Component-local validator: accepts config.util.default-value, none (suppress), or function.
 #let _validate-coversheet-generator(generator-function) = {
@@ -17,18 +18,26 @@
 #let coversheet(
   /// A function receiving a single position argument `config` holding the configuration dictionary and returing the conversheet `content`. Pass `none` to suppress the coversheet. -> function | none
   generator-function: config.util.default-value,
-  /// Show rule function receiving content (`it`) applied after all base set/show rules. Pass `none` to disable. -> function | none
+  /// Unique key for this show rule entry. Co-required with `show-fun`. -> str
+  show-key: config.util.default-value,
+  /// Execution order for this show rule (lower = earlier). Optional. -> int
+  show-order: config.util.default-value,
+  /// Show rule function receiving content (`it`) applied after all base set/show rules. Co-required with `show-key`. -> function | none
   show-fun: config.util.default-value,
 ) = {
   _validate-coversheet-generator(generator-function)
   config.validation.validate-show(show-fun)
 
+  let show-rules-entry = _build-show-rules-entry(show-key, show-order, show-fun)
+
   return (
     component: (
       coversheet: config.util.get-dict-without-default((
         generator: generator-function,
-        show-rule: show-fun,
-      )),
+      ))
+        + if show-rules-entry.len() > 0 {
+          (show-rules: show-rules-entry)
+        } else { (:) },
     ),
   )
 }

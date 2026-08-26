@@ -79,6 +79,60 @@
   }
 }
 
+// ── Show-rule helpers ────────────────────────────────────────────────────────
+
+/// Build a single show-rule entry for insertion into a `show-rules` dictionary.
+/// `order` is optional — if omitted (default-value), it is not stored; base.typ
+/// falls back to `0` when composing.
+/// Returns `((key): (function: fn))` or `((key): (order: n, function: fn))`.
+#let _make-show-rule-entry(
+  key,
+  show-fun,
+  order: config.util.default-value,
+) = {
+  assert(
+    type(key) == str,
+    message: "`show-key` must be a string, got " + repr(key),
+  )
+  assert(
+    order == config.util.default-value
+      or type(order) == int
+      or type(order) == float,
+    message: "`show-order` must be a number, got " + repr(order),
+  )
+  assert(
+    type(show-fun) == function,
+    message: "`show-fun` must be a function, got " + repr(show-fun),
+  )
+  let entry = ("function": show-fun)
+  if order != config.util.default-value {
+    entry.insert("order", order)
+  }
+  return ((key): entry)
+}
+
+/// Validate that `show-key` and `show-fun` are provided together (co-required).
+#let _validate-show-pair(show-key, show-fun) = {
+  let has-key = show-key != config.util.default-value
+  let has-fun = show-fun != config.util.default-value and show-fun != none
+  assert(
+    has-key == has-fun,
+    message: "`show-key` and `show-fun` must be provided together; got show-key="
+      + repr(show-key)
+      + ", show-fun="
+      + repr(show-fun),
+  )
+}
+
+/// Build a show-rules entry from the three show params, or return `(:)` if none given.
+#let _build-show-rules-entry(show-key, show-order, show-fun) = {
+  _validate-show-pair(show-key, show-fun)
+  if show-key == config.util.default-value {
+    return (:)
+  }
+  _make-show-rule-entry(show-key, show-fun, order: show-order)
+}
+
 // ── Config-dict builder ───────────────────────────────────────────────────────
 
 /// Build a `(component: ...)` config dict.
@@ -101,19 +155,28 @@
   (
     generator-function: config.util.default-value,
     height: config.util.default-value,
+    show-key: config.util.default-value,
+    show-order: config.util.default-value,
     show-fun: config.util.default-value,
   ) => {
     config.validation.validate-generator(generator-function)
     config.validation.validate-relative(height, "height")
     config.validation.validate-show(show-fun)
+    let show-rules-entry = _build-show-rules-entry(
+      show-key,
+      show-order,
+      show-fun,
+    )
     make-component-config(
       scope,
       "header",
       config.util.get-dict-without-default((
         generator: generator-function,
         height: height,
-        show-rule: show-fun,
-      )),
+      ))
+        + if show-rules-entry.len() > 0 {
+          (show-rules: show-rules-entry)
+        } else { (:) },
     )
   }
 }
@@ -124,17 +187,26 @@
 #let make-toc(scope) = {
   (
     generator-function: config.util.default-value,
+    show-key: config.util.default-value,
+    show-order: config.util.default-value,
     show-fun: config.util.default-value,
   ) => {
     config.validation.validate-generator(generator-function)
     config.validation.validate-show(show-fun)
+    let show-rules-entry = _build-show-rules-entry(
+      show-key,
+      show-order,
+      show-fun,
+    )
     make-component-config(
       scope,
       "toc",
       config.util.get-dict-without-default((
         generator: generator-function,
-        show-rule: show-fun,
-      )),
+      ))
+        + if show-rules-entry.len() > 0 {
+          (show-rules: show-rules-entry)
+        } else { (:) },
     )
   }
 }
@@ -170,19 +242,28 @@
   (
     generator-function: config.util.default-value,
     height: config.util.default-value,
+    show-key: config.util.default-value,
+    show-order: config.util.default-value,
     show-fun: config.util.default-value,
   ) => {
     config.validation.validate-generator(generator-function)
     config.validation.validate-relative(height, "height")
     config.validation.validate-show(show-fun)
+    let show-rules-entry = _build-show-rules-entry(
+      show-key,
+      show-order,
+      show-fun,
+    )
     make-component-config(
       scope,
       "footer",
       config.util.get-dict-without-default((
         generator: generator-function,
         height: height,
-        show-rule: show-fun,
-      )),
+      ))
+        + if show-rules-entry.len() > 0 {
+          (show-rules: show-rules-entry)
+        } else { (:) },
     )
   }
 }

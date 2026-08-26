@@ -1,6 +1,9 @@
 // LTeX: enabled=false
 #import "../config/lib.typ" as config
-#import "_shared.typ": make-footer, make-header, make-page
+#import "_shared.typ": (
+  _build-show-rules-entry, _make-show-rule-entry, make-footer, make-header,
+  make-page,
+)
 
 /// Configure general page settings (numbering, margin) shared across ALL sections.
 /// Overridden by any section-specific `page` config. -> dictionary
@@ -16,14 +19,27 @@
 /// -> dictionary
 #let footer = make-footer(none)
 
-/// Configure the document-level show rule applied after all base set/show rules.
-/// Use this to inject theme-wide styling (custom heading display, link styling,
-/// etc.). The function receives the full document content (`it`) and must return
-/// content. -> dictionary
+/// Configure a document-level show rule that is applied after all base set/show
+/// rules. Multiple calls with different `show-key` values accumulate; a repeated
+/// `show-key` overwrites the previous entry. Rules are applied in ascending
+/// `show-order` (default `0` at composition time if omitted).
+/// `show-key` and `show-fun` are co-required: provide both or neither.
+/// -> dictionary
 #let show-rules(
-  /// Show rule function receiving content (`it`) and returning content. -> function
+  /// Unique identifier for this rule. Co-required with `show-fun`. -> str
+  show-key: config.util.default-value,
+  /// Execution order (lower = earlier). Optional — omit to leave unset. -> int
+  show-order: config.util.default-value,
+  /// Show rule function receiving content (`it`) and returning content. Co-required with `show-key`. -> function
   show-fun: config.util.default-value,
 ) = {
-  config.validation.validate-show(show-fun)
-  (component: config.util.get-dict-without-default((show-rule: show-fun)))
+  if (
+    show-key == config.util.default-value
+      and show-order == config.util.default-value
+      and show-fun == config.util.default-value
+  ) {
+    return (:)
+  }
+  let entry = _build-show-rules-entry(show-key, show-order, show-fun)
+  (component: (show-rules: entry))
 }

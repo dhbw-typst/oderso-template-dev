@@ -3,6 +3,7 @@
 #import "../../general/lib.typ" as general
 #import "../../frontbackmatter/lib.typ" as fbm
 #import "../../component/lib.typ" as component
+#import "../shared.typ" as shared
 #import "_components.typ": _body-footer, _body-header, _coversheet
 #import "_frontbackmatter.typ": (
   _abbreviations, _abstracts, _acknowledgements, _bibliography, _glossary,
@@ -56,21 +57,16 @@
       }
     }
 
-    // follow IEEE style for equation references: `(1)` instead of `equation 1`
-    show ref: it => {
-      if it.element != none and it.element.func() == math.equation {
-        numbering("(1)", ..counter(math.equation).at(it.target))
-      } else {
-        it
-      }
-    }
-
     it
   }
 
   return config.util.merge-configs(
     (:),
-    component.show-rules(show-fun: document-show),
+    component.show-rules(
+      show-key: "spotless",
+      show-order: 0,
+      show-fun: document-show,
+    ),
     component.page(margin: 2.5cm),
     component.frontmatter.page(numbering: "I"),
     component.backmatter.page(numbering: "a"),
@@ -95,5 +91,6 @@
     fbm.abbreviations(generator-function: _abbreviations, position: 20),
     fbm.bibliography(generator-function: _bibliography, position: 30),
     fbm.figure-listings(generator-function: _listings, position: 40),
+    shared.ieee-equations(enabled: true),
   )
 }

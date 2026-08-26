@@ -13,6 +13,24 @@
 #import "component/lib.typ" as component
 #import "config/state.typ": _config, _in-outline
 
+/// Compose a `show-rules` dictionary into a single chained show function.
+/// Entries are sorted by their `order` field (ascending) and applied in that
+/// order. Returns a function `(it) => content`.
+#let _compose-show-rules(rules) = {
+  let sorted = rules
+    .pairs()
+    .sorted(key: pair => pair.at(1).at("order", default: 0))
+    .map(pair => pair.at(1).at("function"))
+
+  it => {
+    let result = it
+    for fn in sorted {
+      result = fn(result)
+    }
+    result
+  }
+}
+
 /// Default heading numbering pattern.
 /// -> str
 #let _heading-numbering = "1.1.1"
@@ -243,17 +261,6 @@
   let caution-rect = rect.with(radius: 0.5em)
   set-margin-note-defaults(rect: caution-rect, fill: orange.lighten(80%))
 
-  // Equation figures
-  set math.equation(numbering: "(1)")
-  // follow IEEE style for equation references: `(1)` instead of `equation 1`
-  show ref: it => {
-    if it.element != none and it.element.func() == math.equation {
-      link(it.target, numbering("(1)", ..counter(math.equation).at(it.target)))
-    } else {
-      it
-    }
-  }
-
   // register abbreviations abd glossary entries before content so references resolve
   if (
     config
@@ -279,9 +286,9 @@
     ))
   }
 
-  // Apply component-level show rule AFTER all base set/show rules
-  show: (
-    config.util.get-config("component.show-rule", it => it, cfg)
+  // Apply component-level show rules AFTER all base set/show rules
+  show: _compose-show-rules(
+    config.util.get-config("component.show-rules", (:), cfg),
   ).with()
 
   // ----------------------------------
@@ -301,8 +308,8 @@
   if (
     config.util.get-config("component.coversheet.generator", none, cfg) != none
   ) {
-    show: (
-      config.util.get-config("component.coversheet.show-rule", it => it, cfg)
+    show: _compose-show-rules(
+      config.util.get-config("component.coversheet.show-rules", (:), cfg),
     ).with()
     (config.util.get-config("component.coversheet.generator", none, cfg))(cfg)
     pagebreak()
@@ -363,8 +370,8 @@
       return
     }
 
-    show: (
-      config.util.get-config("component.frontmatter.show-rule", it => it, cfg)
+    show: _compose-show-rules(
+      config.util.get-config("component.frontmatter.show-rules", (:), cfg),
     ).with()
 
     // Filter front-back-matter entries with negative position (frontmatter) and sort ascending
@@ -459,8 +466,8 @@
       it
     }
 
-    show: (
-      config.util.get-config("component.body.show-rule", it => it, cfg)
+    show: _compose-show-rules(
+      config.util.get-config("component.body.show-rules", (:), cfg),
     ).with()
 
     body
@@ -516,8 +523,8 @@
       counter(page).at(<_backmatter-end>).at(0),
     )) if "generator" in footer
 
-    show: (
-      config.util.get-config("component.backmatter.show-rule", it => it, cfg)
+    show: _compose-show-rules(
+      config.util.get-config("component.backmatter.show-rules", (:), cfg),
     ).with()
 
     set heading(numbering: none)
