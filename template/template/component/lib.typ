@@ -1,6 +1,5 @@
 // LTeX: enabled=false
 #import "coversheet.typ": coversheet
-#import "appendices.typ": appendices
 
 #import "general.typ": footer, header, page, show-rules
 

@@ -71,6 +71,9 @@
   return config.util.merge-configs(
     (:),
     component.show-rules(show-fun: document-show),
+    component.page(margin: 2.5cm),
+    component.frontmatter.page(numbering: "I"),
+    component.backmatter.page(numbering: "a"),
     _coversheet(),
     _body-header(),
     _body-footer(),

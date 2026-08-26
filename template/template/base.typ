@@ -319,7 +319,22 @@
     )
 
     show: set page(numbering: page-cfg.numbering) if "numbering" in page-cfg
-    show: set page(margin: _transform-margin(page-cfg.margin)) if (
+    show: set page(
+      margin: (
+        () => {
+          let margin = page-cfg.margin
+          if "height" in header {
+            margin.top += header.height
+          }
+
+          if "height" in footer {
+            margin.bottom += header.height
+          }
+
+          return _transform-margin(margin)
+        }
+      )(),
+    ) if (
       "margin" in page-cfg
     )
     show: set page(header: (header.generator)(cfg)) if "generator" in header
@@ -376,7 +391,22 @@
     )
 
     show: set page(numbering: page-cfg.numbering) if "numbering" in page-cfg
-    show: set page(margin: _transform-margin(page-cfg.margin)) if (
+    show: set page(
+      margin: (
+        () => {
+          let margin = page-cfg.margin
+          if "height" in header {
+            margin.top += header.height
+          }
+
+          if "height" in footer {
+            margin.bottom += header.height
+          }
+
+          return _transform-margin(margin)
+        }
+      )(),
+    ) if (
       "margin" in page-cfg
     )
     show: set page(header: (header.generator)(cfg)) if "generator" in header
@@ -418,7 +448,22 @@
     )
 
     show: set page(numbering: page-cfg.numbering) if "numbering" in page-cfg
-    show: set page(margin: _transform-margin(page-cfg.margin)) if (
+    show: set page(
+      margin: (
+        () => {
+          let margin = page-cfg.margin
+          if "height" in header {
+            margin.top += header.height
+          }
+
+          if "height" in footer {
+            margin.bottom += header.height
+          }
+
+          return _transform-margin(margin)
+        }
+      )(),
+    ) if (
       "margin" in page-cfg
     )
     show: set page(header: (header.generator)(cfg)) if "generator" in header
@@ -454,7 +499,7 @@
   }
 
   // display appendix
-  if cfg.at("appendices", default: (:)).at("entries", default: ()).len() > 0 {
+  if config.util.get-config("component.appendix.entries", cfg, (:)).len() > 0 {
     let app-header-cfg = _collapse-specifications(
       cfg,
       "component.header",
@@ -515,7 +560,7 @@
     pagebreak(weak: true)
     [#[] <_appendix-start>]
 
-    for appendix in cfg.appendices.entries {
+    for appendix in cfg.component.appendix.entries {
       pagebreak(weak: true)
       [#heading(appendix.title) #label(appendix.reference)]
 

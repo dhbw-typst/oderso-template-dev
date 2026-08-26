@@ -109,7 +109,7 @@
   )),
 
   // Appendix can be configured in appendix.typ; remove this call to remove appendices
-  component.appendices(appendices: appendices),
+  component.appendix.entries(appendices: appendices),
 
   // Bibliography
   frontbackmatter.bibliography(library: bibliography("refs.bib")),
