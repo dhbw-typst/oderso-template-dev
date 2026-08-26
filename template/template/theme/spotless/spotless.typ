@@ -86,6 +86,7 @@
       ),
       numbering: "1.",
     ),
+    general.drafting(notes-listing: true),
     fbm.acknowledgements(generator-function: _acknowledgements, position: -80),
     fbm.abstracts(generator-function: _abstracts, position: -70),
     fbm.toc(generator-function: _toc, position: -60),
