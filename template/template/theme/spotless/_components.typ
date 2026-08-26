@@ -83,7 +83,7 @@
 
 #let _body-header() = {
   return component.body.header(
-    generator-function: config => context {
+    generator-function: (config, _) => context {
       anchor()
       grid(
         columns: (auto, 1fr),
@@ -98,11 +98,23 @@
   )
 }
 
-#let _body-footer() = {
+#let _body-footer(show-total-pages: false) = {
   return component.body.footer(
-    generator-function: config => context align(center, {
-      numbering("1", counter(page).get().at(0))
-    }),
-    height: 0cm,
+    generator-function: (cfg, total) => context {
+      let numbering-fmt = config.util.get-config(
+        "component.body.numbering",
+        "1",
+        cfg,
+      )
+      align(center, if show-total-pages {
+        numbering(
+          numbering-fmt + " / " + numbering-fmt,
+          counter(page).get().at(0),
+          total,
+        )
+      } else {
+        numbering(numbering-fmt, counter(page).get().at(0))
+      })
+    },
   )
 }

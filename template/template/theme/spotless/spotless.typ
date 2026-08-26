@@ -9,7 +9,7 @@
   _listings, _toc,
 )
 
-#let spotless() = {
+#let spotless(show-total-pages: false) = {
   let document-show(it) = {
     show heading: it => {
       it
@@ -74,9 +74,10 @@
     component.page(margin: 2.5cm),
     component.frontmatter.page(numbering: "I"),
     component.backmatter.page(numbering: "a"),
+    component.body.page(numbering: "1"),
     _coversheet(),
     _body-header(),
-    _body-footer(),
+    _body-footer(show-total-pages: show-total-pages),
     general.layout(pagebreak-heading: true),
     general.typography.body(..general.typography.font.libertinus-serif),
     general.typography.heading(

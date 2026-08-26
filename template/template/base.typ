@@ -10,6 +10,7 @@
 )
 #import "config/lib.typ" as config
 #import "general/lib.typ" as general
+#import "component/lib.typ" as component
 #import "config/state.typ": _config, _in-outline
 
 /// Default heading numbering pattern.
@@ -136,7 +137,7 @@
     message: "Only positional arguments are allowed, remove named arguments.",
   )
 
-  // create config dictionary. Set typst defaults as base config.
+  // create config dictionary
   let cfg = (:)
   for addition in cfgs.pos() {
     assert.eq(
@@ -348,9 +349,19 @@
     ) if (
       "margin" in page-cfg
     )
-    show: set page(header: (header.generator)(cfg)) if "generator" in header
-    show: set page(footer: (footer.generator)(cfg)) if "generator" in footer
+    show: set page(header: context (header.generator)(
+      cfg,
+      counter(page).at(<_frontmatter-end>).at(0),
+    )) if "generator" in header
+    show: set page(footer: context (footer.generator)(
+      cfg,
+      counter(page).at(<_frontmatter-end>).at(0),
+    )) if "generator" in footer
     set heading(numbering: none)
+
+    let default-footer(numbering) = (cfg, last-page) => {
+      return
+    }
 
     show: (
       config.util.get-config("component.frontmatter.show-rule", it => it, cfg)
@@ -376,7 +387,8 @@
         rendered
       }
     }
-    // TODO: Add frontmatter-end information
+
+    [#[] <_frontmatter-end>]
   }
 
   // ----------------------------------
@@ -420,8 +432,14 @@
     ) if (
       "margin" in page-cfg
     )
-    show: set page(header: (header.generator)(cfg)) if "generator" in header
-    show: set page(footer: (footer.generator)(cfg)) if "generator" in footer
+    show: set page(header: context (header.generator)(
+      cfg,
+      counter(page).at(<_body-end>).at(0),
+    )) if "generator" in header
+    show: set page(footer: context (footer.generator)(
+      cfg,
+      counter(page).at(<_body-end>).at(0),
+    )) if "generator" in footer
 
     show heading.where(level: 1): it => {
       let pagebreak-heading = config.util.get-config(
@@ -446,7 +464,7 @@
     ).with()
 
     body
-    [#[] <_content-end>]
+    [#[] <_body-end>]
   }
 
   // ----------------------------------
@@ -489,8 +507,14 @@
     ) if (
       "margin" in page-cfg
     )
-    show: set page(header: (header.generator)(cfg)) if "generator" in header
-    show: set page(footer: (footer.generator)(cfg)) if "generator" in footer
+    show: set page(header: context (header.generator)(
+      cfg,
+      counter(page).at(<_backmatter-end>).at(0),
+    )) if "generator" in header
+    show: set page(footer: context (footer.generator)(
+      cfg,
+      counter(page).at(<_backmatter-end>).at(0),
+    )) if "generator" in footer
 
     show: (
       config.util.get-config("component.backmatter.show-rule", it => it, cfg)
@@ -518,7 +542,8 @@
         rendered
       }
     }
-    // TODO: Add backmatter-end information
+
+    [#[] <_backmatter-end>]
   }
 
   // display appendix
@@ -550,8 +575,12 @@
     )
     set page(
       numbering: app-page-cfg.at("numbering", default: "A"),
-      footer: if app-footer-gen != none { (app-footer-gen)(cfg) } else { none },
-      header: if app-header-gen != none { (app-header-gen)(cfg) } else { none },
+      footer: if app-footer-gen != none {
+        (app-footer-gen)(cfg, counter(page).at(<_appendix-end>).at(0))
+      } else { none },
+      header: if app-header-gen != none {
+        (app-header-gen)(cfg, counter(page).at(<_appendix-end>).at(0))
+      } else { none },
     )
     if "margin" in app-page-cfg {
       set page(margin: _transform-margin(app-page-cfg.margin))
@@ -589,5 +618,7 @@
 
       appendix.text
     }
+
+    [#[] <_appendix-end>]
   }
 }
