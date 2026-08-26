@@ -414,9 +414,13 @@
     show: set page(header: (header.generator)(cfg)) if "generator" in header
     show: set page(footer: (footer.generator)(cfg)) if "generator" in footer
 
-    // TODO: Make configurable
     show heading.where(level: 1): it => {
-      pagebreak(weak: true)
+      let pagebreak-heading = config.util.get-config("general.layout.pagebreak-heading", false, cfg)
+      if pagebreak-heading == true or pagebreak-heading == "even" or pagebreak-heading == "odd" {
+        pagebreak(weak: true)
+      } else if pagebreak-heading == "even" or pagebreak-heading == "odd" {
+        pagebreak(weak: true, to: pagebreak-heading)
+      }
       it
     }
 

@@ -77,6 +77,7 @@
     _coversheet(),
     _body-header(),
     _body-footer(),
+    general.layout(pagebreak-heading: true),
     general.typography.body(..general.typography.font.libertinus-serif),
     general.typography.heading(
       ..general.typography.heading-style.modular-scale(

@@ -23,3 +23,16 @@
     ),
   )
 }
+
+#let layout(
+  /// Whether level 1 headings should start on next page (`true`), even (`"even"`) or odd (`"odd"`) page.
+  pagebreak-heading: config.util.default-value
+) = {
+  return (
+    general: (
+      layout: config.util.get-dict-without-default((
+        pagebreak-heading: pagebreak-heading
+      ))
+    )
+  )
+}
