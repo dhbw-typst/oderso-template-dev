@@ -5,10 +5,7 @@
 #import "../../component/lib.typ" as component
 #import "../shared.typ" as shared
 #import "_components.typ": _body-footer, _body-header, _coversheet
-#import "_frontbackmatter.typ": (
-  _abbreviations, _abstracts, _acknowledgements, _bibliography, _glossary,
-  _listings, _toc,
-)
+#import "_frontbackmatter.typ": _abbreviations, _abstracts, _acknowledgements, _bibliography, _glossary, _listings, _toc
 
 #let spotless(show-total-pages: false) = {
   let document-show(it) = {
@@ -22,40 +19,7 @@
       it
     }
 
-    show raw.where(block: false): box.with(
-      fill: luma(240),
-      inset: (x: 2pt, y: 0pt),
-      outset: (y: 3pt),
-      radius: 2pt,
-    )
-
-    // fancy code blocks. TODO: move to general.features
-    show: codly-init.with()
-    codly(
-      zebra-fill: none,
-      display-icon: false,
-      display-name: false,
-      number-align: right + top,
-    )
-
     show figure.where(kind: raw): set figure(supplement: "Code")
-
-    // set table numbering to roman
-    show figure.where(kind: table): set figure(numbering: "I")
-
-    // fancy inline links
-    show link: it => {
-      if type(it.dest) == str {
-        set text(fill: gray.darken(80%))
-        underline(
-          stroke: (paint: gray, thickness: 0.5pt, dash: "densely-dashed"),
-          offset: 4pt,
-          it,
-        )
-      } else {
-        it
-      }
-    }
 
     it
   }
@@ -91,6 +55,7 @@
     fbm.abbreviations(generator-function: _abbreviations, position: 20),
     fbm.bibliography(generator-function: _bibliography, position: 30),
     fbm.figure-listings(generator-function: _listings, position: 40),
-    shared.ieee-equations(enabled: true),
+    shared.ieee-equations(),
+    shared.inline-code(),
   )
 }
