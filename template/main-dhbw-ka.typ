@@ -4,7 +4,7 @@
 #import "appendix.typ": appendices
 
 #show: project.with(
-  theme.spotless(),
+  theme.clean(),
   institution.dhbw-ka(
     lang: "en",
 

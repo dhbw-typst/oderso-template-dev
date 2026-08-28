@@ -20,3 +20,17 @@
   spacing: 1.366em,
   leading: 0.905em,
 )
+
+#let source-sans-3 = (
+  font: "Source Sans 3",
+  size: 13.1pt,
+  spacing: 1.378em,
+  leading: 0.918em,
+)
+
+#let source-serif-4 = (
+  font: "Source Serif 4",
+  size: 12.7pt,
+  spacing: 1.43em,
+  leading: 0.953em,
+)

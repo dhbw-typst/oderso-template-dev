@@ -1,29 +1,17 @@
+#import "template/template/general/typography/font.typ": *
+
 = Font Comparison
 
 This document provides a testbed to adjust the size and spacing of different fonts to a baseline. The used baseline is Arial with a text size and spacing adjusted to match 12pt and 1.5 line spacing in word. See #underline(link("https://github.com/dhbw-typst/oderso-template-dev/pull/64")[here]) for more info.
 
-#let arial = (
-  font: "Arial",
-  size: 12.04pt,
-  spacing: 1.5em,
-  leading: 1em,
-)
-
 #let show-arial = true
 
 #let fonts = (
-  new-computer-modern: (
-    font: "New Computer Modern",
-    size: 12.7pt,
-    spacing: 1.42em,
-    leading: 0.946em,
-  ),
-  libertinus-serif: (
-    font: "Libertinus Serif",
-    size: 13.2pt,
-    spacing: 1.366em,
-    leading: 0.905em,
-  ),
+  arial,
+  new-computer-modern,
+  libertinus-serif,
+  source-serif-4,
+  source-sans-3,
 )
 
 #let body = {
@@ -62,7 +50,7 @@ This document provides a testbed to adjust the size and spacing of different fon
   ]
 }
 
-#for (_, font) in fonts {
+#for font in fonts {
   pagebreak()
 
   let font-a(body) = {
