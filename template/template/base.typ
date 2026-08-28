@@ -1,13 +1,9 @@
 // LTeX: enabled=false
 
-#import "@preview/glossarium:0.5.10": (
-  gls, glspl, make-glossary, print-glossary, register-glossary,
-)
+#import "@preview/glossarium:0.5.10": gls, glspl, make-glossary, print-glossary, register-glossary
 #import "@preview/codly:1.3.0": codly, codly-init
 #import "@preview/drafting:0.2.2": note-outline, set-margin-note-defaults
-#import "@preview/linguify:0.5.0": (
-  linguify, linguify-raw, load-ftl-data, set-database,
-)
+#import "@preview/linguify:0.5.0": linguify, linguify-raw, load-ftl-data, set-database
 #import "config/lib.typ" as config
 #import "general/lib.typ" as general
 #import "component/lib.typ" as component
@@ -218,6 +214,33 @@
 
   // tables settings
   show table: set par(justify: false)
+  // set table numbering to roman
+  // TODO: Make table style configurable
+  show figure.where(kind: table): set figure(numbering: "I")
+
+  // TODO: Make code block style configurable
+  show: codly-init.with()
+  codly(
+    zebra-fill: none,
+    display-icon: false,
+    display-name: false,
+    number-align: right + top,
+  )
+
+  // TODO: Make URL links style configurable
+  // fancy inline links
+  show link: it => {
+    if type(it.dest) == str {
+      set text(fill: gray.darken(80%))
+      underline(
+        stroke: (paint: gray, thickness: 0.5pt, dash: "densely-dashed"),
+        offset: 4pt,
+        it,
+      )
+    } else {
+      it
+    }
+  }
 
   // heading setup — font driven by config.typography.headers
   show heading: set text(font: t-heading.font) if "font" in t-heading
@@ -263,11 +286,7 @@
 
   // register abbreviations abd glossary entries before content so references resolve
   if (
-    config
-      .util
-      .get-config("front-back-matter.abbreviations.entries", (:), cfg)
-      .len()
-      > 0
+    config.util.get-config("front-back-matter.abbreviations.entries", (:), cfg).len() > 0
   ) {
     register-glossary(config.util.get-config(
       "front-back-matter.abbreviations.entries",
@@ -276,8 +295,7 @@
     ))
   }
   if (
-    config.util.get-config("front-back-matter.glossary.entries", (:), cfg).len()
-      > 0
+    config.util.get-config("front-back-matter.glossary.entries", (:), cfg).len() > 0
   ) {
     register-glossary(config.util.get-config(
       "front-back-matter.glossary.entries",
@@ -455,9 +473,7 @@
         cfg,
       )
       if (
-        pagebreak-heading == true
-          or pagebreak-heading == "even"
-          or pagebreak-heading == "odd"
+        pagebreak-heading == true or pagebreak-heading == "even" or pagebreak-heading == "odd"
       ) {
         pagebreak(weak: true)
       } else if pagebreak-heading == "even" or pagebreak-heading == "odd" {
@@ -595,10 +611,7 @@
     counter(page).update(1)
     counter(heading).update(0)
 
-    let app-toc-cfg = cfg
-      .at("component", default: (:))
-      .at("appendix", default: (:))
-      .at("toc", default: (:))
+    let app-toc-cfg = cfg.at("component", default: (:)).at("appendix", default: (:)).at("toc", default: (:))
     let app-toc-gen = app-toc-cfg.at("generator", default: none)
     if app-toc-gen != none {
       (app-toc-gen)(cfg)
