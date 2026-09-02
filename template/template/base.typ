@@ -1,19 +1,35 @@
 // LTeX: enabled=false
 
-#import "@preview/glossarium:0.5.10": (
-  gls, glspl, make-glossary, print-glossary, register-glossary,
-)
-#import "@preview/hydra:0.6.3": hydra
+#import "@preview/glossarium:0.5.10": gls, glspl, make-glossary, print-glossary, register-glossary
 #import "@preview/codly:1.3.0": codly, codly-init
 #import "@preview/drafting:0.2.2": note-outline, set-margin-note-defaults
-#import "@preview/linguify:0.5.0": (
-  linguify, linguify-raw, load-ftl-data, set-database,
-)
-#import "utils.typ": __in-outline, __linguify-content
+#import "@preview/linguify:0.5.0": linguify, linguify-raw, load-ftl-data, set-database
+#import "config/lib.typ" as config
+#import "general/lib.typ" as general
+#import "component/lib.typ" as component
+#import "config/state.typ": _config, _in-outline
+
+/// Compose a `show-rules` dictionary into a single chained show function.
+/// Entries are sorted by their `order` field (ascending) and applied in that
+/// order. Returns a function `(it) => content`.
+#let _compose-show-rules(rules) = {
+  let sorted = rules
+    .pairs()
+    .sorted(key: pair => pair.at(1).at("order", default: 0))
+    .map(pair => pair.at(1).at("function"))
+
+  it => {
+    let result = it
+    for fn in sorted {
+      result = fn(result)
+    }
+    result
+  }
+}
 
 /// Default heading numbering pattern.
 /// -> str
-#let __heading-numbering = "1.1.1"
+#let _heading-numbering = "1.1.1"
 
 /// Creates a signature line for statutory declarations.
 ///
@@ -21,7 +37,7 @@
 /// When `digital` is true, displays the author's name or signature image;
 /// when false, leaves the fields blank for handwritten signatures.
 /// -> content
-#let __signature-line(
+#let _signature-line(
   /// Whether this is a digital submission with pre-filled signature. -> bool
   digital: true,
   /// City name for the signature location. -> str | none
@@ -37,11 +53,6 @@
     lastname: none,
   ),
 ) = {
-  // TODO: only for compatibility reasons: Remove with v3.0.0 release
-  if type(date) == datetime {
-    date = date.display(date-format)
-  }
-
   let signature-content = if digital {
     (
       city,
@@ -68,11 +79,57 @@
     columns: (30mm, 30mm, 20mm, 80mm),
     ..signature-content,
     grid.hline(end: 2), grid.hline(start: 3),
-    __linguify-content("place-of-signature"),
-    __linguify-content("date-of-signature"),
+    config.util.linguify-content("place-of-signature"),
+    config.util.linguify-content("date-of-signature"),
     [],
-    grid.cell(__linguify-content("signature"), align: center),
+    grid.cell(config.util.linguify-content("signature"), align: center),
   ))
+}
+
+#let _collapse-specifications(cfg, ..paths) = {
+  let pos = paths.pos()
+  if pos.len() == 0 {
+    return (:)
+  }
+
+  let collapsed = config.util.get-config(pos.remove(0), (:), cfg)
+  for path in pos {
+    collapsed = config.util.merge-config(collapsed, config.util.get-config(
+      path,
+      (:),
+      cfg,
+    ))
+  }
+
+  return collapsed
+}
+
+/// Due to a bug in drafting at least one margin must be of a different size then the others.
+/// TODO: Evaluate again with the next drafting release.
+/// To fix this we check if all margins are the same and if that is the case we increment margin.top by a tiny bit.
+#let _transform-margin(margin) = {
+  if (
+    margin.top == margin.bottom
+      and (
+        (
+          "left" in margin.keys()
+            and margin.left == margin.top
+            and "right" in margin.keys()
+            and margin.right == margin.top
+        )
+          or (
+            "inside" in margin.keys()
+              and margin.inside == margin.top
+              and "outside" in margin.keys()
+              and margin.outside == margin.top
+          )
+      )
+  ) {
+    margin.top += 0.01pt
+    return margin
+  } else {
+    return margin
+  }
 }
 
 
@@ -82,150 +139,87 @@
 /// styling, and layout. It handles the cover page, table of contents,
 /// lists of figures/tables/code, bibliography, and appendices.
 ///
-/// Institution-specific adapters should wrap this function to add their
-/// specific requirements. However the parameters shown here can be used with all adapters.
+/// Pass configurations produced by `theme.*`, `institution.*`,
+/// `frontbackmatter.*`, `component.*`, and `general.*` as positional arguments.
 /// -> content
 #let project(
-  /// The primary language of the document. Affects hyphenation, quotes,
-  /// and localized strings. Supported: `"en"`, `"de"`. -> str
-  lang: "en",
-  /// Full thesis title displayed on the cover page. -> str | none
-  title-long: none,
-  /// Shortened title displayed in the page header. -> str | none
-  title-short: none,
-  /// Type of thesis (e.g., "Projektarbeit 1", "Bachelorarbeit").
-  /// Displayed below the title on the cover. -> str | none
-  thesis-type: none,
-  /// Optional acknowledgements page to thank your scientific supervisor,
-  /// company mentor, or family and friends. If `none`, the page is omitted. -> str | content | none
-  acknowledgements: none,
-  /// List of abstract tuples. Each tuple contains:
-  /// `(language-code, language-name, content)` e.g., `("en", "English", [Abstract text...])`. -> array
-  abstracts: (),
-  /// List of appendix dictionaries. Each should have `title` (str)
-  /// and `content`, optionally `reference` (label string). Set to `none` to disable appendices. -> array | none
-  appendices: (
-    (
-      title: none,
-      reference: none,
-      content: none,
-    ),
-  ),
-  /// Path to the bibliography file (`.bib` or `.yaml`), relative to the
-  /// template directory. -> str
-  library: (),
-  /// List of abbreviation entries for the glossary. See the
-  /// #link("https://typst.app/universe/package/glossarium/")[glossarium package]
-  /// for the expected format. -> array
-  abbreviations: (),
-  /// List of glossary entries for term explanations (not abbreviations). See the
-  /// #link("https://typst.app/universe/package/glossarium/")[glossarium package]
-  /// for the expected format. -> array
-  glossary: (),
-  /// Whether the content page numbering should include total pages ("3 / 24") or not ("3"). -> bool
-  numbering-show-total: false,
-  /// Watermark places the provided `content` in the left and right page margins. It can be used, for example, to mark a document as a draft when submitting non-final versions to supervisors. -> content | none
-  watermark: none,
-  /// Adapter-internal options forwarded by the adapters
-  /// (`dhbw-ka`, `dhbw-ma`, `ihk`). End users should not set these directly.
-  ///
-  /// Recognized named keys (all optional):
-  /// - `__logo-left` (content | none): top-left cover logo (e.g. company logo).
-  /// - `__logo-right` (content | none): top-right cover logo (institution logo).
-  /// - `__submission-info` (content | none): submission block under the title.
-  /// - `__metadata` (array): flat key/value pairs for the cover meta table.
-  /// - `__authors` (array): list of author dictionaries with `firstname` /
-  ///   `lastname` (and optionally `signature`).
-  /// - `__confidentiality-clause` (bool): whether to print the confidentiality
-  ///   stamp on the title page. Adapters enabling this must create a
-  ///   `<__confidentiality-clause>` label somewhere in the document.
-  /// - `__postamble` (array): content elements appended after the indices.
-  ..__opts,
+  ..cfgs,
   body,
 ) = {
-  // Unpack adapter-supplied internal options.
-  let __logo-left = __opts.named().at("__logo-left", default: none)
-  let __logo-right = __opts.named().at("__logo-right", default: none)
-  let __submission-info = __opts.named().at("__submission-info", default: none)
-  let __metadata = __opts.named().at("__metadata", default: ())
-  let __authors = __opts
-    .named()
-    .at(
-      "__authors",
-      default: ((firstname: none, lastname: none),),
+  assert(
+    cfgs.named().len() == 0,
+    message: "Only positional arguments are allowed, remove named arguments.",
+  )
+
+  // create config dictionary
+  let cfg = (:)
+  for addition in cfgs.pos() {
+    assert.eq(
+      type(addition),
+      dictionary,
+      message: "Only configurations are allowed as positional arguments. See [TODO: specify where to read more about usage] for more information.",
     )
-  let __confidentiality-clause = __opts
-    .named()
-    .at("__confidentiality-clause", default: false)
-  let __postamble = __opts.named().at("__postamble", default: ())
+
+    cfg = config.util.merge-config(cfg, addition)
+  }
+
+  _config.update(cfg)
+
+  // set text language (e. g. for smart quotes)
+  show: set text(lang: cfg.general.metadata.lang) if (
+    config.util.get-config("general.metadata.lang", none, cfg) != none
+  )
 
   // load linguify
   set-database(eval(load-ftl-data("l10n", ("en", "de"))))
 
-  set bibliography(title: __linguify-content("bibliography"))
+  set bibliography(title: config.util.linguify-content("bibliography"))
 
   // page setup
-  set document(title: title-long)
+  set document(title: config.util.get-config(
+    "general.metadata.title-long",
+    none,
+    cfg,
+  ))
 
-  // set text language (e. g. for smart quotes)
-  set text(lang: lang)
+  // font setup — driven by config.typography.body
+  let t-body = config.util.get-config("general.typography.body", (:), cfg)
+  let t-heading = config.util.get-config("general.typography.heading", (:), cfg)
+  let t-caption = config.util.get-config("general.typography.caption", (:), cfg)
+  let t-code = config.util.get-config("general.typography.code", (:), cfg)
+  let t-math = config.util.get-config("general.typography.math", (:), cfg)
 
-  // font setup (LaTeX Look: 'New Computer Modern')
-  set text(font: "New Computer Modern", size: 12pt)
+  show: set text(font: t-body.font) if "font" in t-body
+  show: set text(size: t-body.size) if "size" in t-body
 
   set page(
     paper: "a4",
-    margin: (rest: 2.5cm),
-    background: if watermark != none {
-      let watermark-text = text(15pt, fill: rgb("#ff00004b"), watermark)
-      (
-        (pos: start + horizon, dx: 20pt, rot: -90deg),
-        (pos: end + horizon, dx: -20pt, rot: 90deg),
-      )
-        .map(side => {
-          place(side.pos, dx: side.dx, rotate(
-            side.rot,
-            reflow: true,
-            watermark-text,
-          ))
-        })
-        .join()
+    background: if config.util.get-config(
+      "general.drafting.watermark-generator",
+      none,
+      cfg,
+    )
+      != none {
+      (cfg.general.drafting.watermark-generator)(cfg)
     },
   )
 
   // justify content.
   // Values researched in https://github.com/dhbw-typst/oderso-template-dev/pull/64 to match Arial 12pt and 1.5 line spacing in Microsoft Word
-  set par(justify: true, leading: 1.05em, spacing: 1.5em)
+  set par(
+    justify: true,
+  )
+  show: set par(leading: t-body.leading) if "leading" in t-body
+  show: set par(spacing: t-body.spacing) if "leading" in t-body
 
   // tables settings
   show table: set par(justify: false)
+  // set table numbering to roman
+  // TODO: Make table style configurable
+  show figure.where(kind: table): set figure(numbering: "I")
 
-  // heading setup
-  set heading(numbering: __heading-numbering)
-
-  show heading: it => {
-    it
-    v(0.5cm)
-  }
-
-  show heading.where(level: 2): it => {
-    v(weak: true, 1.2cm)
-    it
-  }
-
-  // fancy inline code
-  // if you don't like them, just remove this section.
-  show raw.where(block: false): box.with(
-    fill: luma(240),
-    inset: (x: 2pt, y: 0pt),
-    outset: (y: 3pt),
-    radius: 2pt,
-  )
-
-  // fancy code blocks
-  // if you don't like them, just remove this section.
+  // TODO: Make code block style configurable
   show: codly-init.with()
-
   codly(
     zebra-fill: none,
     display-icon: false,
@@ -233,15 +227,8 @@
     number-align: right + top,
   )
 
-  show figure.where(kind: raw): set figure(supplement: "Code")
-
-  // set table numbering to roman
-  show figure.where(kind: table): set figure(numbering: "I")
-
-  show: make-glossary
-
+  // TODO: Make URL links style configurable
   // fancy inline links
-  // if you don't like them, just remove this section.
   show link: it => {
     if type(it.dest) == str {
       set text(fill: gray.darken(80%))
@@ -255,283 +242,352 @@
     }
   }
 
-  // Block quotes
-  set quote(block: true)
+  // heading setup — font driven by config.typography.headers
+  show heading: set text(font: t-heading.font) if "font" in t-heading
+  show: set heading(numbering: t-heading.numbering) if "numbering" in t-heading
 
-  // Configure inline notes
-  let caution-rect = rect.with(radius: 0.5em)
-  set-margin-note-defaults(rect: caution-rect, fill: orange.lighten(80%))
+  let sizes = if "sizes" in t-heading { t-heading.sizes } else { () }
 
-  // Coversheet
-  // Show notes before everything else, so you don't miss them
-  context {
-    // Check wether there are any notes in the document
-    if (query(selector(<margin-note>).or(<inline-note>)).len() > 0) {
-      set heading(numbering: none, outlined: false)
-      note-outline(title: __linguify-content("list-of-notes"))
-      pagebreak()
-    }
+  show heading.where(level: 1): set text(size: sizes.at(0)) if sizes.len() > 0
+  show heading.where(level: 2): set text(size: sizes.at(1)) if sizes.len() > 1
+  show heading.where(level: 3): set text(size: sizes.at(2)) if sizes.len() > 2
+  show heading.where(level: 4): set text(size: sizes.at(3)) if sizes.len() > 3
+  show heading.where(level: 5): set text(size: sizes.at(4)) if sizes.len() > 4
+  show heading.where(level: 6): set text(size: sizes.at(5)) if sizes.len() > 5
+
+  show raw: set text(font: t-code.font) if "font" in t-code
+  show raw: set text(size: t-code.size) if "size" in t-code
+
+  show figure.caption: set text(font: t-caption.font) if "font" in t-caption
+  show figure.caption: set text(size: t-caption.size) if "size" in t-caption
+
+  show math.equation: set text(font: t-math.font) if "font" in t-math
+  show math.equation: set text(size: t-math.size) if "size" in t-math
+
+  // captions with caption_with_source shouldn't show source in outline
+  show outline: it => {
+    _in-outline.update(true)
+    it
+    _in-outline.update(false)
   }
+
+  show: make-glossary
+
+  // Style configurations that should be set for all themes
+  // Always display quotes as block quotes
+  set quote(block: true)
 
   // Allow code blocks to span multiple pages
   show figure.where(kind: raw): set block(breakable: true)
 
-  // Equation figures
-  set math.equation(numbering: "(1)")
-  // follow IEEE style for equation references: `(1)` instead of `equation 1`
-  show ref: it => {
-    if it.element != none and it.element.func() == math.equation {
-      link(it.target, numbering("(1)", ..counter(math.equation).at(it.target)))
-    } else {
-      it
-    }
+  // Configure inline notes TODO: Make configurable
+  let caution-rect = rect.with(radius: 0.5em)
+  set-margin-note-defaults(rect: caution-rect, fill: orange.lighten(80%))
+
+  // register abbreviations abd glossary entries before content so references resolve
+  if (
+    config.util.get-config("front-back-matter.abbreviations.entries", (:), cfg).len() > 0
+  ) {
+    register-glossary(config.util.get-config(
+      "front-back-matter.abbreviations.entries",
+      (),
+      cfg,
+    ))
+  }
+  if (
+    config.util.get-config("front-back-matter.glossary.entries", (:), cfg).len() > 0
+  ) {
+    register-glossary(config.util.get-config(
+      "front-back-matter.glossary.entries",
+      (),
+      cfg,
+    ))
   }
 
+  // Apply component-level show rules AFTER all base set/show rules
+  show: _compose-show-rules(
+    config.util.get-config("component.show-rules", (:), cfg),
+  ).with()
+
+  // ----------------------------------
   // Coversheet
-  grid(
-    rows: (1fr, auto, 1fr),
-    align: (_, row) => (center + top, center + top, center + bottom).at(row),
-    // Left and right logo
-    {
-      set image(height: 2.5cm)
+  // ----------------------------------
 
-      grid(
-        columns: (1fr, 1fr),
-        align(left, __logo-left), align(right, __logo-right),
-      )
-    },
-
-    // Title
-    align(center)[
-      #set par(justify: false)
-
-      #text(20pt)[*#title-long*]
-
-      #smallcaps(text(1.25em, weight: "semibold")[#thesis-type])
-
-      #__submission-info
-
-      #__linguify-content("by")
-
-      #for author in __authors {
-        [*#author.firstname #author.lastname*\ ]
-      }
-    ],
-
-    // Meta
-    place(center + bottom, {
-      show table.cell.where(x: 0): set text(weight: "semibold")
-
-      set par(leading: .6em)
-
-      table(
-        columns: (1fr, 1fr),
-        align: (right + top, left + top),
-        stroke: none,
-        ..__metadata
-      )
-    }),
-  )
-
-  if __confidentiality-clause {
-    place(top + center, dy: 5cm, link(<__confidentiality-clause>)[
-      #text(
-        size: 12pt,
-        weight: "bold",
-        fill: gray,
-        linguify("confidentiality-stamp"),
-      )
-    ])
+  // Show notes before everything else, so you don't miss them
+  context if (
+    config.util.get-config("general.drafting.notes-listing", false, cfg)
+      and (query(selector(<margin-note>).or(<inline-note>)).len() > 0)
+  ) {
+    set heading(numbering: none, outlined: false)
+    note-outline(title: config.util.linguify-content("list-of-notes"))
+    pagebreak()
   }
 
-  pagebreak()
-
-  // start page count on second page
-  counter(page).update(1)
-  set page(numbering: "I")
-
-  // register abbreviations before content so references resolve
-  if abbreviations.len() > 0 {
-    register-glossary(abbreviations)
+  if (
+    config.util.get-config("component.coversheet.generator", none, cfg) != none
+  ) {
+    show: _compose-show-rules(
+      config.util.get-config("component.coversheet.show-rules", (:), cfg),
+    ).with()
+    (config.util.get-config("component.coversheet.generator", none, cfg))(cfg)
+    pagebreak()
   }
 
-  // register glossary entries before content so references resolve
-  if glossary.len() > 0 {
-    register-glossary(glossary)
-  }
-
-  // acknowledgements
-  if acknowledgements != none {
-    pagebreak(weak: true)
-    align(center + horizon, {
-      heading(outlined: false, numbering: none, [#text(
-        0.85em,
-        smallcaps(__linguify-content("acknowledgments")),
-      )\ ])
-      align(left, acknowledgements)
-      v(20%)
-    })
-  }
-
-  // abstracts
-  for a in abstracts {
-    let (abstract-lang, abstract-lang-long, abstract-body) = a
-    pagebreak(weak: true)
-    align(center + horizon, {
-      heading(outlined: false, numbering: none, [#text(
-          0.85em,
-          smallcaps(__linguify-content("abstract")),
-        )\ #text(
-          0.75em,
-          weight: "light",
-          style: "italic",
-          [\- #abstract-lang-long -],
-        )])
-      align(left, text(lang: abstract-lang, abstract-body))
-      v(20%)
-    })
-  }
-
-  // captions with caption_with_source shouldn't show source in outline
-  show outline: it => {
-    __in-outline.update(true)
-    it
-    __in-outline.update(false)
-  }
-
-  // table of contents
-  // show level 1 headings in outline in a fancier way, if not desired feel free to remove it
-  pagebreak(weak: true)
-  {
-    show outline.entry.where(level: 1): strong
-    set par(leading: 0.65em)
-    outline(
-      title: __linguify-content("table-of-contents"),
-      depth: 3,
-      indent: auto,
-      target: selector(heading).before(
-        <__appendix-start>,
-      ),
-    )
-  }
+  // ----------------------------------
+  // Frontmatter
+  // ----------------------------------
 
   {
-    // display header
-    set page(
-      margin: (top: 4cm),
-      header: {
-        context {
-          grid(
-            columns: (auto, 1fr),
-            align(left, text(title-short)),
-            align(right, emph(hydra(1, display: (_, it) => {
-              it.body
-            }))),
-          )
-          line(length: 100%, stroke: (paint: gray))
-        }
-      },
-      numbering: "1",
-      footer: context align(center, {
-        if numbering-show-total {
-          numbering(
-            "1 / 1",
-            counter(page).get().at(0),
-            ..counter(page).at(<__content-end>),
-          )
-        } else {
-          numbering("1", counter(page).get().at(0))
-        }
-      }),
-    )
-    show heading.where(level: 1): it => {
-      pagebreak(weak: true)
-      it
-    }
-
-    // reset page counter and show content
     counter(page).update(1)
-
-    body
-    [#[] <__content-end>]
-  }
-
-  // display bibliography
-  set page(numbering: "a", footer: auto)
-  counter(page).update(1)
-
-  // This is just for supporting the old method of usage, but it is deprecated
-  // TODO: probably rework with Typst 0.15.0
-  if type(library) == str {
-    bibliography(
-      "../" + library,
+    let header = _collapse-specifications(
+      cfg,
+      "component.header",
+      "component.frontmatter.header",
     )
-  } else {
-    library
-  }
+    let footer = _collapse-specifications(
+      cfg,
+      "component.footer",
+      "component.frontmatter.footer",
+    )
+    let page-cfg = _collapse-specifications(
+      cfg,
+      "component.page",
+      "component.frontmatter.page",
+    )
 
-  // lists and declarations (between content and appendix)
-  {
+    show: set page(numbering: page-cfg.numbering) if "numbering" in page-cfg
+    show: set page(
+      margin: (
+        () => {
+          let margin = page-cfg.margin
+          if "height" in header {
+            margin.top += header.height
+          }
+
+          if "height" in footer {
+            margin.bottom += header.height
+          }
+
+          return _transform-margin(margin)
+        }
+      )(),
+    ) if (
+      "margin" in page-cfg
+    )
+    show: set page(header: context (header.generator)(
+      cfg,
+      counter(page).at(<_frontmatter-end>).at(0),
+    )) if "generator" in header
+    show: set page(footer: context (footer.generator)(
+      cfg,
+      counter(page).at(<_frontmatter-end>).at(0),
+    )) if "generator" in footer
     set heading(numbering: none)
 
-    // index of abbreviations
-    if abbreviations.len() > 0 {
-      pagebreak()
-      heading(__linguify-content("abbreviations"))
-      print-glossary(abbreviations, deduplicate-back-references: true)
+    let default-footer(numbering) = (cfg, last-page) => {
+      return
     }
 
-    // index of glossary terms
-    if glossary.len() > 0 {
-      pagebreak()
-      heading(__linguify-content("glossary"))
-      print-glossary(glossary, deduplicate-back-references: true)
-    }
+    show: _compose-show-rules(
+      config.util.get-config("component.frontmatter.show-rules", (:), cfg),
+    ).with()
 
-    // only display certain outlines if elements for it exist
-    context {
-      // list of figures
-      if query(figure.where(kind: image)).len() > 0 {
-        pagebreak()
-        heading(__linguify-content("list-of-figures"))
-        outline(
-          target: figure.where(kind: image).before(<__appendix-start>),
-          title: none,
-        )
-      }
+    // Filter front-back-matter entries with negative position (frontmatter) and sort ascending
+    let entries = cfg
+      .front-back-matter
+      .values()
+      .filter(entry => (
+        "position" in entry.keys()
+          and type(entry.position) == int
+          and entry.position < 0
+          and entry.at("enable", default: true)
+          and ("generator" in entry.keys())
+      ))
+      .sorted(key: entry => entry.position, by: (l, r) => l < r)
 
-      // list of tables
-      if query(figure.where(kind: table)).len() > 0 {
-        pagebreak()
-        heading(__linguify-content("list-of-tables"))
-        outline(
-          target: figure.where(kind: table).before(<__appendix-start>),
-          title: none,
-        )
-      }
-
-      // list of source code
-      if query(figure.where(kind: raw)).len() > 0 {
-        pagebreak()
-        heading(__linguify-content("list-of-code"))
-        outline(
-          target: figure.where(kind: raw).before(<__appendix-start>),
-          title: none,
-        )
+    for frontmatter in entries {
+      let rendered = (frontmatter.generator)(cfg)
+      if rendered != none {
+        pagebreak(weak: true)
+        rendered
       }
     }
 
-    // postamble (statutory declaration, confidentiality, AI declaration)
-    for p in __postamble {
-      p
+    [#[] <_frontmatter-end>]
+  }
+
+  // ----------------------------------
+  // Body
+  // ----------------------------------
+
+  {
+    counter(page).update(1)
+    let header = _collapse-specifications(
+      cfg,
+      "component.header",
+      "component.body.header",
+    )
+    let footer = _collapse-specifications(
+      cfg,
+      "component.footer",
+      "component.body.footer",
+    )
+    let page-cfg = _collapse-specifications(
+      cfg,
+      "component.page",
+      "component.body.page",
+    )
+
+    show: set page(numbering: page-cfg.numbering) if "numbering" in page-cfg
+    show: set page(
+      margin: (
+        () => {
+          let margin = page-cfg.margin
+          if "height" in header {
+            margin.top += header.height
+          }
+
+          if "height" in footer {
+            margin.bottom += header.height
+          }
+
+          return _transform-margin(margin)
+        }
+      )(),
+    ) if (
+      "margin" in page-cfg
+    )
+    show: set page(header: context (header.generator)(
+      cfg,
+      counter(page).at(<_body-end>).at(0),
+    )) if "generator" in header
+    show: set page(footer: context (footer.generator)(
+      cfg,
+      counter(page).at(<_body-end>).at(0),
+    )) if "generator" in footer
+
+    show heading.where(level: 1): it => {
+      let pagebreak-heading = config.util.get-config(
+        "general.layout.pagebreak-heading",
+        false,
+        cfg,
+      )
+      if (
+        pagebreak-heading == true or pagebreak-heading == "even" or pagebreak-heading == "odd"
+      ) {
+        pagebreak(weak: true)
+      } else if pagebreak-heading == "even" or pagebreak-heading == "odd" {
+        pagebreak(weak: true, to: pagebreak-heading)
+      }
+      it
     }
+
+    show: _compose-show-rules(
+      config.util.get-config("component.body.show-rules", (:), cfg),
+    ).with()
+
+    body
+    [#[] <_body-end>]
+  }
+
+  // ----------------------------------
+  // Backmatter
+  // ----------------------------------
+  {
+    counter(page).update(1)
+    let header = _collapse-specifications(
+      cfg,
+      "component.header",
+      "component.backmatter.header",
+    )
+    let footer = _collapse-specifications(
+      cfg,
+      "component.footer",
+      "component.backmatter.footer",
+    )
+    let page-cfg = _collapse-specifications(
+      cfg,
+      "component.page",
+      "component.backmatter.page",
+    )
+
+    show: set page(numbering: page-cfg.numbering) if "numbering" in page-cfg
+    show: set page(
+      margin: (
+        () => {
+          let margin = page-cfg.margin
+          if "height" in header {
+            margin.top += header.height
+          }
+
+          if "height" in footer {
+            margin.bottom += header.height
+          }
+
+          return _transform-margin(margin)
+        }
+      )(),
+    ) if (
+      "margin" in page-cfg
+    )
+    show: set page(header: context (header.generator)(
+      cfg,
+      counter(page).at(<_backmatter-end>).at(0),
+    )) if "generator" in header
+    show: set page(footer: context (footer.generator)(
+      cfg,
+      counter(page).at(<_backmatter-end>).at(0),
+    )) if "generator" in footer
+
+    show: _compose-show-rules(
+      config.util.get-config("component.backmatter.show-rules", (:), cfg),
+    ).with()
+
+    set heading(numbering: none)
+
+    // Filter front-back-matter entries with non-negative position (backmatter) and sort ascending
+    let entries = cfg
+      .front-back-matter
+      .values()
+      .filter(entry => (
+        "position" in entry.keys()
+          and type(entry.position) == int
+          and entry.position >= 0
+          and entry.at("enable", default: true)
+          and ("generator" in entry.keys())
+      ))
+      .sorted(key: entry => entry.position, by: (l, r) => l < r)
+
+    for backmatter in entries {
+      let rendered = (backmatter.generator)(cfg)
+      if rendered != none {
+        pagebreak(weak: true)
+        rendered
+      }
+    }
+
+    [#[] <_backmatter-end>]
   }
 
   // display appendix
-  appendices = appendices.filter(item => (
-    item.title != none and item.content != none
-  ))
-  if appendices.len() > 0 {
+  if config.util.get-config("component.appendix.entries", cfg, (:)).len() > 0 {
+    let app-header-cfg = _collapse-specifications(
+      cfg,
+      "component.header",
+      "component.appendix.header",
+    )
+    let app-footer-cfg = _collapse-specifications(
+      cfg,
+      "component.footer",
+      "component.appendix.footer",
+    )
+    let app-page-cfg = _collapse-specifications(
+      cfg,
+      "component.page",
+      "component.appendix.page",
+    )
+    let app-header-gen = app-header-cfg.at("generator", default: none)
+    let app-footer-gen = app-footer-cfg.at("generator", default: none)
     set heading(
       outlined: true,
       numbering: (..nums) => {
@@ -540,30 +596,49 @@
       },
       supplement: none,
     )
-    set page(numbering: "A", footer: auto)
+    set page(
+      numbering: app-page-cfg.at("numbering", default: "A"),
+      footer: if app-footer-gen != none {
+        (app-footer-gen)(cfg, counter(page).at(<_appendix-end>).at(0))
+      } else { none },
+      header: if app-header-gen != none {
+        (app-header-gen)(cfg, counter(page).at(<_appendix-end>).at(0))
+      } else { none },
+    )
+    if "margin" in app-page-cfg {
+      set page(margin: _transform-margin(app-page-cfg.margin))
+    }
     counter(page).update(1)
     counter(heading).update(0)
 
-    heading(
-      __linguify-content("list-of-appendices"),
-      numbering: none,
-    )
-
-    outline(
-      depth: 1,
-      indent: auto,
-      title: none,
-      target: selector(heading).after(<__appendix-start>),
-    )
+    let app-toc-cfg = cfg.at("component", default: (:)).at("appendix", default: (:)).at("toc", default: (:))
+    let app-toc-gen = app-toc-cfg.at("generator", default: none)
+    if app-toc-gen != none {
+      (app-toc-gen)(cfg)
+    } else {
+      // Default appendix TOC
+      heading(
+        config.util.linguify-content("list-of-appendices"),
+        numbering: none,
+      )
+      outline(
+        depth: 1,
+        indent: auto,
+        title: none,
+        target: selector(heading).after(<_appendix-start>),
+      )
+    }
 
     pagebreak(weak: true)
-    [#[] <__appendix-start>]
+    [#[] <_appendix-start>]
 
-    for appendix in appendices {
+    for appendix in cfg.component.appendix.entries {
       pagebreak(weak: true)
       [#heading(appendix.title) #label(appendix.reference)]
 
-      appendix.content
+      appendix.text
     }
+
+    [#[] <_appendix-end>]
   }
 }

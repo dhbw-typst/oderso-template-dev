@@ -1,0 +1,61 @@
+#import "@preview/codly:1.3.0": codly, codly-init
+#import "../../config/lib.typ" as config
+#import "../../general/lib.typ" as general
+#import "../../frontbackmatter/lib.typ" as fbm
+#import "../../component/lib.typ" as component
+#import "../shared.typ" as shared
+#import "_components.typ": _body-footer, _body-header, _coversheet
+#import "_frontbackmatter.typ": _abbreviations, _abstracts, _acknowledgements, _bibliography, _glossary, _listings, _toc
+
+#let spotless(show-total-pages: false) = {
+  let document-show(it) = {
+    show heading: it => {
+      it
+      v(0.5cm)
+    }
+
+    show heading.where(level: 2): it => {
+      v(weak: true, 1.2cm)
+      it
+    }
+
+    show figure.where(kind: raw): set figure(supplement: "Code")
+
+    it
+  }
+
+  return config.util.merge-configs(
+    (:),
+    component.show-rules(
+      show-key: "spotless",
+      show-order: 0,
+      show-fun: document-show,
+    ),
+    component.page(margin: 2.5cm),
+    component.frontmatter.page(numbering: "I"),
+    component.backmatter.page(numbering: "a"),
+    component.body.page(numbering: "1"),
+    _coversheet(),
+    _body-header(),
+    _body-footer(show-total-pages: show-total-pages),
+    general.layout(pagebreak-heading: true),
+    general.typography.body(..general.typography.font.libertinus-serif),
+    general.typography.heading(
+      ..general.typography.heading-style.modular-scale(
+        general.typography.font.libertinus-serif,
+        1.2,
+      ),
+      numbering: "1.",
+    ),
+    general.drafting(notes-listing: true),
+    fbm.acknowledgements(generator-function: _acknowledgements, position: -80),
+    fbm.abstracts(generator-function: _abstracts, position: -70),
+    fbm.toc(generator-function: _toc, position: -60),
+    fbm.glossary(generator-function: _glossary, position: 10),
+    fbm.abbreviations(generator-function: _abbreviations, position: 20),
+    fbm.bibliography(generator-function: _bibliography, position: 30),
+    fbm.figure-listings(generator-function: _listings, position: 40),
+    shared.ieee-equations(),
+    shared.inline-code(),
+  )
+}

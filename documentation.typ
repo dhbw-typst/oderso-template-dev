@@ -1,5 +1,5 @@
 #import "@preview/tidy:0.4.3"
-#import "template/template/utils.typ": (
+#import "template/template/util.typ": (
   caption-with-source, styled-table, table-hline-spaced, tablefigure,
   tablefigure-raw,
 )
@@ -44,9 +44,9 @@
     sys.inputs.at("version", default: "v?.?.?"),
     datetime.today().display("[month repr:long] [day], [year]"),
   ))
-  align(center, text(underline(
+  align(center, text(
     link("https://github.com/dhbw-typst/oderso-template"),
-  )))
+  ))
   v(2em)
   place(center + horizon, pad(
     text([
@@ -66,10 +66,16 @@
 
 #show-module(base-docs)
 
+#let options-docs = tidy.parse-module(
+  read("template/template/config/util.typ"),
+)
+
+#show-module(options-docs)
+
 #let adapters = (
-  "dhbw-ka.typ",
-  "dhbw-ma.typ",
-  "ihk.typ",
+  "institution/dhbw-ka.typ",
+  "institution/dhbw-ma.typ",
+  "institution/ihk.typ",
 )
 
 #for adapter in adapters {
@@ -81,7 +87,7 @@
 }
 
 #let utils-docs = tidy.parse-module(
-  read("template/template/utils.typ"),
+  read("template/template/util.typ"),
   scope: (
     caption-with-source: caption-with-source,
     table-hline-spaced: table-hline-spaced,
