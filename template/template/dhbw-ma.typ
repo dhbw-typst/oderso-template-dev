@@ -222,7 +222,7 @@
       __linguify-static("statutory-declaration")
       if lang != "de" {
         linebreak()
-        text(0.75em, weight: "light", style: "italic", [\ - Deutsch -]) // The leading space prevents "statutory-declaration-Deutsch" in the PDF outline 
+        text(0.75em, weight: "light", style: "italic", [\ - Deutsch -]) // The leading space prevents "statutory-declaration-Deutsch" in the PDF outline
       }
     }))
 
