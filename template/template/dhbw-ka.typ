@@ -2,7 +2,7 @@
 
 #import "@preview/linguify:0.5.0": linguify, linguify-raw
 #import "base.typ": __signature-line, project
-#import "utils.typ": __linguify-content, styled-table
+#import "utils.typ": __linguify-content, __linguify-static, styled-table
 
 /// Template adapter for DHBW Karlsruhe thesis documents.
 ///
@@ -128,8 +128,8 @@
   ))
   let ai-acknowledgement-text = {
     pagebreak(weak: true)
-    align(center, heading(
-      __linguify-content("ai-acknowledgement-heading-dhbw"),
+    align(center, context heading(
+      __linguify-static("ai-acknowledgement-heading-dhbw"),
       level: 1,
     ))
 
@@ -185,8 +185,8 @@
 
     let lang = args.named().at("lang", default: "en")
     align(center, {
-      heading(level: 1, {
-        __linguify-content("statutory-declaration")
+      context heading(level: 1, {
+        __linguify-static("statutory-declaration")
       })
       if lang != "de" {
         text(1em, weight: "light", style: "italic", [\- Deutsch -])
@@ -224,8 +224,8 @@
   let confidentiality-clause-text = {
     pagebreak()
     [#[] <__confidentiality-clause>]
-    align(center, heading(
-      __linguify-content("confidentiality-agreement"),
+    align(center, context heading(
+      __linguify-static("confidentiality-agreement"),
       level: 1,
     ))
 

@@ -9,7 +9,7 @@
 #import "@preview/linguify:0.5.0": (
   linguify, linguify-raw, load-ftl-data, set-database,
 )
-#import "utils.typ": __in-outline, __linguify-content
+#import "utils.typ": __in-outline, __linguify-content, __linguify-static
 
 /// Default heading numbering pattern.
 /// -> str
@@ -162,7 +162,9 @@
   // load linguify
   set-database(eval(load-ftl-data("l10n", ("en", "de"))))
 
-  set bibliography(title: __linguify-content("bibliography"))
+  context {
+    set bibliography(title: __linguify-static("bibliography"))
+  }
 
   // page setup
   set document(title: title-long)
@@ -477,14 +479,14 @@
     // index of abbreviations
     if abbreviations.len() > 0 {
       pagebreak()
-      heading(__linguify-content("abbreviations"))
+      context heading(__linguify-static("abbreviations"))
       print-glossary(abbreviations, deduplicate-back-references: true)
     }
 
     // index of glossary terms
     if glossary.len() > 0 {
       pagebreak()
-      heading(__linguify-content("glossary"))
+      context heading(__linguify-static("glossary"))
       print-glossary(glossary, deduplicate-back-references: true)
     }
 
@@ -493,7 +495,7 @@
       // list of figures
       if query(figure.where(kind: image)).len() > 0 {
         pagebreak()
-        heading(__linguify-content("list-of-figures"))
+        context heading(__linguify-static("list-of-figures"))
         outline(
           target: figure.where(kind: image).before(<__appendix-start>),
           title: none,
@@ -503,7 +505,7 @@
       // list of tables
       if query(figure.where(kind: table)).len() > 0 {
         pagebreak()
-        heading(__linguify-content("list-of-tables"))
+        context heading(__linguify-static("list-of-tables"))
         outline(
           target: figure.where(kind: table).before(<__appendix-start>),
           title: none,
@@ -513,7 +515,7 @@
       // list of source code
       if query(figure.where(kind: raw)).len() > 0 {
         pagebreak()
-        heading(__linguify-content("list-of-code"))
+        context heading(__linguify-static("list-of-code"))
         outline(
           target: figure.where(kind: raw).before(<__appendix-start>),
           title: none,
@@ -544,8 +546,8 @@
     counter(page).update(1)
     counter(heading).update(0)
 
-    heading(
-      __linguify-content("list-of-appendices"),
+    context heading(
+      __linguify-static("list-of-appendices"),
       numbering: none,
     )
 
