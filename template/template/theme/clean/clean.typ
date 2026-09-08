@@ -5,10 +5,7 @@
 #import "../../component/lib.typ" as component
 #import "../shared.typ" as shared
 #import "_components.typ": _body-footer, _body-header, _coversheet
-#import "_frontbackmatter.typ": (
-  _abbreviations, _abstracts, _acknowledgements, _bibliography, _glossary,
-  _listings, _toc,
-)
+#import "_frontbackmatter.typ": _abbreviations, _abstracts, _acknowledgements, _bibliography, _glossary, _listings, _toc
 
 #let clean() = {
   let document-show(it) = {
@@ -21,32 +18,7 @@
       radius: 2pt,
     )
 
-    // fancy code blocks. TODO: move to general.features
-    show: codly-init.with()
-    codly(
-      zebra-fill: none,
-      display-icon: false,
-      display-name: false,
-      number-align: right + top,
-    )
-
     show figure.where(kind: raw): set figure(supplement: "Code")
-
-
-
-    // fancy inline links
-    show link: it => {
-      if type(it.dest) == str {
-        set text(fill: gray.darken(80%))
-        underline(
-          stroke: (paint: gray, thickness: 0.5pt, dash: "densely-dashed"),
-          offset: 4pt,
-          it,
-        )
-      } else {
-        it
-      }
-    }
 
     it
   }
@@ -68,11 +40,11 @@
     general.layout(pagebreak-heading: true),
     general.typography.body(..general.typography.font.source-serif-4),
     general.typography.heading(
-      ..general.typography.heading-style.modular-scale(
+      ..general.typography.heading-style.custom-scale(
         general.typography.font.source-sans-3,
-        1.2,
+        (1, 1, 16 / 11, 40 / 11),
       ),
-      numbering: "1.",
+      numbering: "1.1",
     ),
     general.drafting(notes-listing: true),
     fbm.acknowledgements(generator-function: _acknowledgements, position: -80),
@@ -82,6 +54,7 @@
     fbm.abbreviations(generator-function: _abbreviations, position: 20),
     fbm.bibliography(generator-function: _bibliography, position: 30),
     fbm.figure-listings(generator-function: _listings, position: 40),
-    shared.ieee-equations(enabled: true),
+    shared.ieee-equations(),
+    shared.inline-code(),
   )
 }

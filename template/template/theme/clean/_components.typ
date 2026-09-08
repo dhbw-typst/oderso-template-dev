@@ -1,3 +1,5 @@
+// LTeX: enabled=false
+
 #import "../../config/lib.typ" as config
 #let linguify-content = config.util.linguify-content
 #import "../../component/lib.typ" as component
@@ -13,71 +15,96 @@
 /// dictionaries after `theme.spotless()` in the `project` call.
 /// -> dictionary
 #let _coversheet() = {
-  return component.coversheet(generator-function: config => {
-    // Coversheet
-    grid(
-      rows: (1fr, auto, 1fr),
-      align: (_, row) => (center + top, center + top, center + bottom).at(row),
-      // Left and right logo
-      {
-        set image(height: 2.5cm)
+  return component.coversheet(generator-function: cfg => {
+    // ---------- Page Setup ---------------------------------------
 
-        grid(
-          columns: (1fr, 1fr),
-          align(left, config.general.metadata.at("logo-left", default: none)),
-          align(right, config.general.metadata.at("logo-right", default: none)),
-        )
-      },
-
-      // Title
-      align(center)[
-        #set par(justify: false)
-
-        #text(20pt)[*#config.general.metadata.title-long*]
-
-        #smallcaps(text(
-          1.25em,
-          weight: "semibold",
-        )[#config.general.metadata.thesis-type])
-
-        #config.general.metadata.submission-info
-
-        #linguify-content("by")
-
-        #for author in config.general.metadata.authors {
-          [*#author.firstname #author.lastname*\ ]
-        }
-      ],
-
-      // Meta
-      place(center + bottom, {
-        show table.cell.where(x: 0): set text(weight: "semibold")
-
-        set par(leading: .6em)
-
-        table(
-          columns: (1fr, 1fr),
-          align: (right + top, left + top),
-          stroke: none,
-          ..config.general.metadata.misc-key-value
-        )
-      }),
+    set page(
+      // identical to document
+      margin: (top: 4cm, bottom: 3cm, left: 4cm, right: 3cm),
     )
+    let page-grid = 16pt
+    set text(font: "Source Sans 3", size: page-grid)
 
-    let confidentiality-enabled = config
-      .front-back-matter
-      .at("confidentiality-clause", default: (:))
-      .at("enable", default: false)
-    if confidentiality-enabled {
-      place(top + center, dy: 5cm, link(<_confidentiality-clause>)[
-        #text(
-          size: 12pt,
-          weight: "bold",
-          fill: gray,
-          linguify-content("confidentiality-stamp"),
-        )
-      ])
+
+    set align(center)
+
+    // ---------- Logo(s) ---------------------------------------
+    if (
+      config.util.get-config("general.metadata.logo-left", none, cfg) != none
+        and config.util.get-config("general.metadata.logo-right", none, cfg) == none
+    ) {
+      // one logo: centered
+      place(
+        top + center,
+        dy: -3 * page-grid,
+        box(cfg.general.metadata.logo-left, height: 3 * page-grid),
+      )
+    } else if (
+      config.util.get-config("general.metadata.logo-left", none, cfg) != none
+        and config.util.get-config("general.metadata.logo-right", none, cfg) != none
+    ) {
+      // two logos: left & right
+      place(
+        top + left,
+        dy: -4 * page-grid,
+        box(cfg.general.metadata.logo-left, height: 3 * page-grid),
+      )
+      place(
+        top + right,
+        dy: -4 * page-grid,
+        box(cfg.general.metadata.logo-right, height: 3 * page-grid),
+      )
     }
+
+    // ---------- Title ---------------------------------------
+
+    v(7 * page-grid)
+    text(weight: "bold", fill: luma(80), size: 1.5 * page-grid, cfg.general.metadata.title-long)
+    v(page-grid)
+
+    // ---------- Sub-Title-Infos ---------------------------------------
+    align(center, text(size: page-grid, cfg.general.metadata.thesis-type))
+    v(0.25 * page-grid)
+
+    text(cfg.general.metadata.submission-info)
+    v(0.25 * page-grid)
+
+    // ---------- Authors ---------------------------------------
+    place(
+    bottom + center,
+    dy: -11 * page-grid,
+    grid(
+      columns: 100%,
+      gutter: if (cfg.general.metadata.authors.len() > 1) {
+        14pt
+      } else {
+        1.25 * page-grid
+      },
+      ..cfg.general.metadata.authors.map(author => align(
+        center,
+        {
+          text(author.firstname + " " + author.lastname)
+        },
+      ))
+    ),
+  )
+
+    // ---------- Info-Block ---------------------------------------
+
+    set text(size: 11pt)
+    // Meta
+    place(center + bottom, {
+      show table.cell.where(x: 0): set text(weight: "semibold")
+
+      set par(leading: .6em)
+
+      table(
+        columns: (1fr, 1fr),
+        align: (right + top, left + top),
+        stroke: none,
+        ..cfg.general.metadata.misc-key-value
+      )
+    })
   })
 }
 

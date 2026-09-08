@@ -10,3 +10,15 @@
     ),
   )
 }
+
+#let custom-scale(font-config, scales) = {
+  return (
+    font: font-config.font,
+    sizes: (
+      font-config.size * scales.at(3), // h1
+      font-config.size * scales.at(2), // h2
+      font-config.size * scales.at(1), // h3
+      font-config.size * scales.at(0), // h4
+    )
+  )
+}

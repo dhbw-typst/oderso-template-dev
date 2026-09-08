@@ -51,6 +51,7 @@ ka = Karlsruhe
 ma = Mannheim
 as-part-of-examination-dhbw = für die Prüfung zum
 in-field-of-study = des Studiengangs { $study }
+course-of-study = Studiengag
 matriculation-number = Matrikelnummer
 supervisor-at-university = Gutachter der Studienakademie
 course-director = Studiengangsleiter
