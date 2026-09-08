@@ -1,12 +1,22 @@
+// LTeX: enabled=false
+// Public API for the oderso Typst template.
+//
+// Import with: #import "template/lib.typ": *
+// Then use: #show: project.with(theme.spotless(), institution.dhbw-ka(...), ...)
+
 #import "@preview/codly:1.3.0" as codly
 #import "@preview/drafting:0.2.2" as drafting
 #import "@preview/glossarium:0.5.10" as glossarium
 
-#import "dhbw-ka.typ": dhbw-ka-adapter
-#import "dhbw-ma.typ": dhbw-ma-adapter
-#import "ihk.typ": ihk-adapter
-#import "utils.typ": (
+#import "theme/lib.typ" as theme
+#import "general/lib.typ" as general
+#import "institution/lib.typ" as institution
+#import "frontbackmatter/lib.typ" as frontbackmatter
+#import "component/lib.typ" as component
+
+#import "util.typ" as util: (
   caption-with-source, inline-glossary, styled-table, table-hline-spaced,
   tablefigure, tablefigure-raw,
 )
+
 #import "base.typ": project

@@ -1,5 +1,6 @@
 //Declaration form for the use of AI-based tools in Projektarbeiten at DHBW Mannheim.
-#import "../utils.typ": __linguify-content
+#import "../config/lib.typ" as config
+#let linguify-content = config.util.linguify-content
 
 #let ai-declaration-form(
   digital: true,
@@ -127,13 +128,13 @@
   // returns a rectangle (checked if the exam type equals the thesis type) and the thesis type
   let fill-check-rec(kind) = {
     if (not kind.starts-with("Projektarbeit")) {
-      return rec(kind) + " " + __linguify-content(lower(kind))
+      return rec(kind) + " " + linguify-content(lower(kind))
     } else {
       let a = lower(kind).split(" ")
       return (
         rec(kind)
           + " "
-          + __linguify-content(a.at(0), args: (thesis-number: upper(a.at(1))))
+          + linguify-content(a.at(0), args: (thesis-number: upper(a.at(1))))
       )
     }
   }
@@ -155,13 +156,13 @@
     inset: 0cm,
     align(left, heading(
       level: 1,
-    )[#__linguify-content("ai-dec-title")]),
+    )[#linguify-content("ai-dec-title")]),
     align(right, image("DHBW-Logo.svg", width: 100%)),
   )
 
   v(0.7cm)
 
-  heading(level: 2, outlined: false)[#__linguify-content(
+  heading(level: 2, outlined: false)[#linguify-content(
     "ai-dec-personal-information",
   )]
 
@@ -175,29 +176,29 @@
       columns: (60%, 40%),
       text(size: font-size-normal)[#field-name],
       text(size: font-size-normal)[#field-identification-number],
-      grid.cell(stroke: (top: 1pt))[#__linguify-content(
+      grid.cell(stroke: (top: 1pt))[#linguify-content(
         "ai-dec-last-first-name",
       )],
-      grid.cell(stroke: (top: 1pt))[#__linguify-content(
+      grid.cell(stroke: (top: 1pt))[#linguify-content(
         "ai-dec-matriculation-number",
       )],
       grid.cell(inset: lineSpacing, colspan: 2)[],
       text(size: font-size-normal)[#field-address],
       text(size: font-size-normal)[#field-course],
-      grid.cell(stroke: (top: 1pt))[#__linguify-content("ai-dec-address")],
-      grid.cell(stroke: (top: 1pt))[#__linguify-content("ai-dec-course")],
+      grid.cell(stroke: (top: 1pt))[#linguify-content("ai-dec-address")],
+      grid.cell(stroke: (top: 1pt))[#linguify-content("ai-dec-course")],
       grid.cell(inset: lineSpacing, colspan: 2)[],
       text(size: font-size-normal)[#field-email],
       text(size: font-size-normal)[#field-mobile-number],
-      grid.cell(stroke: (top: 1pt))[#__linguify-content("ai-dec-mail")],
-      grid.cell(stroke: (top: 1pt))[#__linguify-content("ai-dec-tel-number")],
+      grid.cell(stroke: (top: 1pt))[#linguify-content("ai-dec-mail")],
+      grid.cell(stroke: (top: 1pt))[#linguify-content("ai-dec-tel-number")],
     )
 
     v(1.1cm)
 
     grid(
       columns: (3.4cm, 5.9cm, 8cm),
-      text(size: font-size-normal)[#__linguify-content("ai-dec-for-module")],
+      text(size: font-size-normal)[#linguify-content("ai-dec-for-module")],
       grid.cell(colspan: 2, text(
         size: font-size-normal,
       )[#field-module-name-semester]),
@@ -206,11 +207,11 @@
         colspan: 2,
         stroke: (top: 1pt),
         align: center,
-      )[#__linguify-content("ai-dec-module-semester")],
-      text(size: font-size-normal)[#__linguify-content("ai-dec-have-to-on")],
+      )[#linguify-content("ai-dec-module-semester")],
+      text(size: font-size-normal)[#linguify-content("ai-dec-have-to-on")],
       grid.cell(colspan: 2, text(size: font-size-normal)[#field-date]),
       [],
-      grid.cell(stroke: (top: 1pt), align: center)[#__linguify-content(
+      grid.cell(stroke: (top: 1pt), align: center)[#linguify-content(
         "ai-dec-deadline-date",
       )],
       [],
@@ -221,7 +222,7 @@
 
   pad(right: 1cm)[
 
-    #__linguify-content("ai-dec-following-examination")
+    #linguify-content("ai-dec-following-examination")
     #v(0.35cm)
 
     #grid(
@@ -233,7 +234,7 @@
       grid.cell(colspan: 3)[],
       grid.cell(align: center, stroke: (top: 1pt), text(
         size: font-size-small,
-      )[#__linguify-content("specific-descr")]),
+      )[#linguify-content("specific-descr")]),
       grid.cell(colspan: 4, inset: (top: 0.15cm, bottom: 0pt))[],
       [#fill-check-rec("Seminararbeit")],
       [#fill-check-rec("Bachelorarbeit")],
@@ -241,7 +242,7 @@
 
     #v(2.2cm)
 
-    #__linguify-content("ai-dec-intro")
+    #linguify-content("ai-dec-intro")
   ]
 
   v(1cm)
@@ -253,12 +254,12 @@
       show text: strong
       list(
         spacing: 0.6cm,
-        [#__linguify-content("ai-dec-informed-performance-restrictions")],
-        [#__linguify-content("ai-dec-independence-controlling")],
-        [#__linguify-content("ai-dec-scientific-independent-work")],
-        [#__linguify-content("ai-dec-scientific-responsibility")],
-        [#__linguify-content("ai-dec-no-other-tools")],
-        [#__linguify-content("ai-dec-all-specified")],
+        [#linguify-content("ai-dec-informed-performance-restrictions")],
+        [#linguify-content("ai-dec-independence-controlling")],
+        [#linguify-content("ai-dec-scientific-independent-work")],
+        [#linguify-content("ai-dec-scientific-responsibility")],
+        [#linguify-content("ai-dec-no-other-tools")],
+        [#linguify-content("ai-dec-all-specified")],
       )
     }
   ]
@@ -268,8 +269,8 @@
   pad(right: 1.1cm)[
     #set par(justify: true)
 
-    #underline(__linguify-content("ai-dec-title-products-first"))
-    #__linguify-content("ai-dec-title-products-second")
+    #underline(linguify-content("ai-dec-title-products-first"))
+    #linguify-content("ai-dec-title-products-second")
     #{
       if (digital) {
         v(0.7cm)
@@ -282,24 +283,24 @@
 
     #v(1.3cm)
 
-    #__linguify-content("ai-dec-title-used-functions")
+    #linguify-content("ai-dec-title-used-functions")
     #v(1cm)
 
-    - #__linguify-content("ai-dec-topic-structure")
+    - #linguify-content("ai-dec-topic-structure")
     #v(1cm)
     #text-area(content: field-topic)
 
-    - #__linguify-content("ai-dec-topic-processing")
+    - #linguify-content("ai-dec-topic-processing")
     #v(1cm)
     #text-area(content: topic-editing)
 
-    - #__linguify-content("ai-dec-research-choose")
+    - #linguify-content("ai-dec-research-choose")
     #v(1cm)
     #text-area(content: research)
 
     #set par(justify: false)
 
-    - #__linguify-content("ai-dec-formal-design")
+    - #linguify-content("ai-dec-formal-design")
     #v(1cm)
     #text-area(content: design)
   ]
@@ -308,9 +309,9 @@
 
   pad(right: 0.5cm)[
     #block(stroke: 0.5pt, inset: 3pt)[
-      #__linguify-content("notice")
+      #linguify-content("notice")
 
-      #__linguify-content("ai-dec-notice")
+      #linguify-content("ai-dec-notice")
     ]
   ]
   v(1.6cm)
@@ -324,8 +325,8 @@
     column-gutter: 0.5cm,
     align(bottom, text(size: font-size-normal, field-signature)),
     place(bottom, signature),
-    grid.cell(stroke: (top: 1pt), [#__linguify-content("place-date")]),
-    grid.cell(stroke: (top: 1pt), [#__linguify-content("signature-student")]),
+    grid.cell(stroke: (top: 1pt), [#linguify-content("place-date")]),
+    grid.cell(stroke: (top: 1pt), [#linguify-content("signature-student")]),
   )
 }
 
@@ -347,9 +348,9 @@
   exam-type: "Projektarbeit I", //"Projektarbeit I", "Projektarbeit II", "Seminararbeit",   Bachelorarbeit"
   product-name: "ChatGPT, DeepL",
   topic: "Automatisierung von Geschäftsprozessen",
-  topic-editing: __linguify-content("ai-dec-structure"),
-  research: __linguify-content("ai-dec-research-ai"),
-  design: __linguify-content("ai-dec-generation-correction"),
+  topic-editing: linguify-content("ai-dec-structure"),
+  research: linguify-content("ai-dec-research-ai"),
+  design: linguify-content("ai-dec-generation-correction"),
   signature-city: "Mannheim",
   signature-date: datetime
     .today()
