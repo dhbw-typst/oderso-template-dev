@@ -51,6 +51,7 @@ ka = Karlsruhe
 ma = Mannheim
 as-part-of-examination-dhbw = as part of the examination for
 in-field-of-study = in { $study }
+course-of-study = Course of Studies
 matriculation-number = Matriculation Number
 supervisor-at-university = Supervisor at University
 course-director = Course Director
