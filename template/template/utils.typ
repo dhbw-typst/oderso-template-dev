@@ -234,6 +234,14 @@
   context eval(linguify-raw(..args), mode: "markup")
 }
 
+/// Resolves a localized string to eager content for use as a heading or outline
+/// title. A heading whose body is an opaque `context` expression produces an
+/// empty PDF bookmark title (so it looks "missing" in a PDF viewer's outline);
+/// evaluating the string eagerly inside a surrounding `context` gives the
+/// bookmark a proper title. Must be called from within a `context`.
+/// -> content
+#let __linguify-static(..args) = eval(linguify-raw(..args), mode: "markup")
+
 /// Displays a glossary without interfering with the glossary shown at the end of the document.
 ///
 /// Usefull when wanting to display part of a glossary in the document content.

@@ -1,5 +1,5 @@
 //Declaration form for the use of AI-based tools in Projektarbeiten at DHBW Mannheim.
-#import "../utils.typ": __linguify-content
+#import "../utils.typ": __linguify-content, __linguify-static
 
 #let ai-declaration-form(
   digital: true,
@@ -153,9 +153,9 @@
   grid(
     columns: (76%, auto),
     inset: 0cm,
-    align(left, heading(
+    context align(left, heading(
       level: 1,
-    )[#__linguify-content("ai-dec-title")]),
+    )[#__linguify-static("ai-dec-title")]),
     align(right, image("DHBW-Logo.svg", width: 100%)),
   )
 

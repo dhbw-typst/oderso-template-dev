@@ -2,7 +2,7 @@
 
 #import "base.typ": __signature-line, project
 #import "@preview/linguify:0.5.0": linguify
-#import "utils.typ": __linguify-content
+#import "utils.typ": __linguify-content, __linguify-static
 
 /// Template adapter for IHK thesis documents.
 ///
@@ -86,8 +86,8 @@
   )
   let statutory-declaration = {
     pagebreak(weak: true)
-    align(center, heading(
-      __linguify-content("statutory-declaration"),
+    align(center, context heading(
+      __linguify-static("statutory-declaration"),
       level: 1,
     ))
 
@@ -111,8 +111,8 @@
   let confidentiality-clause-text = {
     pagebreak(weak: true)
     [#[] <__confidentiality-clause>]
-    align(center, heading(
-      __linguify-content("confidentiality-agreement"),
+    align(center, context heading(
+      __linguify-static("confidentiality-agreement"),
       level: 1,
     ))
 

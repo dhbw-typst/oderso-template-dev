@@ -3,7 +3,7 @@
 #import "@preview/linguify:0.5.0": linguify, linguify-raw
 #import "base.typ": __signature-line, project
 #import "assets/ai-declaration-form_dhbw-ma.typ": ai-declaration-form
-#import "utils.typ": __linguify-content
+#import "utils.typ": __linguify-content, __linguify-static
 
 /// Template adapter for DHBW Mannheim thesis documents.
 ///
@@ -218,11 +218,11 @@
     }
 
     let lang = args.named().at("lang", default: "en")
-    align(center, heading(level: 1, {
-      __linguify-content("statutory-declaration")
+    context align(center, heading(level: 1, {
+      __linguify-static("statutory-declaration")
       if lang != "de" {
         linebreak()
-        text(0.75em, weight: "light", style: "italic", [\- Deutsch -])
+        text(0.75em, weight: "light", style: "italic", [ \- Deutsch -]) // The leading space prevents "statutory-declaration-Deutsch" in the PDF outline
       }
     }))
 
@@ -248,8 +248,8 @@
   let confidentiality-clause-text = {
     pagebreak(weak: true)
     [#[] <__confidentiality-clause>]
-    align(center, heading(
-      __linguify-content("confidentiality-agreement"),
+    align(center, context heading(
+      __linguify-static("confidentiality-agreement"),
       level: 1,
     ))
 
