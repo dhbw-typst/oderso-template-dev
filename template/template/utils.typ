@@ -89,26 +89,28 @@
   caption: none,
   /// Optional label string for cross-referencing. -> str | none
   reference: none,
+  /// Float placement: `none` keeps the figure inline, `auto` floats it to the nearest suitable position. -> none | auto | alignment
+  placement: none,
   /// The table content to display. -> content
   body,
 ) = {
-  set figure(numbering: "I")
-  show figure.where(kind: table): it => {
-    set figure(numbering: "1") // Unsert "I" numbering for nested figures inside tables
-    block({
-      if it.caption != none {
-        [#upper(it.caption.supplement) #it.caption.counter.display()]
-        linebreak()
-        smallcaps(it.caption.body)
-      }
-      it.body
-    })
+  show figure.where(kind: table): set figure(numbering: "I")
+  set figure.caption(position: top)
+  show figure.caption: it => context {
+    if __in-outline.at(here()) {
+      it.supplement + " " + it.counter.display() + it.separator + it.body
+    } else {
+      upper(it.supplement) + " " + it.counter.display()
+      linebreak()
+      smallcaps(it.body)
+    }
   }
   [
     #figure(
       body,
       caption: caption,
       kind: table,
+      placement: placement,
     )
     #if reference != none {
       label(reference)
@@ -224,10 +226,18 @@
   /// such as `columns`, `align`, etc.
   ..args,
 ) = {
-  tablefigure-raw(caption: caption, reference: reference, styled-table(
-    table-content: table-content,
-    ..args,
-  ))
+  let named = args.named()
+  let placement = named.remove("placement", default: none)
+  tablefigure-raw(
+    caption: caption,
+    reference: reference,
+    placement: placement,
+    styled-table(
+      table-content: table-content,
+      ..args.pos(),
+      ..named,
+    ),
+  )
 }
 
 #let __linguify-content(..args) = {
