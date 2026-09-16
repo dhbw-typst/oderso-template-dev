@@ -1,4 +1,5 @@
 #import "basic_formatting.typ": typst-preview
+#import "../template/utils.typ": tablefigure
 = References and Citations
 
 == Local Elements
@@ -38,6 +39,13 @@ Typst supports references to external sources, such as books, articles, and webs
 == Acronyms and Glossary
 
 This template supports both acronyms for abbreviations and a glossary for term definitions. Both are implemented using the `glossarium` package, which can be found here: #link("https://typst.app/universe/package/glossarium/").
+
+#tablefigure(
+  caption: [Tablefigure],
+  columns: 2,
+  placement: top,
+  table-content: ([1], [1], [2], [3]),
+)
 
 === Acronyms
 You can define acronyms in the project configuration. We recommend using this to define abbreviations via the `short` and `long` parameters. Use the `@acr` function to reference an acronym and `@acr:pl` for its plural form. On the first usage, the full long form is displayed. On subsequent usages, only the short form is shown.
