@@ -24,7 +24,7 @@ env:
 jobs:
   open_universe_pr:
     name: Open package update PR on typst/packages
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Resolve release tag and metadata
         id: release

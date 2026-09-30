@@ -10,7 +10,7 @@ concurrency:
 jobs:
   discover_files:
     name: Discover main-*.typ files
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     outputs:
       matrix: ${{ steps.find_files.outputs.matrix }}
     steps:
@@ -31,7 +31,7 @@ jobs:
 
   discover_versions:
     name: Discover Typst versions
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     outputs:
       versions: ${{ steps.read_versions.outputs.versions }}
     steps:
@@ -45,7 +45,7 @@ jobs:
 
   check_formatting:
     name: Check Formatting
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -62,7 +62,7 @@ jobs:
   check_build:
     name: Check Build (${{ matrix.file_entry.file }}, typst ${{ matrix.typst_version }})
     needs: [discover_files, discover_versions]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     strategy:
       fail-fast: false
       matrix:
@@ -96,7 +96,7 @@ jobs:
     name: Check Build Result
     needs: check_build
     if: always()
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Fail if any build failed
         if: needs.check_build.result != 'success'
@@ -105,7 +105,7 @@ jobs:
   check_pdf:
     name: Check PDF parity (${{ matrix.file }})
     needs: [discover_files, discover_versions]
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     strategy:
       fail-fast: false
       matrix:
@@ -158,7 +158,7 @@ jobs:
 
   upload_pr_number:
     name: Upload PR number
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     if: github.event_name == 'pull_request'
     steps:
       - name: Save and upload PR number
