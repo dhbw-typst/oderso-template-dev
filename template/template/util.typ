@@ -2,10 +2,11 @@
 
 #import "@preview/linguify:0.5.0": linguify-raw
 #import "@preview/glossarium:0.5.10": print-glossary
+#import "config/lib.typ" as config
+#import "config/state.typ": _in-outline
 
-/// Internal state to track whether we are currently rendering an outline.
-/// -> state
-#let __in-outline = state("in-outline", false)
+
+
 
 /// Creates a caption that conditionally includes a source reference.
 ///
@@ -27,7 +28,7 @@
   /// The source reference (typically a citation like `[@source]`). -> content
   source,
 ) = context {
-  if __in-outline.at(here()) {
+  if _in-outline.at(here()) {
     caption-text
   } else {
     caption-text + " " + source
@@ -230,9 +231,7 @@
   ))
 }
 
-#let __linguify-content(..args) = {
-  context eval(linguify-raw(..args), mode: "markup")
-}
+
 
 /// Displays a glossary without interfering with the glossary shown at the end of the document.
 ///

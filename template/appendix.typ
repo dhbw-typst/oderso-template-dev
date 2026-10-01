@@ -1,13 +1,13 @@
 // appendices: usage: (
 //   title: "Title",
 //   reference: "reference-label",
-//   content: [content] || include("appendix.typ")
+//   text: [content] || include("appendix.typ")
 // )
 #let appendices = (
   (
     title: "Relevant Stuff",
     reference: "appendix-relevant-stuff",
-    content: [
+    text: [
       == This is some more source code
       #lorem(10)
 
@@ -17,6 +17,6 @@
   (
     title: "Table Examples",
     reference: "appendix-table-examples",
-    content: include "appendix/tables.typ",
+    text: include "appendix/tables.typ",
   ), // appendix from file
 )

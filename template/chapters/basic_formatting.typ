@@ -10,7 +10,7 @@
     table.header("Typst Code", "Output"),
     align(horizon, box(width: 100%, raw(typst-code, lang: "typ", block: true))),
     box(width: 100%, {
-      set heading(outlined: false)
+      set heading(outlined: false, numbering: "1.")
       eval(typst-code, mode: "markup")
     }),
   ),
