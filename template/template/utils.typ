@@ -231,7 +231,7 @@
 }
 
 #let __linguify-content(..args) = {
-  context eval(linguify-raw(..args), mode: "markup")
+  eval(linguify-raw(..args), mode: "markup")
 }
 
 /// Displays a glossary without interfering with the glossary shown at the end of the document.

@@ -57,11 +57,11 @@
   body,
 ) = {
   let submission-info = [
-    #__linguify-content("as-part-of-examination-ihk")
+    #context __linguify-content("as-part-of-examination-ihk")
 
     *#examination*
 
-    #__linguify-content("in-the-training-occupation")\
+    #context __linguify-content("in-the-training-occupation")\
     #training-occupation
   ]
 
@@ -71,28 +71,28 @@
   }
 
   let metadata = (
-    __linguify-content("submission-date"),
+    context __linguify-content("submission-date"),
     submission-date,
-    __linguify-content("processing-duration"),
-    __linguify-content("weeks", args: (count: processing-period-weeks)),
-    __linguify-content("examinee-number"),
+    context __linguify-content("processing-duration"),
+    context __linguify-content("weeks", args: (count: processing-period-weeks)),
+    context __linguify-content("examinee-number"),
     authors.map(a => a.examinee-number).join(linebreak()),
-    __linguify-content("training-company"),
+    context __linguify-content("training-company"),
     company-name + linebreak() + company-city,
-    __linguify-content("department"),
+    context __linguify-content("department"),
     company-department,
-    __linguify-content("supervisor-at-training-company"),
+    context __linguify-content("supervisor-at-training-company"),
     company-supervisor,
   )
   let statutory-declaration = {
     pagebreak(weak: true)
-    align(center, heading(
+    align(center, context heading(
       __linguify-content("statutory-declaration"),
       level: 1,
     ))
 
     // Using the statutory declaration of the dhbw, as there is no template for the IHK
-    __linguify-content("statutory-declaration-note-dhbw", args: (
+    context __linguify-content("statutory-declaration-note-dhbw", args: (
       author-count: authors.len(),
     ))
 
@@ -111,12 +111,12 @@
   let confidentiality-clause-text = {
     pagebreak(weak: true)
     [#[] <__confidentiality-clause>]
-    align(center, heading(
+    align(center, context heading(
       __linguify-content("confidentiality-agreement"),
       level: 1,
     ))
 
-    __linguify-content("confidentiality-agreement-note-ihk")
+    context __linguify-content("confidentiality-agreement-note-ihk")
   }
 
   show: project.with(

@@ -68,10 +68,10 @@
     columns: (30mm, 30mm, 20mm, 80mm),
     ..signature-content,
     grid.hline(end: 2), grid.hline(start: 3),
-    __linguify-content("place-of-signature"),
-    __linguify-content("date-of-signature"),
+    context __linguify-content("place-of-signature"),
+    context __linguify-content("date-of-signature"),
     [],
-    grid.cell(__linguify-content("signature"), align: center),
+    grid.cell(context __linguify-content("signature"), align: center),
   ))
 }
 
@@ -161,8 +161,6 @@
 
   // load linguify
   set-database(eval(load-ftl-data("l10n", ("en", "de"))))
-
-  set bibliography(title: __linguify-content("bibliography"))
 
   // page setup
   set document(title: title-long)
@@ -311,7 +309,7 @@
 
       #__submission-info
 
-      #__linguify-content("by")
+      #context __linguify-content("by")
 
       #for author in __authors {
         [*#author.firstname #author.lastname*\ ]
@@ -364,7 +362,7 @@
   if acknowledgements != none {
     pagebreak(weak: true)
     align(center + horizon, {
-      heading(outlined: false, numbering: none, [#text(
+      context heading(outlined: false, numbering: none, [#text(
         0.85em,
         smallcaps(__linguify-content("acknowledgments")),
       )\ ])
@@ -378,7 +376,7 @@
     let (abstract-lang, abstract-lang-long, abstract-body) = a
     pagebreak(weak: true)
     align(center + horizon, {
-      heading(outlined: false, numbering: none, [#text(
+      context heading(outlined: false, numbering: none, [#text(
           0.85em,
           smallcaps(__linguify-content("abstract")),
         )\ #text(
@@ -402,7 +400,7 @@
   // table of contents
   // show level 1 headings in outline in a fancier way, if not desired feel free to remove it
   pagebreak(weak: true)
-  {
+  context {
     show outline.entry.where(level: 1): strong
     set par(leading: 0.65em)
     outline(
@@ -460,14 +458,17 @@
   set page(numbering: "a", footer: auto)
   counter(page).update(1)
 
-  // This is just for supporting the old method of usage, but it is deprecated
-  // TODO: probably rework with Typst 0.15.0
-  if type(library) == str {
-    bibliography(
-      "../" + library,
-    )
-  } else {
-    library
+  context {
+    set bibliography(title: __linguify-content("bibliography"))
+    // This is just for supporting the old method of usage, but it is deprecated
+    // TODO: probably rework with Typst 0.15.0
+    if type(library) == str {
+      bibliography(
+        "../" + library,
+      )
+    } else {
+      library
+    }
   }
 
   // lists and declarations (between content and appendix)
@@ -477,14 +478,14 @@
     // index of abbreviations
     if abbreviations.len() > 0 {
       pagebreak()
-      heading(__linguify-content("abbreviations"))
+      context heading(__linguify-content("abbreviations"))
       print-glossary(abbreviations, deduplicate-back-references: true)
     }
 
     // index of glossary terms
     if glossary.len() > 0 {
       pagebreak()
-      heading(__linguify-content("glossary"))
+      context heading(__linguify-content("glossary"))
       print-glossary(glossary, deduplicate-back-references: true)
     }
 
@@ -493,7 +494,7 @@
       // list of figures
       if query(figure.where(kind: image)).len() > 0 {
         pagebreak()
-        heading(__linguify-content("list-of-figures"))
+        context heading(__linguify-content("list-of-figures"))
         outline(
           target: figure.where(kind: image).before(<__appendix-start>),
           title: none,
@@ -503,7 +504,7 @@
       // list of tables
       if query(figure.where(kind: table)).len() > 0 {
         pagebreak()
-        heading(__linguify-content("list-of-tables"))
+        context heading(__linguify-content("list-of-tables"))
         outline(
           target: figure.where(kind: table).before(<__appendix-start>),
           title: none,
@@ -513,7 +514,7 @@
       // list of source code
       if query(figure.where(kind: raw)).len() > 0 {
         pagebreak()
-        heading(__linguify-content("list-of-code"))
+        context heading(__linguify-content("list-of-code"))
         outline(
           target: figure.where(kind: raw).before(<__appendix-start>),
           title: none,
@@ -544,7 +545,7 @@
     counter(page).update(1)
     counter(heading).update(0)
 
-    heading(
+    context heading(
       __linguify-content("list-of-appendices"),
       numbering: none,
     )
