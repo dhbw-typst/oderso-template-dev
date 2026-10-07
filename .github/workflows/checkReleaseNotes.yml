@@ -22,7 +22,7 @@ permissions:
 jobs:
   determine_requirement:
     name: Determine if release notes are required
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     outputs:
       pr_number: ${{ steps.pr_type.outputs.pr_number }}
       requires_release_notes: ${{ steps.pr_type.outputs.requires_release_notes }}
@@ -62,7 +62,7 @@ jobs:
       - determine_requirement
       - extract_release_notes
     if: ${{ always() && needs.determine_requirement.result == 'success' }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Report status
         env:

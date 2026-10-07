@@ -12,7 +12,7 @@ permissions:
 jobs:
   synchronize:
     name: Synchronize files in `template/`
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout `template-dev`
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -72,7 +72,7 @@ jobs:
   prepare_release:
     name: Prepare release metadata
     needs: synchronize
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     outputs:
       hasNextVersion: ${{ steps.version.outputs.hasNextVersion }}
       version: ${{ steps.version.outputs.version }}
@@ -120,7 +120,7 @@ jobs:
     needs:
       - prepare_release
     if: needs.prepare_release.outputs.hasNextVersion == 'true'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     outputs:
       commit_sha: ${{ steps.commit.outputs.sha }}
     steps:
@@ -130,7 +130,7 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.BOT_PAT }}
       - name: Install typst
-        uses: typst-community/setup-typst@40d32bb6ccb235bd7f5164cb47cfd40a5ea3a314 # v5.2.0
+        uses: typst-community/setup-typst@fee4b65b091cc546f02ce3be15fad8760f38a108 # v5.3.0
         with:
           typst-version: 0.15.1
       - name: Set git user
@@ -171,7 +171,7 @@ jobs:
       - extract_release_notes
       - bump_version
     if: needs.prepare_release.outputs.hasNextVersion == 'true'
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     steps:
       - name: Checkout code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -180,7 +180,7 @@ jobs:
           ref: ${{ needs.bump_version.outputs.commit_sha }}
           token: ${{ secrets.BOT_PAT }}
       - name: Install typst
-        uses: typst-community/setup-typst@40d32bb6ccb235bd7f5164cb47cfd40a5ea3a314 # v5.2.0
+        uses: typst-community/setup-typst@fee4b65b091cc546f02ce3be15fad8760f38a108 # v5.3.0
         with:
           typst-version: 0.15.1
       - name: Typst version
