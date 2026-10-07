@@ -2,7 +2,7 @@
 
 #import "@preview/linguify:0.5.0": linguify, linguify-raw
 #import "base.typ": __signature-line, project
-#import "utils.typ": __linguify-content, __linguify-static, styled-table
+#import "utils.typ": __linguify-content, styled-table
 
 /// Template adapter for DHBW Karlsruhe thesis documents.
 ///
@@ -77,11 +77,11 @@
 ) = {
   // Submission Information
   let submission-info = [
-    #__linguify-content("as-part-of-examination-dhbw")
+    #context __linguify-content("as-part-of-examination-dhbw")
 
     *#examination*
 
-    #__linguify-content("in-field-of-study", args: (study: study))
+    #context __linguify-content("in-field-of-study", args: (study: study))
 
     #context __linguify-content("at-the-institution", args: (
       institution: linguify-raw("dhbw-long"),
@@ -96,29 +96,34 @@
 
   // Metadata
   let metadata = (
-    __linguify-content("submission-date"),
+    context __linguify-content("submission-date"),
     submission-date,
-    __linguify-content("processing-duration"),
-    __linguify-content("weeks", args: (count: processing-period-weeks)),
-    __linguify-content("matriculation-number")
-      + ", "
-      + __linguify-content("course"),
+    context __linguify-content("processing-duration"),
+    context __linguify-content("weeks", args: (count: processing-period-weeks)),
+    context (
+      __linguify-content("matriculation-number")
+        + ", "
+        + __linguify-content("course")
+    ),
     authors
       .map(a => a.matriculation-number + ", " + a.course)
       .join(linebreak()),
     ..if company-name != none and company-city != none {
       (
-        __linguify-content("training-company"),
+        context __linguify-content("training-company"),
         company-name + linebreak() + company-city,
       )
     },
     ..if company-department != none {
-      (__linguify-content("department"), company-department)
+      (context __linguify-content("department"), company-department)
     },
     ..if company-supervisor != none {
-      (__linguify-content("supervisor-at-training-company"), company-supervisor)
+      (
+        context __linguify-content("supervisor-at-training-company"),
+        company-supervisor,
+      )
     },
-    __linguify-content("supervisor-at-university"),
+    context __linguify-content("supervisor-at-university"),
     university-supervisor,
   )
 
@@ -129,7 +134,7 @@
   let ai-acknowledgement-text = {
     pagebreak(weak: true)
     align(center, context heading(
-      __linguify-static("ai-acknowledgement-heading-dhbw"),
+      __linguify-content("ai-acknowledgement-heading-dhbw"),
       level: 1,
     ))
 
@@ -141,8 +146,8 @@
       columns: (auto, 1fr),
       table-content: (
         table.header(
-          __linguify-content("tool"),
-          __linguify-content("usage-description"),
+          context __linguify-content("tool"),
+          context __linguify-content("usage-description"),
         ),
         ..table-cells,
       ),
@@ -162,31 +167,37 @@
     // TODO: The statutory declaration changed for courses starting in 2024. This complicated edge case for courses from 2023
     // and earlier can safely be removed by September 2026
     let statuatory-declaration = if course-year < 24 {
-      __linguify-content("statutory-declaration-note-dhbw-old", args: (
+      context __linguify-content("statutory-declaration-note-dhbw-old", args: (
         author-count: authors.len(),
         title: args.at("title-long"),
         type: args.at("thesis-type"),
       ))
     } else {
-      __linguify-content("statutory-declaration-note-dhbw", args: (
+      context __linguify-content("statutory-declaration-note-dhbw", args: (
         author-count: authors.len(),
       ))
     }
 
     let statuatory-declaration-printed = if course-year < 24 {
-      __linguify-content("statutory-declaration-note-dhbw-old-printed", args: (
-        author-count: authors.len(),
-      ))
+      context __linguify-content(
+        "statutory-declaration-note-dhbw-old-printed",
+        args: (
+          author-count: authors.len(),
+        ),
+      )
     } else {
-      __linguify-content("statutory-declaration-note-dhbw-printed", args: (
-        author-count: authors.len(),
-      ))
+      context __linguify-content(
+        "statutory-declaration-note-dhbw-printed",
+        args: (
+          author-count: authors.len(),
+        ),
+      )
     }
 
     let lang = args.named().at("lang", default: "en")
     align(center, {
       context heading(level: 1, {
-        __linguify-static("statutory-declaration")
+        __linguify-content("statutory-declaration")
       })
       if lang != "de" {
         text(1em, weight: "light", style: "italic", [\- Deutsch -])
@@ -203,7 +214,7 @@
     // TODO: Just like above, this check for course-year >= 24 can be removed after September 2026 as all courses will use that statutory declaration.
     if course-year >= 24 and ai-acknowledgement.len() > 0 {
       linebreak()
-      __linguify-content("statutory-declaration-note-dhbw-ai", args: (
+      context __linguify-content("statutory-declaration-note-dhbw-ai", args: (
         author-count: authors.len(),
       ))
     }
@@ -225,11 +236,11 @@
     pagebreak()
     [#[] <__confidentiality-clause>]
     align(center, context heading(
-      __linguify-static("confidentiality-agreement"),
+      __linguify-content("confidentiality-agreement"),
       level: 1,
     ))
 
-    __linguify-content("confidentiality-agreement-note-dhbw")
+    context __linguify-content("confidentiality-agreement-note-dhbw")
   }
 
   show: project.with(

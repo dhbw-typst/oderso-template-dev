@@ -3,7 +3,7 @@
 #import "@preview/linguify:0.5.0": linguify, linguify-raw
 #import "base.typ": __signature-line, project
 #import "assets/ai-declaration-form_dhbw-ma.typ": ai-declaration-form
-#import "utils.typ": __linguify-content, __linguify-static
+#import "utils.typ": __linguify-content
 
 /// Template adapter for DHBW Mannheim thesis documents.
 ///
@@ -104,11 +104,11 @@
   body,
 ) = {
   let submission-info = [
-    #__linguify-content("as-part-of-examination-dhbw")
+    #context __linguify-content("as-part-of-examination-dhbw")
 
     *#examination*
 
-    #__linguify-content("in-field-of-study", args: (study: study))
+    #context __linguify-content("in-field-of-study", args: (study: study))
 
     #context __linguify-content("at-the-institution", args: (
       institution: linguify-raw("dhbw-long"),
@@ -152,36 +152,38 @@
   ]
 
   let metadata = (
-    __linguify-content("submission-date"),
+    context __linguify-content("submission-date"),
     submission-date,
-    __linguify-content("processing-duration"),
-    __linguify-content("weeks", args: (count: processing-period-weeks)),
-    __linguify-content("matriculation-number")
-      + ", "
-      + __linguify-content("course"),
+    context __linguify-content("processing-duration"),
+    context __linguify-content("weeks", args: (count: processing-period-weeks)),
+    context (
+      __linguify-content("matriculation-number")
+        + ", "
+        + __linguify-content("course")
+    ),
     authors
       .map(a => a.matriculation-number + ", " + a.course)
       .join(linebreak()),
     ..if company-name != none and company-city != none {
       (
-        __linguify-content("training-company"),
+        context __linguify-content("training-company"),
         company-name + linebreak() + company-city,
       )
     },
     ..if company-department != none {
-      (__linguify-content("department"), company-department)
+      (context __linguify-content("department"), company-department)
     },
     ..if company-supervisor.firstname != none
       or company-supervisor.lastname != none {
       (
-        __linguify-content("supervisor-at-training-company"),
+        context __linguify-content("supervisor-at-training-company"),
         company-supervisor-data,
       )
     },
     ..if course-director != none {
-      (__linguify-content("course-director"), course-director)
+      (context __linguify-content("course-director"), course-director)
     },
-    __linguify-content("supervisor-at-university"),
+    context __linguify-content("supervisor-at-university"),
     university-supervisor-data,
   )
   let statutory-declaration = {
@@ -196,30 +198,36 @@
     // TODO: The statutory declaration changed for courses starting in 2024. This complicated edge case for courses from 2023
     // and earlier can safely be removed by September 2026
     let statuatory-declaration = if course-year < 24 {
-      __linguify-content("statutory-declaration-note-dhbw-old", args: (
+      context __linguify-content("statutory-declaration-note-dhbw-old", args: (
         author-count: authors.len(),
         title: args.at("title-long"),
         type: args.at("thesis-type"),
       ))
     } else {
-      __linguify-content("statutory-declaration-note-dhbw", args: (
+      context __linguify-content("statutory-declaration-note-dhbw", args: (
         author-count: authors.len(),
       ))
     }
 
     let statuatory-declaration-printed = if course-year < 24 {
-      __linguify-content("statutory-declaration-note-dhbw-old-printed", args: (
-        author-count: authors.len(),
-      ))
+      context __linguify-content(
+        "statutory-declaration-note-dhbw-old-printed",
+        args: (
+          author-count: authors.len(),
+        ),
+      )
     } else {
-      __linguify-content("statutory-declaration-note-dhbw-printed", args: (
-        author-count: authors.len(),
-      ))
+      context __linguify-content(
+        "statutory-declaration-note-dhbw-printed",
+        args: (
+          author-count: authors.len(),
+        ),
+      )
     }
 
     let lang = args.named().at("lang", default: "en")
-    context align(center, heading(level: 1, {
-      __linguify-static("statutory-declaration")
+    align(center, context heading(level: 1, {
+      __linguify-content("statutory-declaration")
       if lang != "de" {
         linebreak()
         text(0.75em, weight: "light", style: "italic", [ \- Deutsch -]) // The leading space prevents "statutory-declaration-Deutsch" in the PDF outline
@@ -249,11 +257,11 @@
     pagebreak(weak: true)
     [#[] <__confidentiality-clause>]
     align(center, context heading(
-      __linguify-static("confidentiality-agreement"),
+      __linguify-content("confidentiality-agreement"),
       level: 1,
     ))
 
-    __linguify-content("confidentiality-agreement-note-dhbw")
+    context __linguify-content("confidentiality-agreement-note-dhbw")
   }
 
   let ai-declarations = ()
