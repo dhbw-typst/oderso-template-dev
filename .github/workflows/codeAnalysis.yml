@@ -74,7 +74,7 @@ jobs:
       - name: Install typst
         uses: typst-community/setup-typst@fee4b65b091cc546f02ce3be15fad8760f38a108 # v5.3.0
         with:
-          typst-version: ${{ fromJson(needs.discover_versions.outputs.versions)[0] }}
+          typst-version: ${{ matrix.typst_version }}
       - name: Typst version
         run: typst --version
       - name: Install Inter font
@@ -118,7 +118,7 @@ jobs:
       - name: Install typst
         uses: typst-community/setup-typst@fee4b65b091cc546f02ce3be15fad8760f38a108 # v5.3.0
         with:
-          typst-version: ${{ fromJson(needs.discover_versions.outputs.versions)[0] }}
+          typst-version: ${{ matrix.typst_version }}
       - name: Typst version
         run: typst --version
       - name: Install Inter font
