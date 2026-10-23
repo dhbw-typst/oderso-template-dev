@@ -85,6 +85,6 @@ Perform action **x**.
 
 The main branch is protected so that every commit on it requires a pull request.
 Pull requests on main demand for at least one review.
-If a file listed in the [CODEOWNERS](.github/CODEOWNERS) is edited, an additional review from a respective codeowner is necessary.
+If a file listed in [CODEOWNERS](.github/CODEOWNERS) is edited, an additional review from a respective codeowner is necessary.
 
 For pull requests on target `v\d+\.\d+\.\d+` (e.g., `v3.0.0.`), one review is needed.
