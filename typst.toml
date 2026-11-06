@@ -1,5 +1,5 @@
 [package]
-compiler = "0.14.0"
+compiler = "0.15.0"
 name = "dhbw-oderso"
 version = "2.4.1"
 entrypoint = "template/lib.typ"
