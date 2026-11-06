@@ -116,6 +116,7 @@
       caption: caption,
       kind: table,
       placement: placement,
+      gap: 1.5em,
     )
     #if reference != none {
       label(reference)
