@@ -5,7 +5,10 @@
 #import "../../component/lib.typ" as component
 #import "../shared.typ" as shared
 #import "_components.typ": _body-footer, _body-header, _coversheet
-#import "_frontbackmatter.typ": _abbreviations, _abstracts, _acknowledgements, _bibliography, _glossary, _listings, _toc
+#import "_frontbackmatter.typ": (
+  _abbreviations, _abstracts, _acknowledgements, _bibliography, _glossary,
+  _listings, _toc,
+)
 
 #let spotless(show-total-pages: false) = {
   let document-show(it) = {
