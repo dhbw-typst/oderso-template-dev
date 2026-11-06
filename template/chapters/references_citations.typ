@@ -1,4 +1,5 @@
 #import "basic_formatting.typ": typst-preview
+#import "../template/lib.typ": tablefigure
 = References and Citations
 
 == Local Elements
