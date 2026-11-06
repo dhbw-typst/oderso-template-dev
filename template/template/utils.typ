@@ -94,9 +94,9 @@
   /// The table content to display. -> content
   body,
 ) = {
-  show figure.where(kind: table): set figure(numbering: "I")
+  set figure(numbering: "I")
   set figure.caption(position: top)
-  show figure.caption: it => context {
+  show figure.caption.where(kind: table): it => context {
     if __in-outline.at(here()) {
       it.supplement + " " + it.counter.display() + it.separator + it.body
     } else {
@@ -107,7 +107,12 @@
   }
   [
     #figure(
-      body,
+      {
+        // Reset figure numbering and caption position for nested figures inside tables
+        set figure(numbering: "1")
+        set figure.caption(position: bottom)
+        body
+      },
       caption: caption,
       kind: table,
       placement: placement,
@@ -222,20 +227,19 @@
   caption: none,
   /// Optional label string for cross-referencing. -> str | none
   reference: none,
+  /// Float placement: `none` keeps the figure inline, `auto` floats it to the nearest suitable position. -> none | auto | alignment
+  placement: none,
   /// Additional arguments passed to @styled-table and `table()`,
   /// such as `columns`, `align`, etc.
   ..args,
 ) = {
-  let named = args.named()
-  let placement = named.remove("placement", default: none)
   tablefigure-raw(
     caption: caption,
     reference: reference,
     placement: placement,
     styled-table(
       table-content: table-content,
-      ..args.pos(),
-      ..named,
+      ..args,
     ),
   )
 }
