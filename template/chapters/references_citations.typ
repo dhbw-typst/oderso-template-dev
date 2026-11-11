@@ -29,10 +29,15 @@ When using `tablefigure` and `tablefigure-raw` to create a table figure, you can
 == Bibliography
 Typst supports references to external sources, such as books, articles, and websites. You can include a `.yaml` or `.bib` file with your references and use the `cite()` function to reference them in your document. Again, you can use the same syntax sugar `@<ref>` to cite.
 
+The three entries in `refs.bib` demonstrate a journal article, a book, and a website. The template uses IEEE style: citations are numbered in order of first appearance. Website entries include a URL and a fixed access date (`urldate`), which should be updated when you consult the source.
+
 #typst-preview(
   "Bibliography Referencing in Typst",
-  "#quote(attribution: [Molly Weasley\ @harry[S.~768]])[
-  Just Because You're Allowed To Use Magic Now Does Not Mean You Have To Whip Your Wands Out For Everything!]",
+  "Dijkstra discusses the problems of unrestricted jumps in programs @dijkstra1968 (journal article citation).
+
+Algorithms and data structures are covered in @cormen2022 (book citation).
+
+MDN Web Docs provides documentation for web technologies @mdn (web page citation).",
 )
 
 == Acronyms and Glossary
