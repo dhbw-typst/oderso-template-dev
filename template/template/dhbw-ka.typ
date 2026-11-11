@@ -155,37 +155,19 @@
       panic("At least one author has to be specified!")
     }
 
-    let course-year = int(authors.at(0).course.find(regex("\d+")))
-
-    // TODO: The statutory declaration changed for courses starting in 2024. This complicated edge case for courses from 2023
-    // and earlier can safely be removed by September 2026
-    let statuatory-declaration = if course-year < 24 {
-      context __linguify-content("statutory-declaration-note-dhbw-old", args: (
+    let statuatory-declaration = context __linguify-content(
+      "statutory-declaration-note-dhbw",
+      args: (
         author-count: authors.len(),
-        title: args.at("title-long"),
-        type: args.at("thesis-type"),
-      ))
-    } else {
-      context __linguify-content("statutory-declaration-note-dhbw", args: (
-        author-count: authors.len(),
-      ))
-    }
+      ),
+    )
 
-    let statuatory-declaration-printed = if course-year < 24 {
-      context __linguify-content(
-        "statutory-declaration-note-dhbw-old-printed",
-        args: (
-          author-count: authors.len(),
-        ),
-      )
-    } else {
-      context __linguify-content(
-        "statutory-declaration-note-dhbw-printed",
-        args: (
-          author-count: authors.len(),
-        ),
-      )
-    }
+    let statuatory-declaration-printed = context __linguify-content(
+      "statutory-declaration-note-dhbw-printed",
+      args: (
+        author-count: authors.len(),
+      ),
+    )
 
     let lang = args.named().at("lang", default: "en")
     align(center, {
@@ -204,8 +186,7 @@
       )
     }
 
-    // TODO: Just like above, this check for course-year >= 24 can be removed after September 2026 as all courses will use that statutory declaration.
-    if course-year >= 24 and ai-acknowledgement.len() > 0 {
+    if ai-acknowledgement.len() > 0 {
       linebreak()
       context __linguify-content("statutory-declaration-note-dhbw-ai", args: (
         author-count: authors.len(),
