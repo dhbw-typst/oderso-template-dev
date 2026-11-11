@@ -32,7 +32,7 @@ This file serves as the central reference database for the project.
 This is the preferred and most reliable method.
 
 1. In JabRef, click *Lookup → Search by DOI*
-2. Paste the DOI (e.g., `10.1145/1234567.8901234`)
+2. Paste the DOI (e.g., `10.1145/362929.362947` for Dijkstra's article in `refs.bib`)
 3. JabRef will automatically fetch the full reference
 4. Review the fields and accept the entry
 
@@ -59,11 +59,11 @@ If you already have a BibTeX entry:
 
 === Using the Citation Key in Typst
 
-Each reference in JabRef has a *citation key* (e.g., `smith2023example`).
+Each reference in JabRef has a *citation key* (e.g., `dijkstra1968`).
 Use this key directly in Typst:
 
 ```typst
-@smith2023example
+@dijkstra1968
 ```
 
 Typst will resolve the citation using `refs.bib`.
