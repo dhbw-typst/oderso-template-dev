@@ -54,8 +54,6 @@
   submission-date: datetime.today().display("[day].[month].[year]"),
   /// Submission date for the module (used in AI declaration form). -> str
   module-submission-date: datetime.today().display("[day].[month].[year]"),
-  /// Format string for displaying dates. (see #link("https://typst.app/docs/reference/foundations/datetime/#format")[datetime formats]) -> str
-  submission-date-format: "[day].[month].[year]",
   /// Duration of the thesis processing period in weeks. -> int | none
   processing-period-weeks: none,
   /// University supervisor dictionary with `firstname`, `lastname`,
@@ -115,17 +113,6 @@
       city: linguify-raw("ma"),
     ))
   ]
-
-  // TODO: only for compatibility reasons: Remove with v3.0.0 release
-  if type(submission-date) == datetime {
-    submission-date = submission-date.display(submission-date-format)
-  }
-  // TODO: only for compatibility reasons: Remove with v3.0.0 release
-  if type(module-submission-date) == datetime {
-    module-submission-date = module-submission-date.display(
-      submission-date-format,
-    )
-  }
 
   let company-supervisor-data = [
     #company-supervisor.firstname #company-supervisor.lastname#if (

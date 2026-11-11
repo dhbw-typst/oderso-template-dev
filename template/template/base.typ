@@ -28,8 +28,6 @@
   city: none,
   /// Date of the signature. -> str | none
   date: none,
-  /// Format string for displaying the date. (see #link("https://typst.app/docs/reference/foundations/datetime/#format")[datetime formats]) -> str
-  date-format: "[day].[month].[year]",
   /// Author dictionary with `firstname`, `lastname`, and optionally `signature`
   /// (an image). -> dictionary
   author: (
@@ -37,11 +35,6 @@
     lastname: none,
   ),
 ) = {
-  // TODO: only for compatibility reasons: Remove with v3.0.0 release
-  if type(date) == datetime {
-    date = date.display(date-format)
-  }
-
   let signature-content = if digital {
     (
       city,
