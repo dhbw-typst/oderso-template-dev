@@ -6,7 +6,7 @@
 == Figures
 Inserting figures and code blocks into your Typst document enhances its informational depth. When specifying a `caption` for a figure, the template will automatically generate a list of figures, making it easy to navigate your document.
 
-/ Note: When using "ieee" Sorting for bibliography, the sources for figures will be evaluated before the text. To prevent "false sorting", you can use `#caption-with-source("Text", [@source])` instead. This will display the caption in outlines without source and will evaluate the source at the time the figure is displayed
+/ Note: When using "ieee" sorting for bibliography, the sources for figures will be evaluated before the text. To prevent "false sorting", you can use `#caption-with-source("Text", [@source])` instead. This will display the caption in outlines without source and will evaluate the source at the time the figure is displayed.
 
 === Image Figures
 #typst-preview(
@@ -14,7 +14,7 @@ Inserting figures and code blocks into your Typst document enhances its informat
   "#import \"../template/lib.typ\": caption-with-source
 #figure(
   image(\"../assets/placeholder-company-logo.svg\"),
-  caption: caption-with-source(\"Company Logo\", [@electronic]),
+   caption: caption-with-source(\"Company Logo\", [own illustration]),
 )",
 )
 
@@ -94,9 +94,9 @@ You can reference labeled equations like other figures. @math-figure shows the s
 #typst-preview(
   "Quotes in Typst",
   "#quote(
-  attribution: [Frankling D. Roosevelt @fdr_inaugural_address]
+  attribution: [Edsger W. Dijkstra @dijkstra1968[p.~148]]
 )[
-  The only thing we have to fear is fear itself.
+  The go to statement as it stands is just too primitive, it is too much an invitation to make a mess of one's program.
 ]",
 )
 
