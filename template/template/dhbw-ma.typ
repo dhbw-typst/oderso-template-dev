@@ -54,8 +54,6 @@
   submission-date: datetime.today().display("[day].[month].[year]"),
   /// Submission date for the module (used in AI declaration form). -> str
   module-submission-date: datetime.today().display("[day].[month].[year]"),
-  /// Format string for displaying dates. (see #link("https://typst.app/docs/reference/foundations/datetime/#format")[datetime formats]) -> str
-  submission-date-format: "[day].[month].[year]",
   /// Duration of the thesis processing period in weeks. -> int | none
   processing-period-weeks: none,
   /// University supervisor dictionary with `firstname`, `lastname`,
@@ -115,17 +113,6 @@
       city: linguify-raw("ma"),
     ))
   ]
-
-  // TODO: only for compatibility reasons: Remove with v3.0.0 release
-  if type(submission-date) == datetime {
-    submission-date = submission-date.display(submission-date-format)
-  }
-  // TODO: only for compatibility reasons: Remove with v3.0.0 release
-  if type(module-submission-date) == datetime {
-    module-submission-date = module-submission-date.display(
-      submission-date-format,
-    )
-  }
 
   let company-supervisor-data = [
     #company-supervisor.firstname #company-supervisor.lastname#if (
@@ -193,37 +180,19 @@
       panic("At least one author has to be specified!")
     }
 
-    let course-year = int(authors.at(0).course.find(regex("\d+")))
-
-    // TODO: The statutory declaration changed for courses starting in 2024. This complicated edge case for courses from 2023
-    // and earlier can safely be removed by September 2026
-    let statuatory-declaration = if course-year < 24 {
-      context __linguify-content("statutory-declaration-note-dhbw-old", args: (
+    let statuatory-declaration = context __linguify-content(
+      "statutory-declaration-note-dhbw",
+      args: (
         author-count: authors.len(),
-        title: args.at("title-long"),
-        type: args.at("thesis-type"),
-      ))
-    } else {
-      context __linguify-content("statutory-declaration-note-dhbw", args: (
-        author-count: authors.len(),
-      ))
-    }
+      ),
+    )
 
-    let statuatory-declaration-printed = if course-year < 24 {
-      context __linguify-content(
-        "statutory-declaration-note-dhbw-old-printed",
-        args: (
-          author-count: authors.len(),
-        ),
-      )
-    } else {
-      context __linguify-content(
-        "statutory-declaration-note-dhbw-printed",
-        args: (
-          author-count: authors.len(),
-        ),
-      )
-    }
+    let statuatory-declaration-printed = context __linguify-content(
+      "statutory-declaration-note-dhbw-printed",
+      args: (
+        author-count: authors.len(),
+      ),
+    )
 
     let lang = args.named().at("lang", default: "en")
     align(center, context heading(level: 1, {

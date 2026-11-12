@@ -67,16 +67,6 @@ statutory-declaration-note-dhbw-ai = { $author-count ->
    *[other] Wir haben bei der Erstellung der Arbeit KI-Werkzeuge eingesetzt. Dies haben wir an entsprechender Stelle der Arbeit kenntlich gemacht.
 }
 
-statutory-declaration-note-dhbw-old = { $author-count ->
-    [one] Ich versichere hiermit, dass ich meine { $type } mit dem Thema: "{ $title }" selbstständig verfasst und keine anderen als die angegebenen Quellen und Hilfsmittel benutzt habe.
-   *[other] Wir versichern hiermit, dass wir unsere { $type } mit dem Thema: "{ $title }" selbstständig verfasst und keine anderen als die angegebenen Quellen und Hilfsmittel benutzt haben.
-}
-
-statutory-declaration-note-dhbw-old-printed = { $author-count ->
-    [one] Ich versichere zudem, dass die eingereichte elektronische Fassung mit der gedruckten Fassung übereinstimmt.
-   *[other] Wir versichern zudem, dass die eingereichte elektronische Fassung mit der gedruckten Fassung übereinstimmt.
-}
-
 confidentiality-agreement-note-dhbw = Der Inhalt dieser Arbeit darf weder als Ganzes noch in Auszügen Personen außerhalb des Prüfungsprozesses und des Evaluationsverfahrens zugänglich gemacht werden, sofern keine anderslautende Genehmigung des Dualen Partners vorliegt.
 ai-acknowledgement-heading-dhbw = Anmerkung zur Nutzung von Künstlicher Intelligenz
 #### MA
