@@ -130,7 +130,7 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.BOT_PAT }}
       - name: Install typst
-        uses: typst-community/setup-typst@6a2cfaf0b28d636b00148f965e315bae81079aaa # v5.3.1
+        uses: typst-community/setup-typst@00ad6338f0b34724ea002136bfb701a6c18585b0 # v5.3.2
         with:
           typst-version: 0.15.1
       - name: Set git user
@@ -180,7 +180,7 @@ jobs:
           ref: ${{ needs.bump_version.outputs.commit_sha }}
           token: ${{ secrets.BOT_PAT }}
       - name: Install typst
-        uses: typst-community/setup-typst@6a2cfaf0b28d636b00148f965e315bae81079aaa # v5.3.1
+        uses: typst-community/setup-typst@00ad6338f0b34724ea002136bfb701a6c18585b0 # v5.3.2
         with:
           typst-version: 0.15.1
       - name: Typst version
