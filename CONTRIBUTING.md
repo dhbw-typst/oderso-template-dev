@@ -33,7 +33,7 @@ We are using [Typestyle](https://github.com/typstyle-rs/typstyle) to ensure cons
 Pull requests should contain a concise title and the description should detail the changes made. Additionally, the title needs to be prefixed with either `chore:`, `fix:`, `feat:` or `feat!:`.
 These prefixes are used by our release pipeline to determine the next version bump. As this project is following [Semantic Versioning](https://semver.org/), the prefixes should be used as follows:
 
-- `chore`: (_No version bump_) Should be used for changes to `README`, documentation and typo fixes.
+- `chore`: (_No version bump_) Should be used for changes to `README`, documentation, typo fixes, or pipeline edits. The change must not affect a user of the template.
 - `fix`: (_Patch bump_) Should be used when fixing an issue that has no effect on the API. Must be forward and backwards compatible.
 - `feat`: (_Minor bump_) Should be used when adding a new parameter or function, or when changing the look or behavior of the template. Must be backwards compatible.
 - `feat!`: (_Major bump_) Should be used for major changes to the look of the template or when making changes that are not backwards compatible.
@@ -80,3 +80,11 @@ Rename all usage of property `test-old` to `test`.
 
 Perform action **x**.
 ```
+
+## Branch Protection Rules
+
+The main branch is protected so that every commit on it requires a pull request.
+Pull requests on main demand for at least one review.
+If a file listed in [CODEOWNERS](.github/CODEOWNERS) is edited, an additional review from a respective codeowner is necessary.
+
+For pull requests on target `v\d+\.\d+\.\d+` (e.g., `v3.0.0.`), one review is needed.

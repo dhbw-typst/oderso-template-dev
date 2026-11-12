@@ -130,7 +130,7 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.BOT_PAT }}
       - name: Install typst
-        uses: typst-community/setup-typst@fee4b65b091cc546f02ce3be15fad8760f38a108 # v5.3.0
+        uses: typst-community/setup-typst@6a2cfaf0b28d636b00148f965e315bae81079aaa # v5.3.1
         with:
           typst-version: 0.15.1
       - name: Set git user
@@ -180,7 +180,7 @@ jobs:
           ref: ${{ needs.bump_version.outputs.commit_sha }}
           token: ${{ secrets.BOT_PAT }}
       - name: Install typst
-        uses: typst-community/setup-typst@fee4b65b091cc546f02ce3be15fad8760f38a108 # v5.3.0
+        uses: typst-community/setup-typst@6a2cfaf0b28d636b00148f965e315bae81079aaa # v5.3.1
         with:
           typst-version: 0.15.1
       - name: Typst version
@@ -204,7 +204,7 @@ jobs:
         run: |
           typst compile documentation.typ --input version=${{ needs.prepare_release.outputs.version }}
       - name: Release dev repo
-        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
+        uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4
         with:
           token: ${{ secrets.BOT_PAT }}
           files: |
@@ -213,7 +213,7 @@ jobs:
           tag_name: ${{ needs.prepare_release.outputs.version }}
           body: ${{ needs.extract_release_notes.outputs.release_notes }}
       - name: Release prod repo
-        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
+        uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4
         with:
           token: ${{ secrets.BOT_PAT }}
           files: |
