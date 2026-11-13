@@ -4,7 +4,7 @@
   gls, glspl, make-glossary, print-glossary, register-glossary,
 )
 #import "@preview/hydra:0.6.3": hydra
-#import "@preview/codly:1.3.0": codly, codly-init
+#import "@preview/codly:2.0.0" as codly
 #import "@preview/drafting:0.2.2": note-outline, set-margin-note-defaults
 #import "@preview/linguify:0.5.0": (
   linguify, linguify-raw, load-ftl-data, set-database,
@@ -28,8 +28,6 @@
   city: none,
   /// Date of the signature. -> str | none
   date: none,
-  /// Format string for displaying the date. (see #link("https://typst.app/docs/reference/foundations/datetime/#format")[datetime formats]) -> str
-  date-format: "[day].[month].[year]",
   /// Author dictionary with `firstname`, `lastname`, and optionally `signature`
   /// (an image). -> dictionary
   author: (
@@ -37,11 +35,6 @@
     lastname: none,
   ),
 ) = {
-  // TODO: only for compatibility reasons: Remove with v3.0.0 release
-  if type(date) == datetime {
-    date = date.display(date-format)
-  }
-
   let signature-content = if digital {
     (
       city,
@@ -222,14 +215,10 @@
 
   // fancy code blocks
   // if you don't like them, just remove this section.
-  show: codly-init.with()
-
-  codly(
-    zebra-fill: none,
-    display-icon: false,
-    display-name: false,
-    number-align: right + top,
-  )
+  show: codly.line-set_(fill: white)
+  show: codly.lang-set_(display-icon: false, display-name: false)
+  show: codly.number-set_(align: right + top)
+  show raw.where(block: true): codly.new
 
   show figure.where(kind: raw): set figure(supplement: "Code")
 
