@@ -112,7 +112,7 @@
   appendices: appendices,
 
   // Bibliography
-  library: bibliography("refs.bib"),
+  library: bibliography("refs.bib", style: "ieee"),
 
   abbreviations: abbreviations,
   glossary: glossary,
