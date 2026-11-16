@@ -33,11 +33,9 @@ The three entries in `refs.bib` demonstrate a journal article, a book, and a web
 
 #typst-preview(
   "Bibliography Referencing in Typst",
-  "Dijkstra discusses the problems of unrestricted jumps in programs @dijkstra1968 (journal article citation).
-
-Algorithms and data structures are covered in @cormen2022 (book citation).
-
-MDN Web Docs provides documentation for web technologies @mdn (web page citation).",
+  "/ journal article citation: Dijkstra discusses the problems of unrestricted jumps in programs @dijkstra1968.
+/ book citation: Algorithms and data structures are covered in @cormen2022.
+/ web page citation: MDN Web Docs provides documentation for web technologies @mdn.",
 )
 
 == Acronyms and Glossary
