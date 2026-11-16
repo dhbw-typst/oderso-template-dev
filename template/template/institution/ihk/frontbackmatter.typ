@@ -2,7 +2,9 @@
 // IHK-specific frontbackmatter configuration functions.
 // Accessible as frontbackmatter.ihk.* from lib.typ.
 
-#import "_shared.typ": (
+#import "../../frontbackmatter/lib.typ": *
+
+#import "../../frontbackmatter/_shared.typ": (
   configure-confidentiality-clause, configure-statutory-declaration,
 )
 

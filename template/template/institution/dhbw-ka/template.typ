@@ -1,17 +1,19 @@
 // LTeX: enabled=false
 
 #import "@preview/linguify:0.5.0": linguify, linguify-raw
-#import "../base.typ": _signature-line
-#import "../config/lib.typ" as config
+#import "../../base.typ": _signature-line
+#import "../../config/lib.typ" as config
 #let merge-config = config.util.merge-config
 #let merge-configs = config.util.merge-configs
-#import "../frontbackmatter/lib.typ" as frontbackmatter
-#let configure-statutory-declaration = frontbackmatter.dhbw-ka.statutory-declaration
-#let configure-confidentiality-clause = frontbackmatter.dhbw-ka.confidentiality-clause
-#let configure-dhbw-ka-ai-acknowledgement = frontbackmatter.dhbw-ka.ai-declaration
-#import "../util.typ": styled-table
+#import "frontbackmatter.typ": (
+  ai-declaration, confidentiality-clause, statutory-declaration,
+)
+#let configure-statutory-declaration = statutory-declaration
+#let configure-confidentiality-clause = confidentiality-clause
+#let configure-dhbw-ka-ai-acknowledgement = ai-declaration
+#import "../../util.typ": styled-table
 #let linguify-content = config.util.linguify-content
-#import "../general/lib.typ" as general
+#import "../../general/lib.typ" as general
 #let _general-metadata = general.metadata
 
 /// Default DHBW Karlsruhe config: sets position/enable defaults
@@ -43,7 +45,7 @@
 /// Positional `configure-*` / `frontbackmatter.*` overrides may be appended
 /// after this call in `#show: project.with(...)` to further customise the document.
 /// -> dictionary
-#let dhbw-ka(
+#let setup(
   /// The primary language of the document. Affects hyphenation, quotes,
   /// and localized strings. Supported: `"en"`, `"de"`. -> str
   lang: "en",

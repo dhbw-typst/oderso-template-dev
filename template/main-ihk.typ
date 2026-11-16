@@ -1,11 +1,14 @@
 // LTeX: enabled=false
-#import "template/lib.typ": *
+#import "template/lib.typ": component, institution, project, theme
 #import "glossary.typ": abbreviations, glossary
 #import "appendix.typ": appendices
 
+#import institution: ihk
+#import ihk: frontbackmatter
+
 #show: project.with(
   theme.spotless(),
-  institution.ihk(
+  ihk.setup(
     lang: "de",
 
     title-long: "Writing in Typst about a long, very scientific topic",
