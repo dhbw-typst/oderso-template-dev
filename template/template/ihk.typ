@@ -37,8 +37,6 @@
   signature-city: "Karlsruhe",
   /// Submission date of the thesis. -> str
   submission-date: datetime.today().display("[day].[month].[year]"),
-  /// Format string for displaying the submission date. (see #link("https://typst.app/docs/reference/foundations/datetime/#format")[datetime formats]) -> str
-  submission-date-format: "[day].[month].[year]",
   /// Duration of the thesis processing period in weeks. -> int | none
   processing-period-weeks: none,
   /// Name of the training company. -> str
@@ -64,11 +62,6 @@
     #context __linguify-content("in-the-training-occupation")\
     #training-occupation
   ]
-
-  // TODO: only for compatibility reasons: Remove with v3.0.0 release
-  if type(submission-date) == datetime {
-    submission-date = submission-date.display(submission-date-format)
-  }
 
   let metadata = (
     context __linguify-content("submission-date"),
