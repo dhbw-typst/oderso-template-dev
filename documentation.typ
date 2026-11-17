@@ -73,9 +73,9 @@
 #show-module(options-docs)
 
 #let adapters = (
-  "institution/dhbw-ka.typ",
-  "institution/dhbw-ma.typ",
-  "institution/ihk.typ",
+  "institution/dhbw-ka/lib.typ",
+  "institution/dhbw-ma/lib.typ",
+  "institution/ihk/lib.typ",
 )
 
 #for adapter in adapters {

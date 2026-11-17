@@ -1,11 +1,13 @@
 // LTeX: enabled=false
-#import "template/lib.typ": *
+#import "template/lib.typ": component, institution, project, theme
 #import "glossary.typ": abbreviations, glossary
 #import "appendix.typ": appendices
+#import institution: dhbw-ma
+#import dhbw-ma: frontbackmatter
 
 #show: project.with(
   theme.spotless(),
-  institution.dhbw-ma(
+  dhbw-ma.setup(
     lang: "en",
 
     // Long title, displayed on cover slide
@@ -68,7 +70,7 @@
   ),
 
   // AI declaration form (optional – remove if not needed)
-  frontbackmatter.dhbw-ma.ai-declaration-form(
+  frontbackmatter.ai-declaration-form(
     module-name: "Projektmanagement",
     semester: "1",
     exam-type: "Projektarbeit I",
