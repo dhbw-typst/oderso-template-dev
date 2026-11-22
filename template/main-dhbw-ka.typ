@@ -1,11 +1,13 @@
 // LTeX: enabled=false
-#import "template/lib.typ": *
+#import "template/lib.typ": component, institution, project, theme
 #import "glossary.typ": abbreviations, glossary
 #import "appendix.typ": appendices
+#import institution: dhbw-ka
+#import dhbw-ka: frontbackmatter
 
 #show: project.with(
   theme.spotless(),
-  institution.dhbw-ka(
+  dhbw-ka.setup(
     lang: "en",
 
     // Long title, displayed on cover slide
@@ -50,7 +52,7 @@
   ),
 
   // AI declaration (optional – remove this call if you did not use any AI tools)
-  frontbackmatter.dhbw-ka.ai-declaration(
+  frontbackmatter.ai-declaration(
     entries: (
       (tool: "ChatGPT", usage: "Text generation and correction"),
       (tool: "DeepL", usage: "Translation"),

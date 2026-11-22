@@ -1,17 +1,20 @@
 // LTeX: enabled=false
 
 #import "@preview/linguify:0.5.0": linguify, linguify-raw
-#import "../base.typ": _signature-line
-#import "../config/lib.typ" as config
+#import "../../base.typ": _signature-line
+#import "../../config/lib.typ" as config
 #let merge-config = config.util.merge-config
 #let merge-configs = config.util.merge-configs
-#import "../frontbackmatter/lib.typ" as frontbackmatter
-#let configure-statutory-declaration = frontbackmatter.dhbw-ma.statutory-declaration
-#let configure-confidentiality-clause = frontbackmatter.dhbw-ma.confidentiality-clause
-#let configure-dhbw-ma-ai-declaration-form = frontbackmatter.dhbw-ma.ai-declaration-form
-#import "../assets/ai-declaration-form_dhbw-ma.typ": ai-declaration-form
+#import "frontbackmatter.typ": (
+  ai-declaration-form as ai-declaration-form-config, confidentiality-clause,
+  statutory-declaration,
+)
+#let configure-statutory-declaration = statutory-declaration
+#let configure-confidentiality-clause = confidentiality-clause
+#let configure-dhbw-ma-ai-declaration-form = ai-declaration-form-config
+#import "ai-declaration-form_dhbw-ma.typ": ai-declaration-form
 #let linguify-content = config.util.linguify-content
-#import "../general/lib.typ" as general
+#import "../../general/lib.typ" as general
 #let _general-metadata = general.metadata
 
 /// Default DHBW Mannheim config: sets position/enable defaults
@@ -38,7 +41,7 @@
 ///
 /// Returns a configuration dictionary that can be passed to `project()`.
 /// -> dictionary
-#let dhbw-ma(
+#let setup(
   /// The examination degree, e.g., "Bachelor of Science (B.Sc.)". -> str
   examination: "Bachelor of Science (B.Sc.)",
   /// The field of study, e.g., "Computer Science". -> str

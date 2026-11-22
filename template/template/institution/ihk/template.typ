@@ -1,15 +1,15 @@
 // LTeX: enabled=false
 
-#import "../base.typ": _signature-line
-#import "../config/lib.typ" as config
+#import "../../base.typ": _signature-line
+#import "../../config/lib.typ" as config
 #let merge-config = config.util.merge-config
 #let merge-configs = config.util.merge-configs
-#import "../frontbackmatter/lib.typ" as frontbackmatter
-#let configure-statutory-declaration = frontbackmatter.ihk.statutory-declaration
-#let configure-confidentiality-clause = frontbackmatter.ihk.confidentiality-clause
+#import "frontbackmatter.typ": confidentiality-clause, statutory-declaration
+#let configure-statutory-declaration = statutory-declaration
+#let configure-confidentiality-clause = confidentiality-clause
 #import "@preview/linguify:0.5.0": linguify
 #let linguify-content = config.util.linguify-content
-#import "../general/lib.typ" as general
+#import "../../general/lib.typ" as general
 #let _general-metadata = general.metadata
 
 /// Default IHK config: sets position/enable defaults and IHK
@@ -35,7 +35,7 @@
 ///
 /// Returns a configuration dictionary that can be passed to `project()`.
 /// -> dictionary
-#let ihk(
+#let setup(
   /// The examination type (e.g., "Abschlussprüfung Teil 2"). -> str | none
   examination: none,
   /// The training occupation (Ausbildungsberuf). -> str

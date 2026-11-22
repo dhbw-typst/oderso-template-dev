@@ -2,10 +2,12 @@
 // DHBW Mannheim-specific frontbackmatter configuration functions.
 // Accessible as frontbackmatter.dhbw-ma.* from lib.typ.
 
-#import "_shared.typ": (
+#import "../../frontbackmatter/lib.typ": *
+
+#import "../../frontbackmatter/_shared.typ": (
   configure-confidentiality-clause, configure-statutory-declaration,
 )
-#import "../config/lib.typ" as config
+#import "../../config/lib.typ" as config
 
 /// Configure the statutory declaration section for DHBW Mannheim. -> dictionary
 #let statutory-declaration = configure-statutory-declaration
