@@ -1,7 +1,9 @@
 // LTeX: enabled=false
 
 #import "@preview/linguify:0.5.0": linguify, linguify-raw
-#import "../../base.typ": _signature-line
+#import "../_shared.typ": (
+  _course-year, _require-authors, _signature-line, _submission-date,
+)
 #import "../../config/lib.typ" as config
 #let merge-config = config.util.merge-config
 #let merge-configs = config.util.merge-configs
@@ -32,7 +34,7 @@
       enable: true,
       position: 90,
     ),
-    configure-dhbw-ka-ai-acknowledgement(position: 100),
+    configure-dhbw-ka-ai-acknowledgement(position: 100, entries: ()),
   )
 }
 
@@ -90,58 +92,6 @@
   /// Name of the company supervisor. -> str | none
   company-supervisor: none,
 ) = {
-  if authors == none or type(authors) != array or authors.len() == 0 {
-    panic("At least one author has to be specified!")
-  }
-
-  // TODO: only for compatibility: Remove with v3.0.0 release
-  if type(submission-date) == datetime {
-    submission-date = submission-date.display(submission-date-format)
-  }
-
-  // ----------------------------------
-  // Build metadata
-  // ----------------------------------
-  let submission-info = [
-    #linguify-content("as-part-of-examination-dhbw")
-
-    *#examination*
-
-    #linguify-content("in-field-of-study", args: (study: study))
-
-    #context linguify-content("at-the-institution", args: (
-      institution: linguify-raw("dhbw-long"),
-      city: linguify-raw("ka"),
-    ))
-  ]
-
-  let misc-key-value = (
-    linguify-content("submission-date"),
-    submission-date,
-    linguify-content("processing-duration"),
-    linguify-content("weeks", args: (count: processing-period-weeks)),
-    linguify-content("matriculation-number")
-      + ", "
-      + linguify-content("course"),
-    authors
-      .map(a => a.matriculation-number + ", " + a.course)
-      .join(linebreak()),
-    ..if company-name != none and company-city != none {
-      (
-        linguify-content("training-company"),
-        company-name + linebreak() + company-city,
-      )
-    },
-    ..if company-department != none {
-      (linguify-content("department"), company-department)
-    },
-    ..if company-supervisor != none {
-      (linguify-content("supervisor-at-training-company"), company-supervisor)
-    },
-    linguify-content("supervisor-at-university"),
-    university-supervisor,
-  )
-
   // ----------------------------------
   // Build config
   // ----------------------------------
@@ -154,18 +104,32 @@
     thesis-type: thesis-type,
     logo-left: company-logo,
     logo-right: image("../assets/DHBW-Logo.svg"),
-    submission-info: submission-info,
-    misc-key-value: misc-key-value,
+    institution: "dhbw-ka",
+    examination: examination,
+    study: study,
+    submission-date: submission-date,
+    submission-date-format: submission-date-format,
+    processing-period-weeks: processing-period-weeks,
+    university-supervisor: university-supervisor,
+    company-name: company-name,
+    company-city: company-city,
+    company-department: company-department,
+    company-supervisor: company-supervisor,
     authors: authors,
   ))
 
   // ----------------------------------
   // Install section generators
   // ----------------------------------
-  let course-year = int(authors.at(0).course.find(regex("\d+")))
 
   // Statutory declaration generator
   let statutory-declaration-generator(config) = {
+    let metadata = config.general.metadata
+    let authors = _require-authors(metadata, "Statutory declaration")
+    let course-year = _course-year(authors)
+    let title-long = metadata.at("title-long", default: none)
+    let thesis-type = metadata.at("thesis-type", default: none)
+    let submission-date = _submission-date(metadata)
     let sd-cfg = config.front-back-matter.statutory-declaration
     let ai-entries = config
       .front-back-matter
@@ -256,8 +220,8 @@
       level: 1,
     ))
 
-    let table-cells = ai-entries.fold((), (acc, (tool, usage)) => (
-      acc + (tool, usage)
+    let table-cells = ai-entries.fold((), (acc, entry) => (
+      acc + (entry.tool, entry.usage)
     ))
 
     align(center, styled-table(

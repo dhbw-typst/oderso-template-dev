@@ -1,6 +1,8 @@
 #import "../config/lib.typ" as config
 /// Configure abbreviations. Using #link("https://typst.app/universe/package/glossarium/")[glossarium] as underlying library. -> dicitionary
 #let abbreviations(
+  /// Render this entry; omission inherits, false disables it. -> bool
+  enable: config.util.default-value,
   /// The abbreviation entries. See #link("https://typst.app/universe/package/glossarium/")[glossarium] for more information on entry format. -> array
   abbreviations: config.util.default-value,
   /// Print options passed to `print-glossary`. See #link("https://typst.app/universe/package/glossarium/")[glossarium] available options.
@@ -18,10 +20,12 @@
       + str(type(abbreviations)),
   )
   config.validation.validate-position(position)
+  config.validation.validate-enable(enable)
   config.validation.validate-generator(generator-function)
   return (
     front-back-matter: (
       abbreviations: config.util.get-dict-without-default((
+        enable: enable,
         entries: abbreviations,
         print-options: print-options,
         position: position,
@@ -33,6 +37,8 @@
 
 /// Configure glossary. Using #link("https://typst.app/universe/package/glossarium/")[glossarium] as underlying library. -> dicitionary
 #let glossary(
+  /// Render this entry; omission inherits, false disables it. -> bool
+  enable: config.util.default-value,
   /// The glossary entries. See #link("https://typst.app/universe/package/glossarium/")[glossarium] for more information on entry format. -> array
   glossary: config.util.default-value,
   /// Print options passed to `print-glossary`. See #link("https://typst.app/universe/package/glossarium/")[glossarium] available options.
@@ -50,10 +56,12 @@
       + str(type(glossary)),
   )
   config.validation.validate-position(position)
+  config.validation.validate-enable(enable)
   config.validation.validate-generator(generator-function)
   return (
     front-back-matter: (
       glossary: config.util.get-dict-without-default((
+        enable: enable,
         entries: glossary,
         print-options: print-options,
         position: position,
@@ -65,6 +73,8 @@
 
 /// Configure an acknowledgments section. -> dictionary
 #let acknowledgements(
+  /// Render this entry; omission inherits, false disables it. -> bool
+  enable: config.util.default-value,
   /// The text to display. -> content
   text: config.util.default-value,
   /// Where and when the acknowledgements should be displayed. Negative = frontmatter, zero or positive = backmatter. The value determines render order within its section. -> int
@@ -73,10 +83,12 @@
   generator-function: config.util.default-value,
 ) = {
   config.validation.validate-position(position)
+  config.validation.validate-enable(enable)
   config.validation.validate-generator(generator-function)
   return (
     front-back-matter: (
       acknowledgements: config.util.get-dict-without-default((
+        enable: enable,
         text: text,
         position: position,
         generator: generator-function,
@@ -87,6 +99,8 @@
 
 /// Configures one or more abstracts. -> dictionary
 #let abstracts(
+  /// Render this entry; omission inherits, false disables it. -> bool
+  enable: config.util.default-value,
   /// List of abstracts. Entries must have `lang` (string), the language of the text as #link("https://en.wikipedia.org/wiki/ISO_639")[ISO 639] code, `lang-display` (content | none), the language name to display above the text, `text` (content), the abstracts text. -> array
   abstracts: config.util.default-value,
   /// Where and when the abstracts should be displayed. Negative = frontmatter, zero or positive = backmatter. The value determines render order within its section. -> int
@@ -142,10 +156,12 @@
     }
   }
   config.validation.validate-position(position)
+  config.validation.validate-enable(enable)
   config.validation.validate-generator(generator-function)
   return (
     front-back-matter: (
       abstracts: config.util.get-dict-without-default((
+        enable: enable,
         entries: abstracts,
         position: position,
         generator: generator-function,
@@ -156,6 +172,8 @@
 
 /// Configure the bibliography listing. -> dictionary
 #let bibliography(
+  /// Render this entry; omission inherits, false disables it. -> bool
+  enable: config.util.default-value,
   /// The bibliography content, typically produced via `bibliography("refs.bib")`. -> content | none
   library: config.util.default-value,
   /// Where and when the bibliography listing should be displayed. Negative = frontmatter, zero or positive = backmatter. The value determines render order within its section. -> int
@@ -164,10 +182,12 @@
   generator-function: config.util.default-value,
 ) = {
   config.validation.validate-position(position)
+  config.validation.validate-enable(enable)
   config.validation.validate-generator(generator-function)
   return (
     front-back-matter: (
       bibliography: config.util.get-dict-without-default((
+        enable: enable,
         library: library,
         position: position,
         generator: generator-function,
@@ -178,6 +198,8 @@
 
 /// Configure the figure listings. -> dictionary
 #let figure-listings(
+  /// Render this entry; omission inherits, false disables it. -> bool
+  enable: config.util.default-value,
   /// Whether to show the figure listing. -> bool
   figure-listing: config.util.default-value,
   /// Whether to show the figure listing .-> bool
@@ -211,10 +233,12 @@
       + str(type(code-listing)),
   )
   config.validation.validate-position(position)
+  config.validation.validate-enable(enable)
   config.validation.validate-generator(generator-function)
   return (
     front-back-matter: (
       listings: config.util.get-dict-without-default((
+        enable: enable,
         figure-listing: figure-listing,
         table-listing: table-listing,
         code-listing: code-listing,
@@ -227,16 +251,20 @@
 
 /// Configure the table of contents. -> dictionary
 #let toc(
+  /// Render this entry; omission inherits, false disables it. -> bool
+  enable: config.util.default-value,
   /// Where and when the table of contents should be displayed. Negative = frontmatter, zero or positive = backmatter. The value determines render order within its section. -> int
   position: config.util.default-value,
   /// A function receiving a single positional argument `config` holding the configuration dictionary and returning the table of contents section `content` (or `none` to skip). -> function
   generator-function: config.util.default-value,
 ) = {
   config.validation.validate-position(position)
+  config.validation.validate-enable(enable)
   config.validation.validate-generator(generator-function)
   return (
     front-back-matter: (
       toc: config.util.get-dict-without-default((
+        enable: enable,
         position: position,
         generator: generator-function,
       )),

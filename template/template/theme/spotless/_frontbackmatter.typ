@@ -58,6 +58,17 @@
   )
 }
 
+// Appendix TOC is a preset generator, so explicit none genuinely suppresses it.
+#let _appendix-toc(config) = {
+  heading(linguify-content("list-of-appendices"), numbering: none)
+  outline(
+    depth: 1,
+    indent: auto,
+    title: none,
+    target: selector(heading).after(<_appendix-start>),
+  )
+}
+
 /// Default generator for the bibliography section. Renders the configured
 /// `library` content (typically produced via `bibliography("refs.bib")`), or
 /// `none` if no library was provided. -> content | none
@@ -102,45 +113,55 @@
 /// figures, tables and code blocks appearing before the appendix, subject to
 /// the corresponding enable flags. Uses `context` because the presence of
 /// each listing depends on document queries resolved during layout. -> content
-#let _listings(config) = context {
+#let _listings(config) = {
   let listings = config.front-back-matter.listings
-
-  // list of figures
-  if (
+  if not (
     listings.at("figure-listing", default: false)
-      and query(figure.where(kind: image)).len() > 0
+      or listings.at("table-listing", default: false)
+      or listings.at("code-listing", default: false)
   ) {
-    pagebreak(weak: true)
-    heading(linguify-content("list-of-figures"))
-    outline(
-      target: figure.where(kind: image).before(<_appendix-start>),
-      title: none,
-    )
+    return none
   }
+  context {
+    let listings = config.front-back-matter.listings
 
-  // list of tables
-  if (
-    listings.at("table-listing", default: false)
-      and query(figure.where(kind: table)).len() > 0
-  ) {
-    pagebreak(weak: true)
-    heading(linguify-content("list-of-tables"))
-    outline(
-      target: figure.where(kind: table).before(<_appendix-start>),
-      title: none,
-    )
-  }
+    // list of figures
+    if (
+      listings.at("figure-listing", default: false)
+        and query(figure.where(kind: image)).len() > 0
+    ) {
+      pagebreak(weak: true)
+      heading(linguify-content("list-of-figures"))
+      outline(
+        target: figure.where(kind: image).before(<_appendix-start>),
+        title: none,
+      )
+    }
 
-  // list of source code
-  if (
-    listings.at("code-listing", default: false)
-      and query(figure.where(kind: raw)).len() > 0
-  ) {
-    pagebreak(weak: true)
-    heading(linguify-content("list-of-code"))
-    outline(
-      target: figure.where(kind: raw).before(<_appendix-start>),
-      title: none,
-    )
+    // list of tables
+    if (
+      listings.at("table-listing", default: false)
+        and query(figure.where(kind: table)).len() > 0
+    ) {
+      pagebreak(weak: true)
+      heading(linguify-content("list-of-tables"))
+      outline(
+        target: figure.where(kind: table).before(<_appendix-start>),
+        title: none,
+      )
+    }
+
+    // list of source code
+    if (
+      listings.at("code-listing", default: false)
+        and query(figure.where(kind: raw)).len() > 0
+    ) {
+      pagebreak(weak: true)
+      heading(linguify-content("list-of-code"))
+      outline(
+        target: figure.where(kind: raw).before(<_appendix-start>),
+        title: none,
+      )
+    }
   }
 }

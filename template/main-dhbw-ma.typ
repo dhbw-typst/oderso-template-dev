@@ -94,6 +94,9 @@
   ),
 
   // remove this call to remove acknowledgements
+  // This patch moves the configured form without clearing its per-author data.
+  frontbackmatter.ai-declaration-form(position: 100),
+
   frontbackmatter.acknowledgements(text: include "misc/acknowledgments.typ"),
 
   // Abstracts are dictionaries with `lang`, `lang-display`, `text` keys.

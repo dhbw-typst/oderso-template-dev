@@ -1,6 +1,6 @@
 // LTeX: enabled=false
 
-#import "../../base.typ": _signature-line
+#import "../_shared.typ": _require-authors, _signature-line, _submission-date
 #import "../../config/lib.typ" as config
 #let merge-config = config.util.merge-config
 #let merge-configs = config.util.merge-configs
@@ -74,42 +74,6 @@
   /// Language of the document. -> str
   lang: "en",
 ) = {
-  if authors == none or type(authors) != array or authors.len() == 0 {
-    panic("At least one author has to be specified!")
-  }
-
-  // TODO: only for compatibility: Remove with v3.0.0 release
-  if type(submission-date) == datetime {
-    submission-date = submission-date.display(submission-date-format)
-  }
-
-  // ----------------------------------
-  // Build metadata
-  // ----------------------------------
-  let submission-info = [
-    #linguify-content("as-part-of-examination-ihk")
-
-    *#examination*
-
-    #linguify-content("in-the-training-occupation")\
-    #training-occupation
-  ]
-
-  let misc-key-value = (
-    linguify-content("submission-date"),
-    submission-date,
-    linguify-content("processing-duration"),
-    linguify-content("weeks", args: (count: processing-period-weeks)),
-    linguify-content("examinee-number"),
-    authors.map(a => a.examinee-number).join(linebreak()),
-    linguify-content("training-company"),
-    company-name + linebreak() + company-city,
-    linguify-content("department"),
-    company-department,
-    linguify-content("supervisor-at-training-company"),
-    company-supervisor,
-  )
-
   // ----------------------------------
   // Build config
   // ----------------------------------
@@ -122,8 +86,16 @@
     thesis-type: thesis-type,
     logo-left: company-logo,
     logo-right: image("../assets/IHK-Logo.svg"),
-    submission-info: submission-info,
-    misc-key-value: misc-key-value,
+    institution: "ihk",
+    examination: examination,
+    training-occupation: training-occupation,
+    submission-date: submission-date,
+    submission-date-format: submission-date-format,
+    processing-period-weeks: processing-period-weeks,
+    company-name: company-name,
+    company-city: company-city,
+    company-department: company-department,
+    company-supervisor: company-supervisor,
     authors: authors,
   ))
 
@@ -133,6 +105,11 @@
 
   // Statutory declaration generator
   let statutory-declaration-generator(config) = {
+    let authors = _require-authors(
+      config.general.metadata,
+      "Statutory declaration",
+    )
+    let submission-date = _submission-date(config.general.metadata)
     let sd-cfg = config.front-back-matter.statutory-declaration
     pagebreak(weak: true)
     align(center, heading(

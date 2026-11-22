@@ -58,8 +58,10 @@
       (tool: "DeepL", usage: "Translation"),
     ),
   ),
+  // Position-only patches inherit the configured AI entries.
+  frontbackmatter.ai-declaration(position: 100),
 
-  // remove this call to remove acknowledgements
+  // Remove this call or use enable: false to disable acknowledgements.
   frontbackmatter.acknowledgements(text: include "misc/acknowledgments.typ"),
 
   // Abstracts are dictionaries with `lang`, `lang-display`, `text` keys.

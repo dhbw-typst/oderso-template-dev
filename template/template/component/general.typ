@@ -1,9 +1,5 @@
 // LTeX: enabled=false
-#import "../config/lib.typ" as config
-#import "_shared.typ": (
-  _build-show-rules-entry, _make-show-rule-entry, make-footer, make-header,
-  make-page,
-)
+#import "_shared.typ": make-footer, make-header, make-page, make-show-rules
 
 /// Configure general page settings (numbering, margin) shared across ALL sections.
 /// Overridden by any section-specific `page` config. -> dictionary
@@ -21,25 +17,9 @@
 
 /// Configure a document-level show rule that is applied after all base set/show
 /// rules. Multiple calls with different `show-key` values accumulate; a repeated
-/// `show-key` overwrites the previous entry. Rules are applied in ascending
+/// `show-key` patches the previous entry field by field. Rules are applied in ascending
 /// `show-order` (default `0` at composition time if omitted).
-/// `show-key` and `show-fun` are co-required: provide both or neither.
+/// A key is required to patch order, callback, or enable. Later callbacks become
+/// outer wrappers; execution order is not effective style precedence.
 /// -> dictionary
-#let show-rules(
-  /// Unique identifier for this rule. Co-required with `show-fun`. -> str
-  show-key: config.util.default-value,
-  /// Execution order (lower = earlier). Optional — omit to leave unset. -> int
-  show-order: config.util.default-value,
-  /// Show rule function receiving content (`it`) and returning content. Co-required with `show-key`. -> function
-  show-fun: config.util.default-value,
-) = {
-  if (
-    show-key == config.util.default-value
-      and show-order == config.util.default-value
-      and show-fun == config.util.default-value
-  ) {
-    return (:)
-  }
-  let entry = _build-show-rules-entry(show-key, show-order, show-fun)
-  (component: (show-rules: entry))
-}
+#let show-rules = make-show-rules(none)

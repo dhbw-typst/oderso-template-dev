@@ -9,6 +9,28 @@
   addition,
 ) = {
   for key in addition.keys() {
+    // Switching horizontal coordinate systems maps inherited left -> inside
+    // and right -> outside (and conversely). A patch itself must not mix them.
+    if (
+      key == "margin"
+        and type(base.at(key, default: none)) == dictionary
+        and type(addition.at(key)) == dictionary
+    ) {
+      let old = base.at(key)
+      let new = addition.at(key)
+      for (physical, logical) in (("left", "inside"), ("right", "outside")) {
+        if "inside" in new or "outside" in new {
+          if physical in old {
+            old.insert(logical, old.remove(physical))
+          }
+        } else if "left" in new or "right" in new {
+          if logical in old {
+            old.insert(physical, old.remove(logical))
+          }
+        }
+      }
+      base.insert(key, old)
+    }
     if (
       key in base
         and type(base.at(key)) == dictionary
@@ -50,6 +72,9 @@
 #let get-config(path, default, config) = {
   if path == "" or path == none {
     return config
+  }
+  if type(config) != dictionary {
+    return default
   }
 
   let first-dot = path.position(".")

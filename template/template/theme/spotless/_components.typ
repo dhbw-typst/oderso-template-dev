@@ -2,6 +2,7 @@
 #let linguify-content = config.util.linguify-content
 #import "../../component/lib.typ" as component
 #import "@preview/hydra:0.6.3": anchor, hydra
+#import "../../institution/_shared.typ": _cover-metadata, _require-authors
 /// Configure the theme _spotless_.
 ///
 /// Sets defaults for:
@@ -14,6 +15,8 @@
 /// -> dictionary
 #let _coversheet() = {
   return component.coversheet(generator-function: config => {
+    let authors = _require-authors(config.general.metadata, "Coversheet")
+    let presentation = _cover-metadata(config.general.metadata)
     // Coversheet
     grid(
       rows: (1fr, auto, 1fr),
@@ -33,18 +36,18 @@
       align(center)[
         #set par(justify: false)
 
-        #text(20pt)[*#config.general.metadata.title-long*]
+        #text(20pt)[*#config.general.metadata.at("title-long", default: none)*]
 
         #smallcaps(text(
           1.25em,
           weight: "semibold",
-        )[#config.general.metadata.thesis-type])
+        )[#config.general.metadata.at("thesis-type", default: none)])
 
-        #config.general.metadata.submission-info
+        #presentation.submission-info
 
         #linguify-content("by")
 
-        #for author in config.general.metadata.authors {
+        #for author in authors {
           [*#author.firstname #author.lastname*\ ]
         }
       ],
@@ -59,15 +62,20 @@
           columns: (1fr, 1fr),
           align: (right + top, left + top),
           stroke: none,
-          ..config.general.metadata.misc-key-value
+          ..presentation.misc-key-value
         )
       }),
     )
 
-    let confidentiality-enabled = config
-      .front-back-matter
-      .at("confidentiality-clause", default: (:))
-      .at("enable", default: false)
+    let clause = config.front-back-matter.at(
+      "confidentiality-clause",
+      default: (:),
+    )
+    let confidentiality-enabled = (
+      clause.at("enable", default: true)
+        and clause.at("generator", default: none) != none
+        and type(clause.at("position", default: none)) == int
+    )
     if confidentiality-enabled {
       place(top + center, dy: 5cm, link(<_confidentiality-clause>)[
         #text(
@@ -87,7 +95,7 @@
       anchor()
       grid(
         columns: (auto, 1fr),
-        align(left, text(config.general.metadata.title-short)),
+        align(left, config.general.metadata.at("title-short", default: [])),
         align(right, emph(hydra(1, display: (_, it) => {
           it.body
         }))),
@@ -98,23 +106,29 @@
   )
 }
 
-#let _body-footer(show-total-pages: false) = {
-  return component.body.footer(
-    generator-function: (cfg, total) => context {
-      let numbering-fmt = config.util.get-config(
-        "component.body.numbering",
-        "1",
-        cfg,
-      )
-      align(center, if show-total-pages {
-        numbering(
-          numbering-fmt + " / " + numbering-fmt,
-          counter(page).get().at(0),
-          total,
-        )
-      } else {
-        numbering(numbering-fmt, counter(page).get().at(0))
-      })
-    },
-  )
+#let _page-number(cfg, total) = context {
+  let section = cfg.resolved-section
+  let fmt = section.page.numbering
+  if fmt != none {
+    // Native page numbering callbacks always receive current and total. The
+    // total-page convenience suffix reuses the same formatter for the total.
+    let format-number(n) = if type(fmt) == function { fmt(n, total) } else {
+      numbering(fmt, n)
+    }
+    align(center, {
+      format-number(counter(page).get().first())
+      if section.footer.at("show-total-pages", default: false) {
+        text(" / ")
+        format-number(total)
+      }
+    })
+  }
 }
+
+// Shared theme numbering preserves the formerly implicit native page footer,
+// but now all footer hooks and explicit suppression apply consistently.
+#let _shared-footer() = component.footer(generator-function: _page-number)
+
+#let _body-footer(show-total-pages: false) = component.body.footer(
+  show-total-pages: show-total-pages,
+)

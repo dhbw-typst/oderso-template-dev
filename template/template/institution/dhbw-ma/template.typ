@@ -1,7 +1,9 @@
 // LTeX: enabled=false
 
 #import "@preview/linguify:0.5.0": linguify, linguify-raw
-#import "../../base.typ": _signature-line
+#import "../_shared.typ": (
+  _course-year, _require-authors, _signature-line, _submission-date,
+)
 #import "../../config/lib.typ" as config
 #let merge-config = config.util.merge-config
 #let merge-configs = config.util.merge-configs
@@ -33,7 +35,7 @@
       enable: true,
       position: 90,
     ),
-    configure-dhbw-ma-ai-declaration-form(position: 100),
+    configure-dhbw-ma-ai-declaration-form(position: 100, authors: ()),
   )
 }
 
@@ -100,89 +102,6 @@
   /// Language of the document. -> str
   lang: "en",
 ) = {
-  if authors == none or type(authors) != array or authors.len() == 0 {
-    panic("At least one author has to be specified!")
-  }
-
-  // TODO: only for compatibility: Remove with v3.0.0 release
-  if type(submission-date) == datetime {
-    submission-date = submission-date.display(submission-date-format)
-  }
-
-  // ----------------------------------
-  // Build metadata
-  // ----------------------------------
-  let submission-info = [
-    #linguify-content("as-part-of-examination-dhbw")
-
-    *#examination*
-
-    #linguify-content("in-field-of-study", args: (study: study))
-
-    #context linguify-content("at-the-institution", args: (
-      institution: linguify-raw("dhbw-long"),
-      city: linguify-raw("ma"),
-    ))
-  ]
-
-  let company-supervisor-data = [
-    #company-supervisor.firstname #company-supervisor.lastname#if (
-      company-supervisor.phone-number != none
-    ) {
-      ", " + company-supervisor.phone-number
-    }
-    #if (company-supervisor.email != none) {
-      linebreak()
-      company-supervisor.email
-    }
-  ]
-
-  let university-supervisor-data = [
-    #university-supervisor.firstname #university-supervisor.lastname#if (
-      university-supervisor.phone-number != none
-    ) {
-      ", " + university-supervisor.phone-number
-    }
-    #if (university-supervisor.email != none) {
-      linebreak()
-      university-supervisor.email
-    }
-  ]
-
-  let misc-key-value = (
-    linguify-content("submission-date"),
-    submission-date,
-    linguify-content("processing-duration"),
-    linguify-content("weeks", args: (count: processing-period-weeks)),
-    linguify-content("matriculation-number")
-      + ", "
-      + linguify-content("course"),
-    authors
-      .map(a => a.matriculation-number + ", " + a.course)
-      .join(linebreak()),
-    ..if company-name != none and company-city != none {
-      (
-        linguify-content("training-company"),
-        company-name + linebreak() + company-city,
-      )
-    },
-    ..if company-department != none {
-      (linguify-content("department"), company-department)
-    },
-    ..if company-supervisor.firstname != none
-      or company-supervisor.lastname != none {
-      (
-        linguify-content("supervisor-at-training-company"),
-        company-supervisor-data,
-      )
-    },
-    ..if course-director != none {
-      (linguify-content("course-director"), course-director)
-    },
-    linguify-content("supervisor-at-university"),
-    university-supervisor-data,
-  )
-
   // ----------------------------------
   // Build config
   // ----------------------------------
@@ -195,18 +114,33 @@
     thesis-type: thesis-type,
     logo-left: company-logo,
     logo-right: image("../assets/DHBW-Logo.svg"),
-    submission-info: submission-info,
-    misc-key-value: misc-key-value,
+    institution: "dhbw-ma",
+    examination: examination,
+    study: study,
+    submission-date: submission-date,
+    submission-date-format: submission-date-format,
+    processing-period-weeks: processing-period-weeks,
+    university-supervisor: university-supervisor,
+    company-name: company-name,
+    company-city: company-city,
+    company-department: company-department,
+    company-supervisor: company-supervisor,
+    course-director: course-director,
     authors: authors,
   ))
 
   // ----------------------------------
   // Install section generators
   // ----------------------------------
-  let course-year = int(authors.at(0).course.find(regex("\d+")))
 
   // Statutory declaration generator
   let statutory-declaration-generator(config) = {
+    let metadata = config.general.metadata
+    let authors = _require-authors(metadata, "Statutory declaration")
+    let course-year = _course-year(authors)
+    let title-long = metadata.at("title-long", default: none)
+    let thesis-type = metadata.at("thesis-type", default: none)
+    let submission-date = _submission-date(metadata)
     let sd-cfg = config.front-back-matter.statutory-declaration
     pagebreak(weak: true)
 
@@ -276,6 +210,12 @@
     if ai-authors.len() == 0 {
       return none
     }
+    let authors = _require-authors(
+      config.general.metadata,
+      "AI declaration form",
+      fields: ("firstname", "lastname", "matriculation-number", "course"),
+    )
+    let submission-date = _submission-date(config.general.metadata)
     let sd-cfg = config.front-back-matter.statutory-declaration
     for (i, a) in authors.enumerate() {
       let ai-author = ai-authors.at(i, default: (:))
@@ -283,10 +223,10 @@
         digital: sd-cfg.digital-only,
         name: a.lastname + ", " + a.firstname,
         identification-number: a.matriculation-number,
-        address: a.address,
+        address: a.at("address", default: none),
         course: a.course,
-        email: a.email,
-        mobile-number: a.phone-number,
+        email: a.at("email", default: none),
+        mobile-number: a.at("phone-number", default: none),
         module-name: ai-cfg.at("module-name", default: none),
         semester: ai-cfg.at("semester", default: none),
         module-submission-date: ai-cfg.at(
@@ -301,7 +241,7 @@
         design: ai-author.at("design", default: none),
         signature-city: sd-cfg.signature-city,
         signature-date: submission-date,
-        signature-image: a.signature,
+        signature-image: a.at("signature", default: none),
       )
     }
   }

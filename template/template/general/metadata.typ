@@ -1,6 +1,11 @@
 #import "../config/lib.typ" as config
 
-/// Configure arbitrary metadata of the document, used by adapters and components. Low level configuration, is only called from adapters but may be used modify internal behaviour. -> dictionary
+/// Patch final semantic metadata (authors, title-long, thesis-type,
+/// submission-date, examination, study, company, and supervisors). Institution
+/// generators read the effective values, not setup-time snapshots. Explicit
+/// submission-info and misc-key-value remain low-level cover escape hatches.
+/// Datetime submission dates use submission-date-format at render time.
+/// -> dictionary
 #let metadata(
   ..metadata,
 ) = {
@@ -9,7 +14,7 @@
     message: "Only named arguments are allowed, remove positional arguments.",
   )
 
-  let named = metadata.named()
+  let named = config.util.get-dict-without-default(metadata.named())
   return (
     general: (
       metadata: named,

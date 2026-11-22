@@ -1,6 +1,11 @@
 // LTeX: enabled=false
 #import "../config/lib.typ" as config
-#import "_shared.typ": make-footer, make-header, make-page, make-toc
+#import "_shared.typ": (
+  make-footer, make-header, make-page, make-show-rules, make-toc,
+)
+
+/// Configure show rules scoped to appendix content. -> dictionary
+#let show-rules = make-show-rules("appendix")
 
 /// Configure the table of contents entry for the appendix. -> dictionary
 #let toc = make-toc("appendix")
@@ -16,7 +21,7 @@
 
 /// Configure the appendices. -> dictionary
 #let entries(
-  /// List of appendices. Entries must have `title` (content), `reference` (string), by which the appendix can be referenced, and text (content). -> array
+  /// List of appendices with title and text; reference is an optional string. An empty array clears inherited entries. -> array
   appendices: config.util.default-value,
 ) = {
   if appendices != config.util.default-value {

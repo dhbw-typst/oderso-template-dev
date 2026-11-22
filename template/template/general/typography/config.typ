@@ -15,6 +15,12 @@
   /// Paragraph spacing (vertical space between paragraphs). -> relative | config.util.default-value
   spacing: config.util.default-value,
 ) = {
+  config.validation.validate-typography(config.util.get-dict-without-default((
+    font: font,
+    size: size,
+    leading: leading,
+    spacing: spacing,
+  )))
   return (
     general: (
       typography: (
@@ -31,15 +37,21 @@
 
 /// Configure heading typography.
 ///
-/// `size` sets the level-1 heading size; deeper levels scale relative to it.
+/// `sizes` is an explicit array for heading levels 1 onward. Preset sizes do
+/// not automatically rescale when later body typography changes.
 /// -> dictionary
 #let heading(
   /// Font family name or list of fallbacks. -> str | array | config.util.default-value
   font: config.util.default-value,
-  /// Level-1 heading size (deeper levels scale proportionally). -> relative | config.util.default-value
+  /// Explicit sizes for levels 1 onward; an empty array clears preset sizes. -> array | config.util.default-value
   sizes: config.util.default-value,
   numbering: config.util.default-value,
 ) = {
+  config.validation.validate-typography(config.util.get-dict-without-default((
+    font: font,
+    sizes: sizes,
+    numbering: numbering,
+  )))
   return (
     general: (
       typography: (
@@ -61,6 +73,10 @@
   /// Caption font size relative to body. -> relative | config.util.default-value
   size: config.util.default-value,
 ) = {
+  config.validation.validate-typography(config.util.get-dict-without-default((
+    font: font,
+    size: size,
+  )))
   return (
     general: (
       typography: (
@@ -81,6 +97,10 @@
   /// Code font size relative to body. -> relative | config.util.default-value
   size: config.util.default-value,
 ) = {
+  config.validation.validate-typography(config.util.get-dict-without-default((
+    font: font,
+    size: size,
+  )))
   return (
     general: (
       typography: (
@@ -101,6 +121,10 @@
   /// Math font size relative to body. -> relative | config.util.default-value
   size: config.util.default-value,
 ) = {
+  config.validation.validate-typography(config.util.get-dict-without-default((
+    font: font,
+    size: size,
+  )))
   return (
     general: (
       typography: (

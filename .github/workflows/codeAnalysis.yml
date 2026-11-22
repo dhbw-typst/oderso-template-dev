@@ -57,7 +57,7 @@ jobs:
         run: ./typstyle --version
       - name: Run formatting check
         run: |
-          ./typstyle ./template --check
+          ./typstyle ./template ./tests documentation.typ --check
 
   check_build:
     name: Check Build (${{ matrix.file_entry.file }}, typst ${{ matrix.typst_version }})
@@ -74,7 +74,7 @@ jobs:
       - name: Install typst
         uses: typst-community/setup-typst@40d32bb6ccb235bd7f5164cb47cfd40a5ea3a314 # v5.2.0
         with:
-          typst-version: ${{ fromJson(needs.discover_versions.outputs.versions)[0] }}
+          typst-version: ${{ matrix.typst_version }}
       - name: Typst version
         run: typst --version
       - name: Install Inter font
@@ -90,16 +90,34 @@ jobs:
           find /tmp/inter -type f \( -name "*.ttf" -o -name "*.otf" \) -exec cp {} "$HOME/.local/share/fonts/inter/" \;
           fc-cache -f
       - name: Build template
-        run: typst compile ${{ matrix.file_entry.path }}
+        run: typst compile ${{ matrix.file_entry.path }} "${RUNNER_TEMP}/${{ matrix.file_entry.file }}.pdf"
+
+  check_customization:
+    name: Customization regressions (typst ${{ matrix.typst_version }})
+    needs: discover_versions
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        typst_version: ${{ fromJson(needs.discover_versions.outputs.versions) }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install selected Typst version
+        uses: typst-community/setup-typst@40d32bb6ccb235bd7f5164cb47cfd40a5ea3a314 # v5.2.0
+        with:
+          typst-version: ${{ matrix.typst_version }}
+      - name: Run assertions, smoke tests, and documentation coverage
+        run: python3 scripts/test_customization.py --smoke
 
   check_build_results:
     name: Check Build Result
-    needs: check_build
+    needs: [check_build, check_customization]
     if: always()
     runs-on: ubuntu-24.04
     steps:
       - name: Fail if any build failed
-        if: needs.check_build.result != 'success'
+        if: needs.check_build.result != 'success' || needs.check_customization.result != 'success'
         run: exit 1
 
   check_pdf:

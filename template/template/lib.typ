@@ -2,7 +2,7 @@
 // Public API for the oderso Typst template.
 //
 // Import with: #import "template/lib.typ": *
-// Then use: #show: project.with(theme.spotless(), institution.dhbw-ka(...), ...)
+// Then use: #show: project.with(theme.spotless(), institution.dhbw-ka.setup(...), ...)
 
 #import "@preview/codly:1.3.0" as codly
 #import "@preview/drafting:0.2.2" as drafting

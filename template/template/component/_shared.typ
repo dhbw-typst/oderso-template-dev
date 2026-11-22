@@ -1,269 +1,290 @@
 // LTeX: enabled=false
-// Internal helpers shared across component config files.
-// Do NOT import this file from outside the component/ directory.
+// Private component producer helpers; public functions live in their scopes.
 #import "../config/lib.typ" as config
 
-// ── Margin helpers (private) ─────────────────────────────────────────────────
-
 #let _validate-margin(margin) = {
-  if margin == auto {
-    panic(
-      "`auto` is not allowed for `margin` in this template to simplify subsequent calculations. Please choose a different type.",
-    )
-  }
+  if margin == config.util.default-value { return }
   assert(
-    margin == config.util.default-value
-      or type(margin) == dictionary
-      or type(margin) == relative
-      or type(margin) == length
-      or type(margin) == ratio,
-    message: "`margin` must be a length, a ratio, a relative length, or a dictionary, got "
-      + repr(margin)
-      + " of type "
-      + str(type(margin)),
+    margin != auto,
+    message: "`auto` is not allowed for `margin`; choose explicit lengths for margin arithmetic.",
   )
+  if type(margin) == dictionary {
+    assert(
+      not (
+        ("left" in margin or "right" in margin)
+          and ("inside" in margin or "outside" in margin)
+      ),
+      message: "A margin patch cannot mix left/right with inside/outside",
+    )
+    for (key, value) in margin {
+      assert(
+        key
+          in (
+            "rest",
+            "x",
+            "y",
+            "top",
+            "bottom",
+            "left",
+            "right",
+            "inside",
+            "outside",
+          ),
+        message: "Unknown margin side: " + key,
+      )
+      assert(value != auto, message: "`auto` is not allowed for margin sides")
+      assert(
+        value != config.util.default-value,
+        message: "Omit unspecified margin sides instead of storing a sentinel",
+      )
+      config.validation.validate-relative(value, "margin." + key)
+    }
+  } else { config.validation.validate-relative(margin, "margin") }
 }
 
+// Expand only explicitly provided shorthand. Precedence: side > x/y > rest.
+// Missing sides remain missing until the final section resolution.
 #let _normalize-margin(margin) = {
-  if type(margin) == dictionary {
-    let cp = margin
-    let rest = margin.at("rest", default: 0pt)
-    cp.top = if "top" in margin {
-      margin.top
-    } else if "y" in margin {
-      margin.y
-    } else {
-      rest
-    }
-    cp.bottom = if "bottom" in margin {
-      margin.bottom
-    } else if "y" in margin {
-      margin.y
-    } else {
-      rest
-    }
-    if "inside" in margin.keys() or "outside" in margin.keys() {
-      cp.inside = if "inside" in margin {
-        margin.inside
-      } else if "x" in margin {
-        margin.x
-      } else {
-        rest
-      }
-      cp.outside = if "outside" in margin {
-        margin.outside
-      } else if "x" in margin {
-        margin.x
-      } else {
-        rest
-      }
-    } else {
-      cp.left = if "left" in margin {
-        margin.left
-      } else if "x" in margin {
-        margin.x
-      } else {
-        rest
-      }
-      cp.right = if "right" in margin {
-        margin.right
-      } else if "x" in margin {
-        margin.x
-      } else {
-        rest
-      }
-    }
-    return cp
-  } else {
+  _validate-margin(margin)
+  if type(margin) != dictionary {
     return (top: margin, bottom: margin, left: margin, right: margin)
   }
+  let result = (:)
+  let horizontal = if "inside" in margin or "outside" in margin {
+    ("inside", "outside")
+  } else { ("left", "right") }
+  for side in ("top", "bottom") + horizontal {
+    let axis = if side in ("top", "bottom") { "y" } else { "x" }
+    if side in margin { result.insert(side, margin.at(side)) } else if (
+      axis in margin
+    ) { result.insert(side, margin.at(axis)) } else if "rest" in margin {
+      result.insert(side, margin.rest)
+    }
+  }
+  result
 }
 
-// ── Show-rule helpers ────────────────────────────────────────────────────────
-
-/// Build a single show-rule entry for insertion into a `show-rules` dictionary.
-/// `order` is optional — if omitted (default-value), it is not stored; base.typ
-/// falls back to `0` when composing.
-/// Returns `((key): (function: fn))` or `((key): (order: n, function: fn))`.
+/// Build a keyed patch. Omitted fields inherit, `show-fun: none` clears the
+/// callback, and `show-enable: false` disables it without clearing it.
 #let _make-show-rule-entry(
   key,
   show-fun,
   order: config.util.default-value,
+  enable: config.util.default-value,
 ) = {
+  assert(type(key) == str, message: "`show-key` must be a string")
   assert(
-    type(key) == str,
-    message: "`show-key` must be a string, got " + repr(key),
+    order == config.util.default-value or type(order) in (int, float),
+    message: "`show-order` must be a number",
   )
-  assert(
-    order == config.util.default-value
-      or type(order) == int
-      or type(order) == float,
-    message: "`show-order` must be a number, got " + repr(order),
-  )
-  assert(
-    type(show-fun) == function,
-    message: "`show-fun` must be a function, got " + repr(show-fun),
-  )
-  let entry = ("function": show-fun)
-  if order != config.util.default-value {
-    entry.insert("order", order)
-  }
-  return ((key): entry)
-}
-
-/// Validate that `show-key` and `show-fun` are provided together (co-required).
-#let _validate-show-pair(show-key, show-fun) = {
-  let has-key = show-key != config.util.default-value
-  let has-fun = show-fun != config.util.default-value and show-fun != none
-  assert(
-    has-key == has-fun,
-    message: "`show-key` and `show-fun` must be provided together; got show-key="
-      + repr(show-key)
-      + ", show-fun="
-      + repr(show-fun),
+  config.validation.validate-show(show-fun)
+  config.validation.validate-enable(enable)
+  (
+    (key): config.util.get-dict-without-default((
+      function: show-fun,
+      order: order,
+      enable: enable,
+    )),
   )
 }
 
-/// Build a show-rules entry from the three show params, or return `(:)` if none given.
-#let _build-show-rules-entry(show-key, show-order, show-fun) = {
-  _validate-show-pair(show-key, show-fun)
+#let _build-show-rules-entry(
+  show-key,
+  show-order,
+  show-fun,
+  show-enable: config.util.default-value,
+) = {
   if show-key == config.util.default-value {
+    assert(
+      show-order == config.util.default-value
+        and show-fun == config.util.default-value
+        and show-enable == config.util.default-value,
+      message: "Provide `show-key` when patching a show rule",
+    )
     return (:)
   }
-  _make-show-rule-entry(show-key, show-fun, order: show-order)
+  _make-show-rule-entry(
+    show-key,
+    show-fun,
+    order: show-order,
+    enable: show-enable,
+  )
 }
 
-// ── Config-dict builder ───────────────────────────────────────────────────────
-
-/// Build a `(component: ...)` config dict.
-///
-/// - scope: the section key (e.g. `"frontmatter"`) or `none` for top-level.
-/// - key: `"header"` or `"footer"`.
-/// - value: the inner dictionary (already stripped of defaults).
 #let make-component-config(scope, key, value) = {
-  if scope == none {
-    return (component: ((key): value))
-  } else {
-    return (component: ((scope): ((key): value)))
-  }
+  (
+    component: if scope == none { ((key): value) } else {
+      ((scope): ((key): value))
+    },
+  )
 }
 
-// ── Header factory ────────────────────────────────────────────────────────────
-
-/// Return a header config function for the given scope (`none` = top-level).
+/// Produce header patches. Generators keep `(cfg, last-page)`; effective local
+/// settings are available as `cfg.resolved-section.header`.
 #let make-header(scope) = {
   (
+    /// Disable an inherited header without replacing its generator. -> bool
+    enable: config.util.default-value,
+    /// Generator `(cfg, last-page) -> content`; none clears it. -> function | none
     generator-function: config.util.default-value,
+    /// Additional space reserved above the body. -> relative
     height: config.util.default-value,
+    /// Key of a local show rule to add or patch. -> str
     show-key: config.util.default-value,
+    /// Ascending callback order; ties use key insertion order. -> int | float
     show-order: config.util.default-value,
+    /// Local content wrapper; none clears an inherited callback. -> function | none
     show-fun: config.util.default-value,
+    /// Disable or re-enable the keyed local rule. -> bool
+    show-enable: config.util.default-value,
   ) => {
+    config.validation.validate-enable(enable)
     config.validation.validate-generator(generator-function)
     config.validation.validate-relative(height, "height")
-    config.validation.validate-show(show-fun)
-    let show-rules-entry = _build-show-rules-entry(
+    let rules = _build-show-rules-entry(
       show-key,
       show-order,
       show-fun,
+      show-enable: show-enable,
     )
     make-component-config(
       scope,
       "header",
       config.util.get-dict-without-default((
+        enable: enable,
         generator: generator-function,
         height: height,
       ))
-        + if show-rules-entry.len() > 0 {
-          (show-rules: show-rules-entry)
-        } else { (:) },
+        + (show-rules: rules),
     )
   }
 }
 
-// ── TOC factory (appendix-specific) ─────────────────────────────────────────
-
-/// Return a toc config function for the given scope.
+/// Produce appendix TOC patches. Omission inherits the preset; none clears its
+/// generator (no automatic fallback after explicit suppression).
 #let make-toc(scope) = {
   (
+    /// Whether to render the TOC. -> bool
+    enable: config.util.default-value,
+    /// Generator `(cfg) -> content`; none suppresses the TOC. -> function | none
     generator-function: config.util.default-value,
+    /// Key of the local rule to add or patch. -> str
     show-key: config.util.default-value,
+    /// Ascending callback order. -> int | float
     show-order: config.util.default-value,
+    /// Local wrapper, or none to clear it. -> function | none
     show-fun: config.util.default-value,
+    /// Whether the keyed rule is enabled. -> bool
+    show-enable: config.util.default-value,
   ) => {
+    config.validation.validate-enable(enable)
     config.validation.validate-generator(generator-function)
-    config.validation.validate-show(show-fun)
-    let show-rules-entry = _build-show-rules-entry(
+    let rules = _build-show-rules-entry(
       show-key,
       show-order,
       show-fun,
+      show-enable: show-enable,
     )
     make-component-config(
       scope,
       "toc",
       config.util.get-dict-without-default((
+        enable: enable,
         generator: generator-function,
       ))
-        + if show-rules-entry.len() > 0 {
-          (show-rules: show-rules-entry)
-        } else { (:) },
+        + (show-rules: rules),
     )
   }
 }
 
-// ── Page factory ─────────────────────────────────────────────────────────────
-
-/// Return a page config function for the given scope (`none` = top-level).
-/// Configures the page numbering and/or margin for the given section.
+/// Produce page patches. Shorthand expands only supplied sides. Switching
+/// horizontal modes maps inherited left/right to inside/outside, respectively.
 #let make-page(scope) = {
   (
+    /// Typst numbering pattern, `(current, total)` page callback, or none. -> str | function | none
     numbering: config.util.default-value,
+    /// Margin patch: explicit side > x/y > rest. Auto is unsupported. -> relative | dictionary
     margin: config.util.default-value,
   ) => {
-    _validate-margin(margin)
+    config.validation.validate-numbering(numbering)
     if margin != config.util.default-value {
       margin = _normalize-margin(margin)
     }
-    make-component-config(
-      scope,
-      "page",
-      config.util.get-dict-without-default((
-        numbering: numbering,
-        margin: margin,
-      )),
-    )
+    make-component-config(scope, "page", config.util.get-dict-without-default((
+      numbering: numbering,
+      margin: margin,
+    )))
   }
 }
 
-// ── Footer factory ────────────────────────────────────────────────────────────
-
-/// Return a footer config function for the given scope (`none` = top-level).
+/// Produce footer patches. Local effective settings are available as
+/// `cfg.resolved-section.footer`; numbering is in `cfg.resolved-section.page`.
 #let make-footer(scope) = {
   (
+    /// Disable an inherited footer without clearing its generator. -> bool
+    enable: config.util.default-value,
+    /// Generator `(cfg, last-page) -> content`; none clears it. -> function | none
     generator-function: config.util.default-value,
+    /// Additional space reserved below the body. -> relative
     height: config.util.default-value,
+    /// Whether a supporting generator displays total section pages. -> bool
+    show-total-pages: config.util.default-value,
+    /// Key of the local rule to add or patch. -> str
     show-key: config.util.default-value,
+    /// Ascending callback order. -> int | float
     show-order: config.util.default-value,
+    /// Local wrapper, or none to clear it. -> function | none
     show-fun: config.util.default-value,
+    /// Whether the keyed rule is enabled. -> bool
+    show-enable: config.util.default-value,
   ) => {
+    config.validation.validate-enable(enable)
+    config.validation.validate-enable(show-total-pages)
     config.validation.validate-generator(generator-function)
     config.validation.validate-relative(height, "height")
-    config.validation.validate-show(show-fun)
-    let show-rules-entry = _build-show-rules-entry(
+    let rules = _build-show-rules-entry(
       show-key,
       show-order,
       show-fun,
+      show-enable: show-enable,
     )
     make-component-config(
       scope,
       "footer",
       config.util.get-dict-without-default((
+        enable: enable,
         generator: generator-function,
         height: height,
+        show-total-pages: show-total-pages,
       ))
-        + if show-rules-entry.len() > 0 {
-          (show-rules: show-rules-entry)
-        } else { (:) },
+        + (show-rules: rules),
+    )
+  }
+}
+
+/// Produce section-local show-rule patches with the same field-wise semantics
+/// as document-level rules.
+#let make-show-rules(scope) = {
+  (
+    /// Key to add, replace, or patch. -> str
+    show-key: config.util.default-value,
+    /// Ascending callback order; omitted order inherits. -> int | float
+    show-order: config.util.default-value,
+    /// Content wrapper; omission inherits, none clears it. -> function | none
+    show-fun: config.util.default-value,
+    /// Disable an inherited rule without losing its callback. -> bool
+    show-enable: config.util.default-value,
+  ) => {
+    let rules = _build-show-rules-entry(
+      show-key,
+      show-order,
+      show-fun,
+      show-enable: show-enable,
+    )
+    make-component-config(
+      none,
+      if scope == none { "show-rules" } else { scope },
+      if scope == none { rules } else { (show-rules: rules) },
     )
   }
 }
