@@ -1,8 +1,9 @@
 // A theme can be used without an institution; cover metadata is supplied directly.
-#import "../template/template/lib.typ": general, project, theme
+#import "../template/template/lib.typ": component, general, project, theme
 
 #show: project.with(
-  theme.spotless(show-total-pages: true),
+  theme.spotless(),
+  component.body.footer(show-total-pages: true),
   general.metadata(
     lang: "en",
     title-long: "A theme without an institution",

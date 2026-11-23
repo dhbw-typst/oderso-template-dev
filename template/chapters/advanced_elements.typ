@@ -1,20 +1,20 @@
 #import "basic_formatting.typ": typst-preview
-#import "../template/lib.typ": caption-with-source
+#import "../template/lib.typ": util
 
 = Advanced Elements
 
 == Figures
 Inserting figures and code blocks into your Typst document enhances its informational depth. When specifying a `caption` for a figure, the template will automatically generate a list of figures, making it easy to navigate your document.
 
-/ Note: When using "ieee" Sorting for bibliography, the sources for figures will be evaluated before the text. To prevent "false sorting", you can use `#caption-with-source("Text", [@source])` instead. This will display the caption in outlines without source and will evaluate the source at the time the figure is displayed
+/ Note: When using "ieee" Sorting for bibliography, the sources for figures will be evaluated before the text. To prevent "false sorting", you can use `#util.caption-with-source("Text", [@source])` instead. This will display the caption in outlines without source and will evaluate the source at the time the figure is displayed
 
 === Image Figures
 #typst-preview(
   "Image Figures in Typst",
-  "#import \"../template/lib.typ\": caption-with-source
+  "#import \"../template/lib.typ\": util
 #figure(
   image(\"../assets/placeholder-company-logo.svg\"),
-  caption: caption-with-source(\"Company Logo\", [@electronic]),
+  caption: util.caption-with-source(\"Company Logo\", [@electronic]),
 )",
 )
 
@@ -24,8 +24,8 @@ Similar to images you can insert table figures. See more table examples and more
 
 #typst-preview(
   "Table Figures in Typst",
-  "#import \"../template/lib.typ\": tablefigure
-#tablefigure(
+  "#import \"../template/lib.typ\": util
+#util.tablefigure(
   columns: 3,
   caption: [Example table],
   table-content: (
@@ -102,14 +102,14 @@ You can reference labeled equations like other figures. @math-figure shows the s
 
 == Inline Glossary
 
-If you want to include parts of your glossary in your documents content this is possible using the `inline-glossary` function. This is useful if you need word definitions directly in a chapter and want the reader to explicitly read those definitions. The `group` parameter can be used to only show parts of the glossary. In the following example the _Dependency_ group of the example glossary defined in `glossary.typ` is shown. The _Dependency_ group contains definitions for @glossarium, @drafting, @codly, @hydra and @linguify, which are the packages used by this template.
+If you want to include parts of your glossary in your documents content this is possible using the `util.inline-glossary` function. This is useful if you need word definitions directly in a chapter and want the reader to explicitly read those definitions. The `group` parameter can be used to only show parts of the glossary. In the following example the _Dependency_ group of the example glossary defined in `glossary.typ` is shown. The _Dependency_ group contains definitions for @glossarium, @drafting, @codly, @hydra and @linguify, which are the packages used by this template.
 
 #typst-preview(
   "Inline Glossary Showing the Templates Dependencies",
-  "#import \"../template/lib.typ\": inline-glossary
+  "#import \"../template/lib.typ\": util
 #import \"../glossary.typ\": glossary
 
-#inline-glossary(glossary, (\"Dependencies\",), show-all: true)",
+#util.inline-glossary(glossary, (\"Dependencies\",), show-all: true)",
 )
 
 

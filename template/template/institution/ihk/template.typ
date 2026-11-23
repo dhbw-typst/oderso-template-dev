@@ -4,9 +4,7 @@
 #import "../../config/lib.typ" as config
 #let merge-config = config.util.merge-config
 #let merge-configs = config.util.merge-configs
-#import "frontbackmatter.typ": confidentiality-clause, statutory-declaration
-#let configure-statutory-declaration = statutory-declaration
-#let configure-confidentiality-clause = confidentiality-clause
+#import "../../frontbackmatter/lib.typ" as fbm
 #import "@preview/linguify:0.5.0": linguify
 #let linguify-content = config.util.linguify-content
 #import "../../general/lib.typ" as general
@@ -17,14 +15,14 @@
 #let _ihk-defaults() = {
   merge-configs(
     (:),
-    configure-statutory-declaration(
+    fbm.statutory-declaration(
       enable: true,
       position: 80,
       digital-submission: true,
       digital-only: true,
       signature-city: "Karlsruhe",
     ),
-    configure-confidentiality-clause(
+    fbm.confidentiality-clause(
       enable: true,
       position: 90,
     ),
@@ -147,10 +145,10 @@
 
   cfg = merge-configs(
     cfg,
-    configure-statutory-declaration(
+    fbm.statutory-declaration(
       generator-function: statutory-declaration-generator,
     ),
-    configure-confidentiality-clause(
+    fbm.confidentiality-clause(
       generator-function: confidentiality-clause-generator,
     ),
   )

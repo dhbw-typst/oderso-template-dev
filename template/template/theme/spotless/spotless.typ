@@ -1,12 +1,10 @@
-#import "@preview/codly:1.3.0": codly, codly-init
 #import "../../config/lib.typ" as config
 #import "../../general/lib.typ" as general
 #import "../../frontbackmatter/lib.typ" as fbm
 #import "../../component/lib.typ" as component
+#import "../../feature/lib.typ" as feature
 #import "../shared.typ" as shared
-#import "_components.typ": (
-  _body-footer, _body-header, _coversheet, _shared-footer,
-)
+#import "_components.typ": _body-header, _coversheet, _shared-footer
 #import "_frontbackmatter.typ": (
   _abbreviations, _abstracts, _acknowledgements, _appendix-toc, _bibliography,
   _glossary, _listings, _toc,
@@ -15,10 +13,7 @@
 /// Spotless academic visual preset. Later configuration patches override every
 /// field. Heading sizes are explicit calibrated values, not live body scaling.
 /// -> dictionary
-#let spotless(
-  /// Display total body pages; also overridable via component.body.footer. -> bool
-  show-total-pages: false,
-) = {
+#let spotless() = {
   let document-show(it) = {
     show heading: it => {
       it
@@ -52,7 +47,6 @@
     _coversheet(),
     _body-header(),
     _shared-footer(),
-    _body-footer(show-total-pages: show-total-pages),
     general.layout(
       pagebreak-heading: true,
       paper: "a4",
@@ -67,7 +61,7 @@
       ),
       numbering: "1.",
     ),
-    general.drafting(notes-listing: true),
+    feature.drafting(notes-listing: true),
     fbm.acknowledgements(generator-function: _acknowledgements, position: -80),
     fbm.abstracts(generator-function: _abstracts, position: -70),
     fbm.toc(generator-function: _toc, position: -60),
@@ -77,7 +71,15 @@
     fbm.figure-listings(generator-function: _listings, position: 40),
     shared.ieee-equations(),
     shared.inline-code(),
-    shared.academic(),
+    shared.table-conventions(),
+    shared.urls(),
+    shared.notes(),
+    feature.codly(
+      zebra-fill: none,
+      display-icon: false,
+      display-name: false,
+      number-align: right + top,
+    ),
     shared.watermark(),
   )
 }

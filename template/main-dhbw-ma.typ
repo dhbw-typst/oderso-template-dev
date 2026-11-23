@@ -1,9 +1,10 @@
 // LTeX: enabled=false
-#import "template/lib.typ": component, institution, project, theme
+#import "template/lib.typ": (
+  component, frontbackmatter, institution, project, theme,
+)
 #import "glossary.typ": abbreviations, glossary
 #import "appendix.typ": appendices
 #import institution: dhbw-ma
-#import dhbw-ma: frontbackmatter
 
 #show: project.with(
   theme.spotless(),
@@ -70,7 +71,7 @@
   ),
 
   // AI declaration form (optional – remove if not needed)
-  frontbackmatter.ai-declaration-form(
+  dhbw-ma.frontbackmatter.ai-declaration-form(
     module-name: "Projektmanagement",
     semester: "1",
     exam-type: "Projektarbeit I",
@@ -95,7 +96,7 @@
 
   // remove this call to remove acknowledgements
   // This patch moves the configured form without clearing its per-author data.
-  frontbackmatter.ai-declaration-form(position: 100),
+  dhbw-ma.frontbackmatter.ai-declaration-form(position: 100),
 
   frontbackmatter.acknowledgements(text: include "misc/acknowledgments.typ"),
 

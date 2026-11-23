@@ -101,10 +101,24 @@
 
 // Derive presentation from effective semantic metadata only when the cover is
 // rendered. Explicit submission-info/misc-key-value (including none/()) win.
-#let _cover-metadata(m) = {
+#let _cover-metadata(m, generator: none) = {
+  if generator != none {
+    let presentation = generator(m)
+    assert(
+      type(presentation) == dictionary,
+      message: "Cover presentation generator must return a dictionary",
+    )
+    for key in ("submission-info", "misc-key-value") {
+      if key not in m and key in presentation {
+        m.insert(key, presentation.at(key))
+      }
+    }
+  }
   let institution = m.at("institution", default: none)
   let submission = m.at("submission-info", default: none)
-  if "submission-info" not in m and institution != none {
+  if (
+    "submission-info" not in m and institution in ("ihk", "dhbw-ka", "dhbw-ma")
+  ) {
     submission = if institution == "ihk" {
       [#linguify-content("as-part-of-examination-ihk")
 
@@ -134,7 +148,9 @@
     rows == none or type(rows) == array,
     message: "Coversheet general.metadata.misc-key-value must be an array or none",
   )
-  if "misc-key-value" not in m and institution != none {
+  if (
+    "misc-key-value" not in m and institution in ("ihk", "dhbw-ka", "dhbw-ma")
+  ) {
     let fields = if institution == "ihk" { ("examinee-number",) } else {
       ("matriculation-number", "course")
     }

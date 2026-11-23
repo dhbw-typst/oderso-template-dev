@@ -1,6 +1,6 @@
 // The theme provides watermark styling and drafting note defaults.
 #import "../template/template/lib.typ": (
-  component, frontbackmatter, general, project, theme,
+  component, feature, frontbackmatter, general, project, theme,
 )
 #import "@preview/drafting:0.2.2": inline-note, margin-note
 
@@ -9,7 +9,7 @@
   component.coversheet(enable: false),
   frontbackmatter.toc(enable: false),
   general.metadata(title-short: "Drafting example"),
-  general.drafting(watermark: [DRAFT], notes-listing: true),
+  feature.drafting(watermark: [DRAFT], notes-listing: true),
   // Extra outside space keeps margin notes readable.
   component.page(margin: (left: 25mm, right: 40mm, y: 25mm)),
 )

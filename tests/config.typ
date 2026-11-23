@@ -176,7 +176,8 @@
 ))
 #assert.eq(
   _resolve(
-    theme.spotless(show-total-pages: true),
+    theme.spotless(),
+    component.body.footer(show-total-pages: true),
     component.body.footer(show-total-pages: false),
   )
     .resolved-sections
@@ -196,8 +197,8 @@
   frontbackmatter.bibliography,
   frontbackmatter.figure-listings,
   frontbackmatter.toc,
-  institution.dhbw-ka.frontbackmatter.statutory-declaration,
-  institution.dhbw-ka.frontbackmatter.confidentiality-clause,
+  frontbackmatter.statutory-declaration,
+  frontbackmatter.confidentiality-clause,
 ) {
   assert.eq(producer().front-back-matter.values().first(), (:))
   assert.eq(producer(enable: false).front-back-matter.values().first(), (

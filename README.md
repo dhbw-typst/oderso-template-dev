@@ -90,15 +90,22 @@ frontbackmatter:
 4. Customization
     Allows the user to override values of previous layers
 
+Each setting has one API home: drafting uses `feature.drafting`, reusable visual
+presets use `theme.shared`, and page totals use `component.body.footer` (or another
+footer scope). Common matter, including statutory declarations and confidentiality
+clauses, uses `frontbackmatter`; institution-local namespaces contain only distinct
+AI declarations/forms. See `docs/customization.typ` for the configuration contracts.
+
 ```typ
 #show: project.with(
     // Specify theme
-    theme.oderso(),
+    theme.spotless(),
     // Specify institution
-    institution.dhbw-ka(
+    institution.dhbw-ka.setup(
         authors: (
             (
-                name: "Marvin Fuchs",
+                firstname: "Marvin",
+                lastname: "Fuchs",
             ),
             ...
         )
@@ -110,15 +117,15 @@ frontbackmatter:
         ],
     ),
     // Institution specific front/backmatter
-    frontbackmatter.dhbw-ka.ai-declaration(
+    institution.dhbw-ka.frontbackmatter.ai-declaration(
         ...
     )
     // component specific configuration
     component.frontmatter.header(
         ...
     )
-    // configuration regarding the complete document (e.g. special features like book-mode or watermark, layout, typography)
-    general.book-mode(
+    // Optional capabilities use feature; general owns metadata, layout, typography.
+    feature.print(
         ...
     )
 )

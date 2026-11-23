@@ -16,7 +16,13 @@
 #let _coversheet() = {
   return component.coversheet(generator-function: config => {
     let authors = _require-authors(config.general.metadata, "Coversheet")
-    let presentation = _cover-metadata(config.general.metadata)
+    let presentation = _cover-metadata(
+      config.general.metadata,
+      generator: config.component.coversheet.at(
+        "presentation-generator",
+        default: none,
+      ),
+    )
     // Coversheet
     grid(
       rows: (1fr, auto, 1fr),
@@ -93,12 +99,13 @@
   return component.body.header(
     generator-function: (config, _) => context {
       anchor()
+      let verso = config.resolved-output.two-sided and calc.even(here().page())
+      let title = config.general.metadata.at("title-short", default: [])
+      let chapter = emph(hydra(1, display: (_, it) => it.body))
       grid(
         columns: (auto, 1fr),
-        align(left, config.general.metadata.at("title-short", default: [])),
-        align(right, emph(hydra(1, display: (_, it) => {
-          it.body
-        }))),
+        align(left, if verso { chapter } else { title }),
+        align(right, if verso { title } else { chapter }),
       )
       line(length: 100%, stroke: (paint: gray))
     },
@@ -115,7 +122,10 @@
     let format-number(n) = if type(fmt) == function { fmt(n, total) } else {
       numbering(fmt, n)
     }
-    align(center, {
+    let placement = if cfg.resolved-output.two-sided {
+      if calc.odd(here().page()) { right } else { left }
+    } else { center }
+    align(placement, {
       format-number(counter(page).get().first())
       if section.footer.at("show-total-pages", default: false) {
         text(" / ")
@@ -125,10 +135,5 @@
   }
 }
 
-// Shared theme numbering preserves the formerly implicit native page footer,
-// but now all footer hooks and explicit suppression apply consistently.
+// Shared theme numbering supports footer hooks and explicit suppression.
 #let _shared-footer() = component.footer(generator-function: _page-number)
-
-#let _body-footer(show-total-pages: false) = component.body.footer(
-  show-total-pages: show-total-pages,
-)

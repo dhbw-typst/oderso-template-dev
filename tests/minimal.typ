@@ -12,8 +12,8 @@
   ) { institution.ihk } else { institution.dhbw-ka }
   (
     institution.setup(authors: ()),
-    institution.frontbackmatter.statutory-declaration(enable: false),
-    institution.frontbackmatter.confidentiality-clause(enable: false),
+    frontbackmatter.statutory-declaration(enable: false),
+    frontbackmatter.confidentiality-clause(enable: false),
   )
 } else { () }
 #show: project.with(..layers)

@@ -1,7 +1,8 @@
 // A compilable example also included verbatim in the generated reference.
 #import "../template/template/lib.typ": *
 #show: project.with(
-  theme.spotless(show-total-pages: true),
+  theme.spotless(),
+  component.body.footer(show-total-pages: true),
   institution.dhbw-ka.setup(
     title-long: "Customizing a thesis",
     title-short: "Customization",
@@ -28,9 +29,9 @@
   institution.dhbw-ka.frontbackmatter.ai-declaration(position: -50),
   // Explicit disabling preserves configuration for a later re-enable.
   component.frontmatter.header(enable: false),
-  institution.dhbw-ka.frontbackmatter.confidentiality-clause(enable: false),
+  frontbackmatter.confidentiality-clause(enable: false),
   general.typography.body(size: 12pt, spacing: 1em),
-  // Override the theme convenience option without replacing its generator.
+  // Override an earlier footer patch without replacing the theme generator.
   component.body.footer(show-total-pages: false),
   component.show-rules(show-key: "custom", show-fun: it => {
     set text(fill: teal)

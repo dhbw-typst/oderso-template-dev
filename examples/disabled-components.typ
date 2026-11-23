@@ -1,6 +1,6 @@
 // Suppression should not leave empty cover, matter, or appendix pages behind.
 #import "../template/template/lib.typ": (
-  component, frontbackmatter, general, institution, project, theme,
+  component, feature, frontbackmatter, institution, project, theme,
 )
 
 #show: project.with(
@@ -11,14 +11,14 @@
   ),
   // No author metadata is required once author-dependent components are disabled.
   component.coversheet(enable: false),
-  institution.dhbw-ka.frontbackmatter.statutory-declaration(enable: false),
-  institution.dhbw-ka.frontbackmatter.confidentiality-clause(enable: false),
+  frontbackmatter.statutory-declaration(enable: false),
+  frontbackmatter.confidentiality-clause(enable: false),
   frontbackmatter.toc(enable: false),
   frontbackmatter.acknowledgements(text: [This text must not be rendered.]),
   frontbackmatter.acknowledgements(enable: false),
   component.body.header(enable: false),
   component.body.footer(generator-function: none),
-  general.drafting(watermark: [HIDDEN], watermark-generator: none),
+  feature.drafting(watermark: [HIDDEN], watermark-generator: none),
   component.appendix.entries(appendices: (
     (
       title: [Hidden appendix],

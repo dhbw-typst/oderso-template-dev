@@ -1,10 +1,8 @@
-#import "../template/lib.typ": (
-  styled-table, table-hline-spaced, tablefigure, tablefigure-raw,
-)
+#import "../template/lib.typ": util
 
 This appendix shows example tables. Sourced from #link("https://ieeexplore.ieee.org/document/7165621").
 
-#tablefigure(
+#util.tablefigure(
   caption: [Research Question],
   columns: 3,
   table-content: (
@@ -26,7 +24,7 @@ This appendix shows example tables. Sourced from #link("https://ieeexplore.ieee.
 
 #{
   // Put inside brackets to restrict show rules to this specific context
-  tablefigure(
+  util.tablefigure(
     caption: [Data Function Complexity],
     columns: 5,
     align: (x, y) => {
@@ -42,7 +40,7 @@ This appendix shows example tables. Sourced from #link("https://ieeexplore.ieee.
         colspan: 3,
         "DET",
       )),
-      ..table-hline-spaced(.2em, 5, start: 2),
+      ..util.table-hline-spaced(.2em, 5, start: 2),
       table.header(table.cell(colspan: 2, {}), [1-19], [20-50], [>50]),
       table.cell(align: left)[Record],
       [1],
@@ -63,13 +61,13 @@ This appendix shows example tables. Sourced from #link("https://ieeexplore.ieee.
   )
 }
 
-#tablefigure-raw(caption: "Custom Table", table(
+#util.tablefigure-raw(caption: "Custom Table", table(
   columns: 2,
   [A], [custom],
   [table], [style],
 ))
 
-#styled-table(
+#util.styled-table(
   columns: 2,
   table-content: (
     table.header([A], [fixed]),

@@ -2,6 +2,9 @@
 #import "util.typ": get-config, merge-config
 #import "validation.typ" as validation
 #import "../component/_shared.typ": _normalize-margin
+#import "../feature/codly.typ": _codly-rule
+#import "../feature/drafting.typ": _notes
+#import "../feature/print.typ": _output-policy, _print-margin
 
 #let _enabled(value) = (
   value.at("enable", default: true)
@@ -73,6 +76,15 @@
   _validate-component(spec.header, name + ".header")
   _validate-component(spec.footer, name + ".footer")
   spec.page = merge-config((numbering: none), spec.page)
+  // Preserve underlying configuration; print transforms only this derived view.
+  spec.insert("base-page", spec.page)
+  if cfg.resolved-output.print {
+    let margin = spec.page.at("margin", default: (rest: 2.5cm))
+    spec.page.insert("margin", _print-margin(
+      _normalize-margin(margin),
+      cfg.resolved-output,
+    ))
+  }
   validation.validate-numbering(spec.page.numbering)
   let top = if _enabled(spec.header) {
     spec.header.at("height", default: 0pt)
@@ -97,9 +109,10 @@
 
 #let _resolve(..layers) = {
   let cfg = (
-    general: (metadata: (:), typography: (:), layout: (:), drafting: (:)),
+    general: (metadata: (:), typography: (:), layout: (:)),
     component: (appendix: (entries: ())),
     front-back-matter: (:),
+    feature: (:),
   )
   for layer in layers.pos() {
     assert(
@@ -108,18 +121,72 @@
     )
     cfg = merge-config(cfg, layer)
   }
-  for key in ("general", "component", "front-back-matter") {
+  for key in ("general", "component", "front-back-matter", "feature") {
     assert(
       type(cfg.at(key)) == dictionary,
       message: key + " must be a dictionary",
     )
   }
-  for key in ("metadata", "typography", "layout", "drafting") {
+  for key in ("metadata", "typography", "layout") {
     assert(
       type(cfg.general.at(key)) == dictionary,
       message: "general." + key + " must be a dictionary",
     )
   }
+  for (name, settings) in cfg.feature {
+    assert(
+      type(settings) == dictionary,
+      message: "Feature " + name + " must be a dictionary",
+    )
+    validation.validate-enable(settings.at("enable", default: true))
+  }
+  let code = cfg.feature.at("codly", default: (:))
+  assert(
+    type(code.at("options", default: (:))) == dictionary,
+    message: "Codly options must be a dictionary",
+  )
+  if "codly" in cfg.feature and code.at("enable", default: true) {
+    let defaults = (
+      "feature-codly": (
+        order: -2000,
+        function: _codly-rule(
+          code + (options: code.at("options", default: (:))),
+        ),
+      ),
+    )
+    cfg.component.insert("show-rules", merge-config(defaults, cfg.component.at(
+      "show-rules",
+      default: (:),
+    )))
+  }
+  let drafting = cfg.feature.at("drafting", default: (:))
+  let notes-position = drafting.at("notes-position", default: none)
+  assert(
+    notes-position == none or type(notes-position) == int,
+    message: "`notes-position` must be an integer or none",
+  )
+  if (
+    drafting.at("enable", default: true)
+      and drafting.at("notes-listing", default: false)
+      and notes-position != none
+  ) {
+    let defaults = (enable: true, position: notes-position, generator: _notes)
+    cfg.front-back-matter.insert("drafting-notes", merge-config(
+      defaults,
+      cfg.front-back-matter.at("drafting-notes", default: (:)),
+    ))
+  }
+  let printing = cfg.feature.at("print", default: (:))
+  validation.validate-enable(printing.at("two-sided", default: true))
+  validation.validate-relative(
+    printing.at("binding-space", default: 0pt),
+    "binding-space",
+  )
+  assert(
+    printing.at("recto-chapters", default: auto) in (auto, true, false),
+    message: "`recto-chapters` must be auto or boolean",
+  )
+  cfg.insert("resolved-output", _output-policy(cfg))
   let layout = cfg.general.layout
   if "pagebreak-heading" in layout {
     assert(
@@ -133,11 +200,11 @@
   if "paper" in layout {
     assert(type(layout.paper) == str, message: "`paper` must be a string")
   }
-  validation.validate-generator(cfg.general.drafting.at(
+  validation.validate-generator(drafting.at(
     "watermark-generator",
     default: none,
   ))
-  validation.validate-enable(cfg.general.drafting.at(
+  validation.validate-enable(drafting.at(
     "notes-listing",
     default: false,
   ))
@@ -149,6 +216,11 @@
     cfg.component.at("coversheet", default: (:)),
     "coversheet",
   )
+  validation.validate-generator(get-config(
+    "component.coversheet.presentation-generator",
+    none,
+    cfg,
+  ))
   for (name, entry) in cfg.front-back-matter {
     _validate-component(entry, "Matter entry " + name)
     if "position" in entry { validation.validate-position(entry.position) }

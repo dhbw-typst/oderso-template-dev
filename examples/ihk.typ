@@ -1,5 +1,7 @@
 // IHK: occupation and examinee metadata, plus printed-submission signatures.
-#import "../template/template/lib.typ": institution, project, theme
+#import "../template/template/lib.typ": (
+  frontbackmatter, institution, project, theme,
+)
 #import institution: ihk
 
 #show: project.with(
@@ -25,7 +27,7 @@
       ),
     ),
   ),
-  ihk.frontbackmatter.statutory-declaration(
+  frontbackmatter.statutory-declaration(
     digital-submission: false,
     digital-only: false,
   ),

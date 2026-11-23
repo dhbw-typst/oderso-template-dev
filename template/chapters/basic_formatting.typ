@@ -1,8 +1,8 @@
-#import "../template/lib.typ": tablefigure
+#import "../template/lib.typ": util
 
 = Basic Formatting
 
-#let typst-preview(caption, typst-code) = tablefigure(
+#let typst-preview(caption, typst-code) = util.tablefigure(
   caption: caption,
   columns: 2,
   align: (_, row) => if row == 0 { center } else { horizon + left },

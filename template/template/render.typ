@@ -34,7 +34,9 @@
       component.generator
     )(local-cfg, total))
   }
-  pagebreak(weak: true)
+  pagebreak(weak: true, to: if cfg.resolved-output.two-sided
+    and name in ("body", "appendix")
+    and cfg.resolved-output.pagebreak-heading == "odd" { "odd" } else { none })
   counter(page).update(1)
   set page(
     numbering: spec.page.numbering,
@@ -76,8 +78,13 @@
   let rendered = ()
   let local-cfg = cfg + (resolved-section: cfg.resolved-sections.at(name))
   for (_, pair) in entries {
-    let content = (pair.at(1).generator)(local-cfg)
-    if content != none and content != [] { rendered.push(content) }
+    let entry = pair.at(1)
+    let content = (entry.generator)(local-cfg)
+    if content != none and content != [] {
+      rendered.push(
+        _compose-show-rules(entry.at("show-rules", default: (:)))(content),
+      )
+    }
   }
   rendered
 }

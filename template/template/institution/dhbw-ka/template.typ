@@ -7,12 +7,8 @@
 #import "../../config/lib.typ" as config
 #let merge-config = config.util.merge-config
 #let merge-configs = config.util.merge-configs
-#import "frontbackmatter.typ": (
-  ai-declaration, confidentiality-clause, statutory-declaration,
-)
-#let configure-statutory-declaration = statutory-declaration
-#let configure-confidentiality-clause = confidentiality-clause
-#let configure-dhbw-ka-ai-acknowledgement = ai-declaration
+#import "../../frontbackmatter/lib.typ" as fbm
+#import "frontbackmatter.typ": ai-declaration
 #import "../../util.typ": styled-table
 #let linguify-content = config.util.linguify-content
 #import "../../general/lib.typ" as general
@@ -23,18 +19,18 @@
 #let _dhbw-ka-defaults() = {
   merge-configs(
     (:),
-    configure-statutory-declaration(
+    fbm.statutory-declaration(
       enable: true,
       position: 80,
       digital-submission: true,
       digital-only: true,
       signature-city: "Karlsruhe",
     ),
-    configure-confidentiality-clause(
+    fbm.confidentiality-clause(
       enable: true,
       position: 90,
     ),
-    configure-dhbw-ka-ai-acknowledgement(position: 100, entries: ()),
+    ai-declaration(position: 100, entries: ()),
   )
 }
 
@@ -44,7 +40,7 @@
 /// Metadata, section defaults, and institution-specific generators are
 /// configured here.
 ///
-/// Positional `configure-*` / `frontbackmatter.*` overrides may be appended
+/// Positional `frontbackmatter.*` overrides may be appended
 /// after this call in `#show: project.with(...)` to further customise the document.
 /// -> dictionary
 #let setup(
@@ -238,13 +234,13 @@
 
   cfg = merge-configs(
     cfg,
-    configure-statutory-declaration(
+    fbm.statutory-declaration(
       generator-function: statutory-declaration-generator,
     ),
-    configure-confidentiality-clause(
+    fbm.confidentiality-clause(
       generator-function: confidentiality-clause-generator,
     ),
-    configure-dhbw-ka-ai-acknowledgement(
+    ai-declaration(
       generator-function: ai-acknowledgement-generator,
     ),
   )

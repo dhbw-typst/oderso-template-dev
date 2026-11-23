@@ -1,19 +1,8 @@
 // LTeX: enabled=false
 // DHBW Karlsruhe-specific frontbackmatter configuration functions.
-// Accessible as frontbackmatter.dhbw-ka.* from lib.typ.
-
-#import "../../frontbackmatter/lib.typ": *
-
-#import "../../frontbackmatter/_shared.typ": (
-  configure-confidentiality-clause, configure-statutory-declaration,
-)
+// Accessible as institution.dhbw-ka.frontbackmatter.* from lib.typ.
 #import "../../config/lib.typ" as config
-
-/// Configure the statutory declaration section for DHBW Karlsruhe. -> dictionary
-#let statutory-declaration = configure-statutory-declaration
-
-/// Configure the confidentiality clause section for DHBW Karlsruhe. -> dictionary
-#let confidentiality-clause = configure-confidentiality-clause
+#import "../../frontbackmatter/_rules.typ": _local-rules
 
 /// Configure the AI acknowledgement section for DHBW Karlsruhe theses.
 /// The section is rendered only when `entries` is non-empty. -> dictionary
@@ -27,6 +16,8 @@
   entries: config.util.default-value,
   /// A function receiving a single positional argument `config` holding the configuration dictionary and returning the AI acknowledgement section `content` (or `none` to skip). -> function
   generator-function: config.util.default-value,
+  /// Named local hooks: show-key, show-order, show-fun, show-enable. -> arguments
+  ..rules,
 ) = {
   config.validation.validate-enable(enable)
   config.validation.validate-position(position)
@@ -62,7 +53,8 @@
         entries: entries,
         position: position,
         generator: generator-function,
-      )),
+      ))
+        + _local-rules(..rules),
     ),
   )
 }

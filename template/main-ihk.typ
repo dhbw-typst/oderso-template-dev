@@ -1,10 +1,11 @@
 // LTeX: enabled=false
-#import "template/lib.typ": component, institution, project, theme
+#import "template/lib.typ": (
+  component, frontbackmatter, institution, project, theme,
+)
 #import "glossary.typ": abbreviations, glossary
 #import "appendix.typ": appendices
 
 #import institution: ihk
-#import ihk: frontbackmatter
 
 #show: project.with(
   theme.spotless(),

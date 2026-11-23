@@ -8,7 +8,8 @@
   }
 } else { "i" }
 #show: project.with(
-  theme.spotless(show-total-pages: not total),
+  theme.spotless(),
+  component.body.footer(show-total-pages: not total),
   component.coversheet(enable: false),
   component.body.header(enable: false),
   frontbackmatter.toc(enable: false),

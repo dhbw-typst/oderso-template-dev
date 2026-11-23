@@ -1,7 +1,8 @@
 // LTeX: enabled=false
 #import "@preview/glossarium:0.5.10": make-glossary, register-glossary
-#import "@preview/codly:1.3.0": codly-init
-#import "@preview/drafting:0.2.2": note-outline
+#import "feature/drafting.typ": _notes
+#import "feature/print.typ": _print-margin
+#import "component/_shared.typ": _normalize-margin
 #import "@preview/linguify:0.5.0": load-ftl-data, set-database
 #import "config/lib.typ" as config
 #import "config/resolve.typ": _enabled, _resolve
@@ -50,18 +51,21 @@
   show: set page(paper: layout.paper) if "paper" in layout
   show: set par(justify: layout.justify) if "justify" in layout
   show: set quote(block: layout.block-quotes) if "block-quotes" in layout
-  let watermark = cfg.general.drafting.at("watermark-generator", default: none)
-  set page(background: if watermark != none { watermark(cfg) })
+  let drafting = cfg.feature.at("drafting", default: (:))
+  let watermark = drafting.at("watermark-generator", default: none)
+  show: set page(background: watermark(cfg)) if (
+    watermark != none and drafting.at("enable", default: true)
+  )
 
   show heading: set text(font: t-heading.font) if "font" in t-heading
   show: set heading(numbering: t-heading.numbering) if "numbering" in t-heading
   let sizes = t-heading.at("sizes", default: ())
-  show heading.where(level: 1): set text(size: sizes.at(0)) if sizes.len() > 0
-  show heading.where(level: 2): set text(size: sizes.at(1)) if sizes.len() > 1
-  show heading.where(level: 3): set text(size: sizes.at(2)) if sizes.len() > 2
-  show heading.where(level: 4): set text(size: sizes.at(3)) if sizes.len() > 3
-  show heading.where(level: 5): set text(size: sizes.at(4)) if sizes.len() > 4
-  show heading.where(level: 6): set text(size: sizes.at(5)) if sizes.len() > 5
+  show heading: it => {
+    if it.level <= sizes.len() {
+      set text(size: sizes.at(it.level - 1))
+      it
+    } else { it }
+  }
   show raw: set text(font: t-code.font) if "font" in t-code
   show raw: set text(size: t-code.size) if "size" in t-code
   show figure.caption: set text(font: t-caption.font) if "font" in t-caption
@@ -69,8 +73,7 @@
   show math.equation: set text(font: t-math.font) if "font" in t-math
   show math.equation: set text(size: t-math.size) if "size" in t-math
 
-  // Package integration stays structural; appearance belongs to presets.
-  show: codly-init.with()
+  // Optional package adapters contribute keyed rules from final configuration.
   show figure.where(kind: raw): set block(breakable: true)
   show outline: it => {
     _in-outline.update(true)
@@ -81,23 +84,35 @@
   for name in ("abbreviations", "glossary") {
     let entry = cfg.front-back-matter.at(name, default: (:))
     let entries = entry.at("entries", default: ())
-    if entry.at("enable", default: true) and entries.len() > 0 {
+    // Visibility does not discard supplied term definitions. Without a printed
+    // target use dependency.glossarium.gls(link: false), or a native @ ref rule.
+    if entries.len() > 0 {
       register-glossary(entries)
     }
   }
   show: _compose-show-rules(cfg.component.at("show-rules", default: (:)))
 
   context if (
-    cfg.general.drafting.at("notes-listing", default: false)
+    drafting.at("enable", default: true)
+      and drafting.at("notes-listing", default: false)
+      and drafting.at("notes-position", default: none) == none
       and query(selector(<margin-note>).or(<inline-note>)).len() > 0
   ) {
-    set heading(numbering: none, outlined: false)
-    note-outline(title: config.util.linguify-content("list-of-notes"))
+    _notes(cfg)
     pagebreak()
   }
 
   let cover = cfg.component.at("coversheet", default: (:))
   if _enabled(cover) {
+    // Shared section layout intentionally excludes the cover in screen output.
+    // Print derives a weak cover margin from the underlying shared layout;
+    // cover-local native page rules still have the final say.
+    show: set page(margin: _print-margin(
+      _normalize-margin(
+        config.util.get-config("component.page.margin", 2.5cm, cfg),
+      ),
+      cfg.resolved-output,
+    )) if cfg.resolved-output.print
     // Cover hooks do not leak into subsequent sections.
     show: _compose-show-rules(cover.at("show-rules", default: (:)))
     (cover.generator)(cfg)
@@ -115,7 +130,7 @@
   }
   _render-section(cfg, "body", <_body-end>, local-cfg => {
     show heading.where(level: 1): it => {
-      let breaking = cfg.general.layout.at("pagebreak-heading", default: false)
+      let breaking = cfg.resolved-output.pagebreak-heading
       if breaking == true { pagebreak(weak: true) } else if (
         breaking in ("even", "odd")
       ) { pagebreak(weak: true, to: breaking) }
@@ -151,7 +166,10 @@
       pagebreak(weak: true)
       [#metadata("appendix-start") <_appendix-start>]
       for appendix in appendices {
-        pagebreak(weak: true)
+        pagebreak(weak: true, to: if cfg.resolved-output.two-sided
+          and cfg.resolved-output.pagebreak-heading == "odd" { "odd" } else {
+          none
+        })
         if appendix.at("reference", default: none) == none {
           heading(appendix.title)
         } else { [#heading(appendix.title)#label(appendix.reference)] }

@@ -1,8 +1,9 @@
 #import "../config/lib.typ" as config
-// Shared front-backmatter for mutliple institutions. Re-exported from institution front-backmatter module
+#import "_rules.typ": _local-rules
+// Common matter settings; institutions supply defaults and compliant generators.
 
 /// Configure the statutory declaration section (shared across all adapters). -> dictionary
-#let configure-statutory-declaration(
+#let statutory-declaration(
   /// Whether the statutory declaration section is rendered. -> bool
   enable: config.util.default-value,
   /// Where and when the statutory declaration should be displayed. Negative = frontmatter, zero or positive = backmatter. The value determines render order within its section. -> int
@@ -18,6 +19,8 @@
   signature-city: config.util.default-value,
   /// A function receiving a single positional argument `config` holding the configuration dictionary and returning the statutory declaration section `content` (or `none` to skip). -> function
   generator-function: config.util.default-value,
+  /// Named local hooks: show-key, show-order, show-fun, show-enable. -> arguments
+  ..rules,
 ) = {
   config.validation.validate-enable(enable)
   config.validation.validate-position(position)
@@ -53,19 +56,22 @@
         signature-city: signature-city,
         position: position,
         generator: generator-function,
-      )),
+      ))
+        + _local-rules(..rules),
     ),
   )
 }
 
 /// Configure the confidentiality clause section (shared across all adapters). -> dictionary
-#let configure-confidentiality-clause(
+#let confidentiality-clause(
   /// Whether the confidentiality clause section is rendered. -> bool
   enable: config.util.default-value,
   /// Where and when the confidentiality clause should be displayed. Negative = frontmatter, zero or positive = backmatter. The value determines render order within its section. -> int
   position: config.util.default-value,
   /// A function receiving a single positional argument `config` holding the configuration dictionary and returning the confidentiality clause section `content` (or `none` to skip). -> function
   generator-function: config.util.default-value,
+  /// Named local hooks: show-key, show-order, show-fun, show-enable. -> arguments
+  ..rules,
 ) = {
   config.validation.validate-enable(enable)
   config.validation.validate-position(position)
@@ -76,7 +82,8 @@
         enable: enable,
         position: position,
         generator: generator-function,
-      )),
+      ))
+        + _local-rules(..rules),
     ),
   )
 }

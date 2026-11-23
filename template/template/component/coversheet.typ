@@ -7,6 +7,10 @@
   enable: config.util.default-value,
   /// A function receiving a single position argument `config` holding the configuration dictionary and returing the conversheet `content`. Pass `none` to suppress the coversheet. -> function | none
   generator-function: config.util.default-value,
+  /// Optional (final-metadata) -> dictionary supplying submission-info and
+  /// misc-key-value defaults. Explicit metadata presentation fields still win.
+  /// Theme geometry remains independent of institution semantics. -> function | none
+  presentation-generator: config.util.default-value,
   /// Unique key for a local show rule to add or patch. -> str
   show-key: config.util.default-value,
   /// Execution order for this show rule (lower = earlier). Optional. -> int
@@ -18,6 +22,7 @@
 ) = {
   config.validation.validate-enable(enable)
   config.validation.validate-generator(generator-function)
+  config.validation.validate-generator(presentation-generator)
   config.validation.validate-show(show-fun)
 
   let show-rules-entry = _build-show-rules-entry(
@@ -32,6 +37,7 @@
       coversheet: config.util.get-dict-without-default((
         enable: enable,
         generator: generator-function,
+        presentation-generator: presentation-generator,
       ))
         + if show-rules-entry.len() > 0 {
           (show-rules: show-rules-entry)

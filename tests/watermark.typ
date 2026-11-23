@@ -4,11 +4,15 @@
   theme.spotless(),
   component.coversheet(enable: false),
   frontbackmatter.toc(enable: false),
-  general.drafting(watermark: [DefaultWatermark]),
+  feature.drafting(watermark: [DefaultWatermark]),
   if mode == "replacement" {
-    general.drafting(watermark-generator: cfg => [ReplacementWatermark])
+    feature.drafting(watermark-generator: cfg => {
+      assert.eq(cfg.feature.drafting.watermark, [DefaultWatermark])
+      assert("drafting" not in cfg.general)
+      [ReplacementWatermark]
+    })
   } else if mode == "none" {
-    general.drafting(watermark-generator: none)
+    feature.drafting(watermark-generator: none)
   } else { (:) },
   component.show-rules(show-key: "capture", show-fun: it => {
     show text: node => [#metadata(node.text)<rendered-text>#node]

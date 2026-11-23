@@ -1,7 +1,51 @@
 #import "../config/lib.typ" as config
+#import "_rules.typ": _local-rules
+
+/// Configure arbitrary keyed matter through the shared renderer. Negative
+/// positions render before the body; ties retain insertion order. Generators
+/// receive final configuration and cfg.resolved-section. -> dictionary
+#let entry(
+  /// Stable entry identifier. -> str
+  key,
+  /// Listing visibility; false retains the generator and settings. -> bool
+  enable: config.util.default-value,
+  /// Signed render position. -> int
+  position: config.util.default-value,
+  /// Generator (cfg) returning content, none, or empty content. -> function | none
+  generator-function: config.util.default-value,
+  /// Key of a local rule to add or patch. -> str
+  show-key: config.util.default-value,
+  /// Ascending callback order. -> int | float
+  show-order: config.util.default-value,
+  /// Local wrapper; none clears its callback. -> function | none
+  show-fun: config.util.default-value,
+  /// Disable/re-enable the keyed rule without discarding it. -> bool
+  show-enable: config.util.default-value,
+) = {
+  assert(type(key) == str, message: "Matter key must be a string")
+  config.validation.validate-enable(enable)
+  config.validation.validate-position(position)
+  config.validation.validate-generator(generator-function)
+  (
+    front-back-matter: (
+      (key): config.util.get-dict-without-default((
+        enable: enable,
+        position: position,
+        generator: generator-function,
+      ))
+        + _local-rules(
+          show-key: show-key,
+          show-order: show-order,
+          show-fun: show-fun,
+          show-enable: show-enable,
+        ),
+    ),
+  )
+}
 /// Configure abbreviations. Using #link("https://typst.app/universe/package/glossarium/")[glossarium] as underlying library. -> dicitionary
 #let abbreviations(
-  /// Render this entry; omission inherits, false disables it. -> bool
+  /// Listing visibility only; definitions remain registered. Hidden references
+  /// need dependency.glossarium.gls(link: false) or an unlinked @ rule. -> bool
   enable: config.util.default-value,
   /// The abbreviation entries. See #link("https://typst.app/universe/package/glossarium/")[glossarium] for more information on entry format. -> array
   abbreviations: config.util.default-value,
@@ -11,6 +55,8 @@
   position: config.util.default-value,
   /// A function receiving a single positional argument `config` holding the configuration dictionary and returning the abbreviations section `content` (or `none` to skip). -> function
   generator-function: config.util.default-value,
+  /// Named local hooks: show-key, show-order, show-fun, show-enable. -> arguments
+  ..rules,
 ) = {
   assert(
     abbreviations == config.util.default-value or type(abbreviations) == array,
@@ -30,14 +76,16 @@
         print-options: print-options,
         position: position,
         generator: generator-function,
-      )),
+      ))
+        + _local-rules(..rules),
     ),
   )
 }
 
 /// Configure glossary. Using #link("https://typst.app/universe/package/glossarium/")[glossarium] as underlying library. -> dicitionary
 #let glossary(
-  /// Render this entry; omission inherits, false disables it. -> bool
+  /// Listing visibility only; definitions remain registered. Hidden references
+  /// need dependency.glossarium.gls(link: false) or an unlinked @ rule. -> bool
   enable: config.util.default-value,
   /// The glossary entries. See #link("https://typst.app/universe/package/glossarium/")[glossarium] for more information on entry format. -> array
   glossary: config.util.default-value,
@@ -47,6 +95,8 @@
   position: config.util.default-value,
   /// A function receiving a single positional argument `config` holding the configuration dictionary and returning the glossary section `content` (or `none` to skip). -> function
   generator-function: config.util.default-value,
+  /// Named local hooks: show-key, show-order, show-fun, show-enable. -> arguments
+  ..rules,
 ) = {
   assert(
     glossary == config.util.default-value or type(glossary) == array,
@@ -66,7 +116,8 @@
         print-options: print-options,
         position: position,
         generator: generator-function,
-      )),
+      ))
+        + _local-rules(..rules),
     ),
   )
 }
@@ -81,6 +132,8 @@
   position: config.util.default-value,
   /// A function receiving a single positional argument `config` holding the configuration dictionary and returning the acknowledgements section `content` (or `none` to skip). -> function
   generator-function: config.util.default-value,
+  /// Named local hooks: show-key, show-order, show-fun, show-enable. -> arguments
+  ..rules,
 ) = {
   config.validation.validate-position(position)
   config.validation.validate-enable(enable)
@@ -92,7 +145,8 @@
         text: text,
         position: position,
         generator: generator-function,
-      )),
+      ))
+        + _local-rules(..rules),
     ),
   )
 }
@@ -107,6 +161,8 @@
   position: config.util.default-value,
   /// A function receiving a single positional argument `config` holding the configuration dictionary and returning the abstracts section `content` (or `none` to skip). -> function
   generator-function: config.util.default-value,
+  /// Named local hooks: show-key, show-order, show-fun, show-enable. -> arguments
+  ..rules,
 ) = {
   if abstracts != config.util.default-value {
     assert(
@@ -165,7 +221,8 @@
         entries: abstracts,
         position: position,
         generator: generator-function,
-      )),
+      ))
+        + _local-rules(..rules),
     ),
   )
 }
@@ -180,6 +237,8 @@
   position: config.util.default-value,
   /// A function receiving a single positional argument `config` holding the configuration dictionary and returning the bibliography section `content` (or `none` to skip). -> function
   generator-function: config.util.default-value,
+  /// Named local hooks: show-key, show-order, show-fun, show-enable. -> arguments
+  ..rules,
 ) = {
   config.validation.validate-position(position)
   config.validation.validate-enable(enable)
@@ -191,7 +250,8 @@
         library: library,
         position: position,
         generator: generator-function,
-      )),
+      ))
+        + _local-rules(..rules),
     ),
   )
 }
@@ -210,6 +270,8 @@
   position: config.util.default-value,
   /// A function receiving a single positional argument `config` holding the configuration dictionary and returning the listings section `content` (or `none` to skip). -> function
   generator-function: config.util.default-value,
+  /// Named local hooks: show-key, show-order, show-fun, show-enable. -> arguments
+  ..rules,
 ) = {
   assert(
     figure-listing == config.util.default-value or type(figure-listing) == bool,
@@ -244,7 +306,8 @@
         code-listing: code-listing,
         position: position,
         generator: generator-function,
-      )),
+      ))
+        + _local-rules(..rules),
     ),
   )
 }
@@ -257,6 +320,8 @@
   position: config.util.default-value,
   /// A function receiving a single positional argument `config` holding the configuration dictionary and returning the table of contents section `content` (or `none` to skip). -> function
   generator-function: config.util.default-value,
+  /// Named local hooks: show-key, show-order, show-fun, show-enable. -> arguments
+  ..rules,
 ) = {
   config.validation.validate-position(position)
   config.validation.validate-enable(enable)
@@ -267,7 +332,8 @@
         enable: enable,
         position: position,
         generator: generator-function,
-      )),
+      ))
+        + _local-rules(..rules),
     ),
   )
 }

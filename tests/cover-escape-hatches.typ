@@ -4,11 +4,8 @@
   institution.dhbw-ka.setup(authors: (
     (firstname: "Name", lastname: "Surname"),
   )),
-  institution.dhbw-ka.frontbackmatter.statutory-declaration(enable: false),
-  institution
-    .dhbw-ka
-    .frontbackmatter
-    .confidentiality-clause(generator-function: none),
+  frontbackmatter.statutory-declaration(enable: false),
+  frontbackmatter.confidentiality-clause(generator-function: none),
   general.metadata(
     submission-info: [#context assert.eq(text.fill, green) CustomSubmission],
     misc-key-value: ([Key], [CustomValue]),

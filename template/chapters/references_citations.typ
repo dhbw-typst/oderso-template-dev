@@ -24,7 +24,7 @@ Add a `<label>` after a figure to reference it using `@label`.
 
 @reference-figure shows the company logo again.
 
-When using `tablefigure` and `tablefigure-raw` to create a table figure, you can use the `reference` property to reference the created table just like above.
+When using `util.tablefigure` and `util.tablefigure-raw` to create a table figure, you can use the `reference` property to reference the created table just like above.
 
 == Bibliography
 Typst supports references to external sources, such as books, articles, and websites. You can include a `.yaml` or `.bib` file with your references and use the `cite()` function to reference them in your document. Again, you can use the same syntax sugar `@<ref>` to cite.
